@@ -65,6 +65,12 @@ Evaluate the resume objectively for the role/domain: "${input.targetDomain || 'F
 Respond strictly with valid JSON conforming to this schema:
 {
   "score": number (0-100),
+  "scoreBreakdown": {
+    "keywordScore": number (0-30),
+    "impactScore": number (0-30),
+    "formattingScore": number (0-20),
+    "skillsScore": number (0-20)
+  },
   "atsStrengths": string[],
   "atsWeaknesses": string[],
   "missingKeywords": string[],

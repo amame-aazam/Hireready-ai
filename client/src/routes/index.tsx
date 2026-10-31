@@ -4,6 +4,7 @@ import { CodeEditor } from '../components/ui/CodeEditor';
 import { LoginPage } from '../features/auth/pages/LoginPage';
 import { RegisterPage } from '../features/auth/pages/RegisterPage';
 import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
+import { ResumePage } from '../features/resume/pages/ResumePage';
 import {
   FileText,
   Terminal,
@@ -141,7 +142,14 @@ export const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="/resume" element={<PlaceholderPage title="AI ATS Resume Analyzer" category="Profile & Screening" />} />
+      <Route
+        path="/resume"
+        element={
+          <ProtectedRoute>
+            <ResumePage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/oa" element={<PlaceholderPage title="Online Assessment (MCQ + Code)" category="Round 1 Screening" />} />
       <Route path="/interview/dsa" element={<PlaceholderPage title="AI DSA Technical Interview" category="Round 2 Interview" />} />
       <Route path="/interview/hr" element={<PlaceholderPage title="AI HR Behavioral Interview" category="Round 3 Interview" />} />

@@ -5,6 +5,12 @@ export interface ResumeAnalysisInput {
 
 export interface ResumeAnalysisOutput {
   score: number;
+  scoreBreakdown: {
+    keywordScore: number; // 0 - 30
+    impactScore: number; // 0 - 30
+    formattingScore: number; // 0 - 20
+    skillsScore: number; // 0 - 20
+  };
   atsStrengths: string[];
   atsWeaknesses: string[];
   missingKeywords: string[];

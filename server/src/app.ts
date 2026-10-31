@@ -11,6 +11,7 @@ import { judge0QuotaTracker } from './providers/judge0';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './modules/auth/auth.routes';
 import domainRoutes from './modules/domain/domain.routes';
+import resumeRoutes from './modules/resume/resume.routes';
 
 const app: Application = express();
 
@@ -40,6 +41,7 @@ if (env.NODE_ENV !== 'test') {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/domains', domainRoutes);
+app.use('/api/resume', resumeRoutes);
 
 // Basic Health Check (fast ping for frontend cold-start detection)
 app.get('/health', (_req: Request, res: Response) => {
