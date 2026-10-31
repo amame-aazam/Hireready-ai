@@ -1,0 +1,31 @@
+{
+  "name": "hireready-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Interview Preparation Platform",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "npm run dev:server",
+    "dev:all": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "npm --prefix server run build",
+    "build:client": "npm --prefix client run build",
+    "start:server": "npm --prefix server run start",
+    "lint": "npm --prefix server run lint && npm --prefix client run lint"
+  },
+  "keywords": [
+    "interview-prep",
+    "ai",
+    "deepseek",
+    "react",
+    "express",
+    "prisma"
+  ],
+  "author": "",
+  "license": "ISC"
+}

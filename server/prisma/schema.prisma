@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum ApplicationStatus {
+  DRAFT
+  APPLIED
+  OA_PENDING
+  OA_PASSED
+  OA_FAILED
+  INTERVIEW_PENDING
+  COMPLETED
+  REJECTED
+}
+
+enum InterviewType {
+  DSA
+  HR
+}
+
+enum SessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  role           Role            @default(STUDENT)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  studentProfile StudentProfile?
+  refreshTokens  RefreshToken[]
+  applications   Application[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model StudentProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  domainId        String?
+  headline        String?
+  githubUrl       String?
+  linkedinUrl     String?
+  preferredTech   String[]
+  yearsExperience Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain          Domain?  @relation(fields: [domainId], references: [id], onDelete: SetNull)
+
+  @@index([domainId])
+  @@map("student_profiles")
+}
+
+model Domain {
+  id              String           @id @default(uuid())
+  slug            String           @unique
+  title           String
+  description     String
+  icon            String?
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  studentProfiles StudentProfile[]
+  applications    Application[]
+
+  @@index([isActive])
+  @@map("domains")
+}
+
+model RefreshToken {
+  id              String   @id @default(uuid())
+  tokenHash       String   @unique
+  userId          String
+  expiresAt       DateTime
+  revoked         Boolean  @default(false)
+  replacedByToken String?
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revoked])
+  @@map("refresh_tokens")
+}
+
+model Application {
+  id               String            @id @default(uuid())
+  userId           String
+  domainId         String?
+  targetDomain     String
+  status           ApplicationStatus @default(DRAFT)
+  // UUID referencing MongoDB resume_analyses document (unstructured)
+  resumeAnalysisId String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain             Domain?             @relation(fields: [domainId], references: [id], onDelete: SetNull)
+  assessmentAttempts AssessmentAttempt[]
+  interviewSessions  InterviewSession[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([domainId])
+  @@map("applications")
+}
+
+model AssessmentAttempt {
+  id            String      @id @default(uuid())
+  applicationId String
+  score         Float?
+  passed        Boolean     @default(false)
+  breakdown     Json?       // MCQ and Coding scores breakdown
+  startedAt     DateTime    @default(now())
+  completedAt   DateTime?
+
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, startedAt(sort: Desc)])
+  @@map("assessment_attempts")
+}
+
+model InterviewSession {
+  id            String        @id @default(uuid())
+  applicationId String
+  type          InterviewType
+  status        SessionStatus @default(SCHEDULED)
+  overallScore  Float?
+  // UUID referencing MongoDB interview_transcripts document
+  transcriptId  String?
+  // UUID referencing MongoDB ai_evaluation_reports document
+  evaluationId  String?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime      @default(now())
+
+  application   Application   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, status])
+  @@index([status, overallScore(sort: Desc)])
+  @@map("interview_sessions")
+}
