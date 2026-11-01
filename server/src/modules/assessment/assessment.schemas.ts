@@ -5,11 +5,11 @@ export const assessmentDomainParamSchema = z.object({
 });
 
 export const startAssessmentParamSchema = z.object({
-  id: z.string().uuid('Invalid assessment ID'),
+  id: z.string().min(1, 'Assessment ID is required'),
 });
 
 export const attemptParamSchema = z.object({
-  attemptId: z.string().uuid('Invalid attempt ID'),
+  attemptId: z.string().min(1, 'Attempt ID is required'),
 });
 
 export const autosaveAssessmentSchema = z.object({
@@ -28,7 +28,7 @@ export const autosaveAssessmentSchema = z.object({
 });
 
 export const runCodeSchema = z.object({
-  questionId: z.string().uuid('Invalid question ID'),
+  questionId: z.string().min(1, 'Question ID is required'),
   sourceCode: z.string().min(1, 'Source code cannot be empty'),
   language: z.string().default('javascript'),
 });

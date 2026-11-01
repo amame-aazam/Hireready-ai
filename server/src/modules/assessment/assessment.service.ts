@@ -52,9 +52,9 @@ export class AssessmentService {
   /**
    * Start a new attempt or resume an active IN_PROGRESS attempt
    */
-  public static async startOrResumeAttempt(userId: string, assessmentId: string) {
-    const assessment = await prisma.assessment.findUnique({
-      where: { id: assessmentId, isActive: true },
+  public static async startOrResumeAttempt(userId: string, identifier: string) {
+    let assessment = await prisma.assessment.findUnique({
+      where: { id: identifier, isActive: true },
       include: {
         questions: {
           orderBy: { orderIndex: 'asc' },
@@ -62,24 +62,49 @@ export class AssessmentService {
       },
     });
 
-    if (!assessment) {
-      throw { status: 404, message: 'Assessment not found' };
-    }
+    let attempt: any = null;
 
-    // Check for an active IN_PROGRESS attempt
-    let attempt = await prisma.assessmentAttempt.findFirst({
-      where: {
-        userId,
-        assessmentId,
-        status: AssessmentState.IN_PROGRESS,
-      },
-    });
+    if (!assessment) {
+      // Check if identifier is an attempt ID
+      const existingAttempt = await prisma.assessmentAttempt.findUnique({
+        where: { id: identifier },
+        include: {
+          assessment: {
+            include: {
+              questions: {
+                orderBy: { orderIndex: 'asc' },
+              },
+            },
+          },
+        },
+      });
+
+      if (!existingAttempt) {
+        throw { status: 404, message: 'Assessment or attempt not found' };
+      }
+
+      if (existingAttempt.userId !== userId) {
+        throw { status: 403, message: 'Access denied to this attempt' };
+      }
+
+      assessment = existingAttempt.assessment;
+      attempt = existingAttempt;
+    } else {
+      // Check for an active IN_PROGRESS attempt
+      attempt = await prisma.assessmentAttempt.findFirst({
+        where: {
+          userId,
+          assessmentId: assessment.id,
+          status: AssessmentState.IN_PROGRESS,
+        },
+      });
+    }
 
     const now = new Date();
 
     if (attempt && attempt.expiresAt) {
       // Check if attempt has already expired
-      if (now.getTime() > attempt.expiresAt.getTime() + GRACE_PERIOD_MS) {
+      if (now.getTime() > attempt.expiresAt.getTime() + GRACE_PERIOD_MS && attempt.status === AssessmentState.IN_PROGRESS) {
         attempt = await prisma.assessmentAttempt.update({
           where: { id: attempt.id },
           data: { status: AssessmentState.EXPIRED },
@@ -87,8 +112,8 @@ export class AssessmentService {
       }
     }
 
-    // If no valid IN_PROGRESS attempt, create one
-    if (!attempt || attempt.status !== AssessmentState.IN_PROGRESS) {
+    // If no valid attempt exists, create a new one
+    if (!attempt || (attempt.status !== AssessmentState.IN_PROGRESS && attempt.status !== AssessmentState.SUBMITTED && attempt.status !== AssessmentState.EXPIRED)) {
       // Check if student has an existing application for this domain
       const application = await prisma.application.findFirst({
         where: {
@@ -103,7 +128,7 @@ export class AssessmentService {
 
       attempt = await prisma.assessmentAttempt.create({
         data: {
-          assessmentId,
+          assessmentId: assessment.id,
           userId,
           applicationId: application ? application.id : null,
           status: AssessmentState.IN_PROGRESS,
