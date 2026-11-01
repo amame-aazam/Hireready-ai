@@ -31,17 +31,28 @@ const processQueue = (error: AxiosError | null) => {
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
+    const originalRequest = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | undefined;
 
-    // Avoid infinite refresh loops for auth routes
-    const isAuthRoute =
-      originalRequest?.url?.includes('/api/auth/login') ||
-      originalRequest?.url?.includes('/api/auth/register') ||
-      originalRequest?.url?.includes('/api/auth/refresh');
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
 
-    if (error.response?.status === 401 && !originalRequest?._retry && !isAuthRoute) {
+    const requestUrl = originalRequest.url || '';
+
+    // If the failed call was ITSELF an auth flow endpoint: NEVER RETRY
+    if (
+      requestUrl.includes('/api/auth/refresh') ||
+      requestUrl.includes('/api/auth/login') ||
+      requestUrl.includes('/api/auth/register')
+    ) {
+      processQueue(error);
+      return Promise.reject(error);
+    }
+
+    // Handle 401 Unauthorized
+    if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -60,6 +71,18 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError: any) {
         processQueue(refreshError);
+
+        // If refresh fails, session is absent or expired
+        // Only redirect if candidate is currently trying to access a protected page
+        const currentPath = window.location.pathname;
+        const isAuthOrLanding =
+          currentPath.startsWith('/auth') || currentPath === '/';
+
+        if (!isAuthOrLanding && !requestUrl.includes('/api/auth/me')) {
+          console.warn('Session expired or missing. Redirecting to login...');
+          window.location.href = '/auth/login?expired=1';
+        }
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

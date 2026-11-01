@@ -66,7 +66,37 @@ export class AuthController {
   async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       const rawRefreshToken = req.cookies?.[REFRESH_TOKEN_COOKIE_NAME];
+      if (!rawRefreshToken) {
+        // Cleanly clear cookies and return structured 401 without unhandled server exception
+        res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
+        res.clearCookie(
+          REFRESH_TOKEN_COOKIE_NAME,
+          getClearCookieOptions('/api/auth/refresh')
+        );
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'NO_ACTIVE_SESSION',
+            message: 'No active session found. Please sign in.',
+          },
+        });
+      }
+
       const newTokens = await authService.refresh(rawRefreshToken);
+      if (!newTokens) {
+        res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
+        res.clearCookie(
+          REFRESH_TOKEN_COOKIE_NAME,
+          getClearCookieOptions('/api/auth/refresh')
+        );
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'INVALID_REFRESH_TOKEN',
+            message: 'Session expired or invalid. Please sign in.',
+          },
+        });
+      }
 
       res.cookie(
         ACCESS_TOKEN_COOKIE_NAME,
@@ -83,13 +113,25 @@ export class AuthController {
         success: true,
         message: 'Tokens refreshed successfully',
       });
-    } catch (error) {
+    } catch (error: any) {
       // Clear cookies if refresh failed
       res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
       res.clearCookie(
         REFRESH_TOKEN_COOKIE_NAME,
         getClearCookieOptions('/api/auth/refresh')
       );
+
+      // Return clean client 401/403 responses without dumping to unhandled 500 error handler
+      if (error?.statusCode === 401 || error?.statusCode === 403) {
+        return res.status(error.statusCode).json({
+          success: false,
+          error: {
+            code: error.code || 'UNAUTHORIZED',
+            message: error.message || 'Authentication required.',
+          },
+        });
+      }
+
       next(error);
     }
   }

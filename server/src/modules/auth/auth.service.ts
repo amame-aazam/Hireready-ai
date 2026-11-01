@@ -137,12 +137,9 @@ export class AuthService {
     };
   }
 
-  async refresh(rawRefreshToken: string): Promise<AuthTokens> {
+  async refresh(rawRefreshToken?: string): Promise<AuthTokens | null> {
     if (!rawRefreshToken) {
-      const error: any = new Error('Refresh token is required');
-      error.statusCode = 401;
-      error.code = 'MISSING_REFRESH_TOKEN';
-      throw error;
+      return null;
     }
 
     let decoded: any;
