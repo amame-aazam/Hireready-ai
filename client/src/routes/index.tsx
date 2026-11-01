@@ -5,6 +5,8 @@ import { LoginPage } from '../features/auth/pages/LoginPage';
 import { RegisterPage } from '../features/auth/pages/RegisterPage';
 import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
 import { ResumePage } from '../features/resume/pages/ResumePage';
+import { OALandingPage } from '../features/assessment/pages/OALandingPage';
+import { OAWorkspacePage } from '../features/assessment/pages/OAWorkspacePage';
 import {
   FileText,
   Terminal,
@@ -150,7 +152,22 @@ export const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="/oa" element={<PlaceholderPage title="Online Assessment (MCQ + Code)" category="Round 1 Screening" />} />
+      <Route
+        path="/oa"
+        element={
+          <ProtectedRoute>
+            <OALandingPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/oa/:attemptId"
+        element={
+          <ProtectedRoute>
+            <OAWorkspacePage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/interview/dsa" element={<PlaceholderPage title="AI DSA Technical Interview" category="Round 2 Interview" />} />
       <Route path="/interview/hr" element={<PlaceholderPage title="AI HR Behavioral Interview" category="Round 3 Interview" />} />
       <Route path="/leaderboard" element={<PlaceholderPage title="Scoring & Leaderboard" category="Analytics" />} />

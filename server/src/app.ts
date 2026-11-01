@@ -12,6 +12,7 @@ import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './modules/auth/auth.routes';
 import domainRoutes from './modules/domain/domain.routes';
 import resumeRoutes from './modules/resume/resume.routes';
+import assessmentRoutes from './modules/assessment/assessment.routes';
 
 const app: Application = express();
 
@@ -42,6 +43,7 @@ if (env.NODE_ENV !== 'test') {
 app.use('/api/auth', authRoutes);
 app.use('/api/domains', domainRoutes);
 app.use('/api/resume', resumeRoutes);
+app.use('/api/assessment', assessmentRoutes);
 
 // Basic Health Check (fast ping for frontend cold-start detection)
 app.get('/health', (_req: Request, res: Response) => {
