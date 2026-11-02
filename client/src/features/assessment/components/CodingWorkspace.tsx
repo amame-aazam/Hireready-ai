@@ -128,6 +128,8 @@ export const CodingWorkspace: React.FC<CodingWorkspaceProps> = ({
             >
               <option value="javascript">JavaScript (ES2022)</option>
               <option value="python">Python 3</option>
+              <option value="java">Java (OpenJDK 17)</option>
+              <option value="cpp">C++ (GCC 11)</option>
             </select>
           </div>
 

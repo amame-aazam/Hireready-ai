@@ -26,6 +26,34 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
+const DSA_STARTER_TEMPLATES: Record<string, string> = {
+  javascript: `function twoSum(nums, target) {
+  // Write your solution here
+  // Return [index1, index2]
+}`,
+  python: `def two_sum(nums, target):
+    # Write your solution here
+    # Return [index1, index2]
+    pass`,
+  java: `class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        // Write your solution here
+        return new int[]{};
+    }
+}`,
+  cpp: `#include <vector>
+#include <unordered_map>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        // Write your solution here
+        return {};
+    }
+};`,
+};
+
 export const DSAInterviewPage: React.FC = () => {
   const { sessionId: routeSessionId } = useParams<{ sessionId?: string }>();
   const navigate = useNavigate();
@@ -149,6 +177,28 @@ export const DSAInterviewPage: React.FC = () => {
       setError(err.response?.data?.message || 'Turn exchange failed.');
     } finally {
       setIsSendingTurn(false);
+    }
+  };
+
+  // Handle language change and starter template auto-switching
+  const handleLanguageChange = (newLang: string) => {
+    setLanguage(newLang);
+    const isStarterOrEmpty =
+      !code.trim() ||
+      Object.values(DSA_STARTER_TEMPLATES).some((tpl) => tpl.trim() === code.trim()) ||
+      (problem?.starterCode && problem.starterCode.trim() === code.trim());
+
+    if (isStarterOrEmpty && DSA_STARTER_TEMPLATES[newLang]) {
+      setCode(DSA_STARTER_TEMPLATES[newLang]);
+    }
+  };
+
+  // Reset current code to template
+  const handleResetCode = () => {
+    if (DSA_STARTER_TEMPLATES[language]) {
+      setCode(DSA_STARTER_TEMPLATES[language]);
+    } else {
+      setCode(problem?.starterCode || '');
     }
   };
 
@@ -320,18 +370,20 @@ export const DSAInterviewPage: React.FC = () => {
               <label className="text-xs text-slate-400 font-medium">Language:</label>
               <select
                 value={language}
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={(e) => handleLanguageChange(e.target.value)}
                 className="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1 focus:outline-none focus:border-indigo-500"
               >
                 <option value="javascript">JavaScript (Node.js)</option>
                 <option value="python">Python 3</option>
+                <option value="java">Java (OpenJDK 17)</option>
+                <option value="cpp">C++ (GCC 11)</option>
               </select>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setCode(problem?.starterCode || '')}
+                onClick={handleResetCode}
                 className="flex items-center gap-1 px-2.5 py-1 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded transition"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
