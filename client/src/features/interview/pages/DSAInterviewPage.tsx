@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Group, Panel, Separator } from 'react-resizable-panels';
 import {
   interviewApi,
   InterviewSessionData,
   InterviewTurn,
   ProblemData,
+  QuestionOverviewItem,
   EvaluationReportData,
 } from '../api/interviewApi';
 import { AIAvatar } from '../components/AIAvatar';
 import { TranscriptFeed } from '../components/TranscriptFeed';
 import { VoiceControls } from '../components/VoiceControls';
+import { QuestionStepper } from '../components/QuestionStepper';
+import { EditorLockOverlay } from '../components/EditorLockOverlay';
 import { InterviewReportModal } from '../components/InterviewReportModal';
 import { CodeEditor } from '../../../components/ui/CodeEditor';
 import { TestCasesDrawer } from '../../assessment/components/TestCasesDrawer';
@@ -24,35 +28,9 @@ import {
   Sparkles,
   Loader2,
   AlertTriangle,
+  ArrowRight,
+  Lock,
 } from 'lucide-react';
-
-const DSA_STARTER_TEMPLATES: Record<string, string> = {
-  javascript: `function twoSum(nums, target) {
-  // Write your solution here
-  // Return [index1, index2]
-}`,
-  python: `def two_sum(nums, target):
-    # Write your solution here
-    # Return [index1, index2]
-    pass`,
-  java: `class Solution {
-    public int[] twoSum(int[] nums, int target) {
-        // Write your solution here
-        return new int[]{};
-    }
-}`,
-  cpp: `#include <vector>
-#include <unordered_map>
-using namespace std;
-
-class Solution {
-public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        // Write your solution here
-        return {};
-    }
-};`,
-};
 
 export const DSAInterviewPage: React.FC = () => {
   const { sessionId: routeSessionId } = useParams<{ sessionId?: string }>();
@@ -61,12 +39,17 @@ export const DSAInterviewPage: React.FC = () => {
   const [session, setSession] = useState<InterviewSessionData | null>(null);
   const [transcript, setTranscript] = useState<InterviewTurn[]>([]);
   const [problem, setProblem] = useState<ProblemData | null>(null);
+  const [questionsOverview, setQuestionsOverview] = useState<QuestionOverviewItem[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [isEditorUnlocked, setIsEditorUnlocked] = useState<boolean>(false);
+
   const [code, setCode] = useState<string>('');
   const [language, setLanguage] = useState<string>('javascript');
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSendingTurn, setIsSendingTurn] = useState<boolean>(false);
   const [isRunningCode, setIsRunningCode] = useState<boolean>(false);
+  const [isAdvancing, setIsAdvancing] = useState<boolean>(false);
   const [isFinishing, setIsFinishing] = useState<boolean>(false);
   const [testResults, setTestResults] = useState<TestCaseResult[] | undefined>(undefined);
   const [evaluationReport, setEvaluationReport] = useState<EvaluationReportData | null>(null);
@@ -91,8 +74,16 @@ export const DSAInterviewPage: React.FC = () => {
     toggleMute,
   } = useSpeechSynthesis();
 
-  // Speak opening turn once session starts
   const hasSpokenOpeningRef = useRef(false);
+
+  // Helper to extract starter code for a specific language
+  const getStarterCodeForLanguage = (prob: ProblemData | null, lang: string): string => {
+    if (!prob) return '';
+    if (typeof prob.starterCode === 'object') {
+      return (prob.starterCode as any)[lang] || prob.starterCode.javascript;
+    }
+    return prob.starterCode || '';
+  };
 
   // Initialize or resume session
   useEffect(() => {
@@ -113,13 +104,21 @@ export const DSAInterviewPage: React.FC = () => {
 
         setSession(data.session);
         setTranscript(data.transcript || []);
-        setProblem(data.problem);
-        setCode(data.session.currentCode || data.problem.starterCode);
+        setProblem(data.currentQuestion);
+        setCurrentQuestionIndex(data.currentQuestion?.index ?? data.session.currentQuestionIndex ?? 0);
+        setIsEditorUnlocked(data.isEditorUnlocked);
 
-        // If newly started and has opening turn, speak it
+        if (data.questionsOverview && data.questionsOverview.length > 0) {
+          setQuestionsOverview(data.questionsOverview);
+        }
+
+        const initialCode =
+          data.currentCode || getStarterCodeForLanguage(data.currentQuestion, 'javascript');
+        setCode(initialCode);
+
+        // If newly started and has opening turn, speak it aloud
         if (data.openingTurn && !hasSpokenOpeningRef.current) {
           hasSpokenOpeningRef.current = true;
-          // Small delay for browser speech synthesis initialization
           setTimeout(() => {
             speak(data.openingTurn!.content);
           }, 600);
@@ -135,7 +134,7 @@ export const DSAInterviewPage: React.FC = () => {
     initInterview();
   }, [routeSessionId, speak]);
 
-  // Handle candidate sending a turn
+  // Handle candidate sending a turn (voice or text)
   const handleSendTurn = async (utterance: string) => {
     if (!session || !utterance.trim() || isSendingTurn) return;
 
@@ -149,11 +148,11 @@ export const DSAInterviewPage: React.FC = () => {
         role: 'candidate',
         content: utterance,
         timestamp: new Date().toISOString(),
-        codeSnippet: code.trim().length > 30 ? code : undefined,
+        codeSnippet: isEditorUnlocked && code.trim().length > 30 ? code : undefined,
       };
       setTranscript((prev) => [...prev, candidateTurn]);
 
-      const res = await interviewApi.sendTurn(session.id, utterance, code);
+      const res = await interviewApi.sendTurn(session.id, utterance, isEditorUnlocked ? code : undefined);
 
       // Append AI turn
       const aiTurn: InterviewTurn = {
@@ -163,15 +162,16 @@ export const DSAInterviewPage: React.FC = () => {
       };
       setTranscript((prev) => [...prev, aiTurn]);
 
+      // If Sophia approved the approach, unlock the Monaco editor!
+      if (res.isEditorUnlocked !== undefined) {
+        setIsEditorUnlocked(res.isEditorUnlocked);
+      }
+      if (res.stage) {
+        setSession((prev) => (prev ? { ...prev, stage: res.stage! } : null));
+      }
+
       // Speak AI reply aloud
       speak(res.replyText);
-
-      // Auto-prompt finish if terminal turn
-      if (res.isTerminalTurn) {
-        setTimeout(() => {
-          handleFinishInterview();
-        }, 4000);
-      }
     } catch (err: any) {
       console.error('Failed to send interview turn:', err);
       setError(err.response?.data?.message || 'Turn exchange failed.');
@@ -183,37 +183,81 @@ export const DSAInterviewPage: React.FC = () => {
   // Handle language change and starter template auto-switching
   const handleLanguageChange = (newLang: string) => {
     setLanguage(newLang);
-    const isStarterOrEmpty =
-      !code.trim() ||
-      Object.values(DSA_STARTER_TEMPLATES).some((tpl) => tpl.trim() === code.trim()) ||
-      (problem?.starterCode && problem.starterCode.trim() === code.trim());
+    const starterForNewLang = getStarterCodeForLanguage(problem, newLang);
+    const currentStarter = getStarterCodeForLanguage(problem, language);
 
-    if (isStarterOrEmpty && DSA_STARTER_TEMPLATES[newLang]) {
-      setCode(DSA_STARTER_TEMPLATES[newLang]);
+    const isStarterOrEmpty = !code.trim() || code.trim() === currentStarter.trim();
+    if (isStarterOrEmpty && starterForNewLang) {
+      setCode(starterForNewLang);
     }
   };
 
-  // Reset current code to template
+  // Reset current code to template for active language
   const handleResetCode = () => {
-    if (DSA_STARTER_TEMPLATES[language]) {
-      setCode(DSA_STARTER_TEMPLATES[language]);
-    } else {
-      setCode(problem?.starterCode || '');
-    }
+    const starter = getStarterCodeForLanguage(problem, language);
+    setCode(starter);
   };
 
   // Run code against test cases in sandbox
   const handleRunCode = async () => {
-    if (!session || isRunningCode) return;
+    if (!session || isRunningCode || !isEditorUnlocked) return;
 
     try {
       setIsRunningCode(true);
       const res = await interviewApi.runCode(session.id, code, language);
       setTestResults(res.results);
+
+      // If all test cases passed, Sophia congratulates candidate
+      if (res.allPassed && !isSpeaking) {
+        speak('All test cases passed! You can click "Submit & Next Question" to proceed to the next problem.');
+      }
     } catch (err: any) {
       console.error('Failed to execute code in interview:', err);
+      setError(err.response?.data?.message || 'Code execution failed.');
     } finally {
       setIsRunningCode(false);
+    }
+  };
+
+  // Advance to the next question in the 3-question sequence
+  const handleAdvanceQuestion = async () => {
+    if (!session || isAdvancing) return;
+
+    try {
+      setIsAdvancing(true);
+      cancelSpeech();
+
+      const res = await interviewApi.advanceQuestion(session.id, code, language);
+
+      if (res.isFinished && res.report) {
+        setEvaluationReport(res.report);
+        if (res.session) setSession(res.session);
+        return;
+      }
+
+      if (res.currentQuestion) {
+        setProblem(res.currentQuestion);
+        setCurrentQuestionIndex(res.currentQuestion.index);
+        setIsEditorUnlocked(res.isEditorUnlocked);
+
+        // Update code to next question template for selected language
+        const nextStarter = getStarterCodeForLanguage(res.currentQuestion, language);
+        setCode(nextStarter);
+
+        // Clear previous question test results
+        setTestResults(undefined);
+
+        // Append AI transition turn and speak it aloud
+        if (res.aiTransitionTurn) {
+          setTranscript((prev) => [...prev, res.aiTransitionTurn!]);
+          speak(res.aiTransitionTurn.content);
+        }
+      }
+    } catch (err: any) {
+      console.error('Failed to advance question:', err);
+      setError(err.response?.data?.message || 'Failed to advance to next challenge.');
+    } finally {
+      setIsAdvancing(false);
     }
   };
 
@@ -244,7 +288,7 @@ export const DSAInterviewPage: React.FC = () => {
     return (
       <div className="h-[calc(100vh-80px)] flex flex-col items-center justify-center space-y-4">
         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-        <p className="text-slate-400 text-sm">Initializing AI Technical Interview Room...</p>
+        <p className="text-slate-400 text-sm">Initializing AI Technical Interview Workspace...</p>
       </div>
     );
   }
@@ -265,10 +309,12 @@ export const DSAInterviewPage: React.FC = () => {
     );
   }
 
+  const isLastQuestion = currentQuestionIndex >= (questionsOverview.length > 0 ? questionsOverview.length - 1 : 2);
+
   return (
-    <div className="min-h-[calc(100vh-70px)] flex flex-col space-y-3 px-3 sm:px-6 py-3">
-      {/* Top Bar: Title + Mute + Finish Interview */}
-      <div className="flex items-center justify-between p-3.5 bg-slate-900 border border-slate-800 rounded-xl shrink-0">
+    <div className="min-h-[calc(100vh-65px)] flex flex-col space-y-2.5 px-3 sm:px-6 py-2.5">
+      {/* Top Bar: Title + Question Stepper + Mute + End Interview */}
+      <div className="flex items-center justify-between p-3 bg-slate-900 border border-slate-800 rounded-xl shrink-0">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-indigo-600/10 border border-indigo-500/20 text-indigo-400">
             <Sparkles className="w-4 h-4" />
@@ -281,13 +327,18 @@ export const DSAInterviewPage: React.FC = () => {
               </span>
             </h1>
             <p className="text-[11px] text-slate-400">
-              {problem?.title || 'Algorithmic Problem Solving'}
+              Interviewer: <span className="text-slate-200 font-semibold">Sophia</span> (Senior Staff Bar Raiser)
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Mute TTS button */}
+        {/* Center: Question Stepper */}
+        <div className="hidden md:flex items-center">
+          <QuestionStepper currentIndex={currentQuestionIndex} questions={questionsOverview} />
+        </div>
+
+        {/* Controls: Mute & End Interview */}
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={toggleMute}
@@ -302,27 +353,24 @@ export const DSAInterviewPage: React.FC = () => {
             <span className="hidden sm:inline">{isMuted ? 'Muted' : 'Voice On'}</span>
           </button>
 
-          {/* End Interview */}
           <button
             type="button"
             onClick={handleFinishInterview}
             disabled={isFinishing}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-semibold shadow-md shadow-rose-600/20 transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-semibold shadow-md shadow-rose-600/20 transition disabled:opacity-50"
           >
-            {isFinishing ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : null}
+            {isFinishing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
             <span>End Interview</span>
           </button>
         </div>
       </div>
 
-      {/* Main Grid: Left Column (Sophia Avatar Top Half + Chat Bottom Half) | Right Column (Monaco Editor & Sandbox) */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-[620px]">
-        {/* Left Column: 50/50 Split (Top Half: Prominent Sophia Avatar | Bottom Half: Scrolling Transcript & Voice Controls) */}
-        <div className="lg:col-span-5 flex flex-col gap-3 h-[720px] lg:h-[calc(100vh-140px)] min-h-[620px]">
-          {/* Top Half: Large Prominent AI Avatar area for Sophia */}
-          <div className="h-1/2 min-h-0 flex flex-col">
+      {/* LeetCode-Style Resizable Split Workspace */}
+      <Group orientation="horizontal" className="flex-1 min-h-[660px] rounded-2xl overflow-hidden">
+        {/* Left Panel: AI Interviewer (Sophia Avatar Top Half + Dialogue Transcript Bottom Half) */}
+        <Panel id="interviewer" defaultSize="38%" minSize="28%" maxSize="50%" className="flex flex-col gap-2.5 pr-1">
+          {/* Top Half: Sophia Avatar (Prominent, Visible, Animated) */}
+          <div className="h-[46%] min-h-[260px] flex flex-col">
             <AIAvatar
               isSpeaking={isSpeaking}
               isListening={isListening}
@@ -330,9 +378,8 @@ export const DSAInterviewPage: React.FC = () => {
             />
           </div>
 
-          {/* Bottom Half: Compact Scrolling Chat Transcript & Voice Controls */}
-          <div className="h-1/2 min-h-0 flex flex-col gap-2 bg-slate-900/60 border border-slate-800 rounded-2xl p-2.5 overflow-hidden shadow-lg">
-            {/* Scrollable Compact Transcript */}
+          {/* Bottom Half: Dialogue Transcript & Voice Controls */}
+          <div className="h-[54%] min-h-[290px] flex flex-col gap-2 bg-slate-900/60 border border-slate-800 rounded-2xl p-2.5 overflow-hidden shadow-lg">
             <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
               <TranscriptFeed
                 turns={transcript}
@@ -340,8 +387,6 @@ export const DSAInterviewPage: React.FC = () => {
                 isAiSpeaking={isSpeaking}
               />
             </div>
-
-            {/* Compact Voice Controls */}
             <VoiceControls
               isListening={isListening}
               transcript={sttTranscript}
@@ -354,24 +399,45 @@ export const DSAInterviewPage: React.FC = () => {
               isSupported={isSttSupported}
             />
           </div>
-        </div>
+        </Panel>
 
-        {/* Right Column: Problem Prompt, Monaco Code Editor & Test Cases */}
-        <div className="lg:col-span-7 flex flex-col space-y-3 h-[720px] lg:h-[calc(100vh-140px)] min-h-[620px]">
-          {/* Problem Prompt Accordion / Card */}
-          <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-1.5 shrink-0">
+        {/* Draggable Vertical Resize Divider */}
+        <Separator className="w-2.5 px-0.5 flex items-center justify-center cursor-col-resize group outline-none select-none">
+          <div className="w-1 h-14 rounded-full bg-slate-700/80 group-hover:bg-indigo-400 group-hover:w-1.5 group-hover:h-20 group-active:bg-indigo-500 transition-all shadow-sm" />
+        </Separator>
+
+        {/* Right Panel: Coding Workspace (Problem Statement + Monaco Editor + Test Cases) */}
+        <Panel id="workspace" defaultSize="62%" minSize="50%" maxSize="72%" className="flex flex-col space-y-2.5 pl-1">
+          {/* Problem Prompt Card */}
+          <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-1.5 shrink-0">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                Challenge: {problem?.title}
-              </h3>
-              <span className="text-[10px] text-indigo-400 font-mono">Time Constraint: O(N)</span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                    problem?.difficulty === 'EASY'
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
+                      : 'bg-amber-500/15 text-amber-400 border border-amber-500/20'
+                  }`}
+                >
+                  {problem?.difficulty || 'DSA'}
+                </span>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-100 tracking-tight">
+                  Question {currentQuestionIndex + 1} of 3: {problem?.title}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2 text-[10px] font-mono text-indigo-400">
+                <span>Time Target: {problem?.timeComplexityTarget || 'O(N)'}</span>
+                {problem?.spaceComplexityTarget && (
+                  <span>• Space: {problem.spaceComplexityTarget}</span>
+                )}
+              </div>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed font-sans line-clamp-3">
+            <p className="text-xs text-slate-300 leading-relaxed font-sans line-clamp-3">
               {problem?.prompt}
             </p>
           </div>
 
-          {/* Code Editor Header */}
+          {/* Monaco Editor Header & Controls Bar */}
           <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded-xl shrink-0">
             <div className="flex items-center gap-2">
               <label className="text-xs text-slate-400 font-medium">Language:</label>
@@ -391,29 +457,57 @@ export const DSAInterviewPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleResetCode}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded transition"
+                disabled={!isEditorUnlocked}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded transition disabled:opacity-40"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset</span>
               </button>
+
+              {/* Run Code Button */}
               <button
                 type="button"
                 onClick={handleRunCode}
-                disabled={isRunningCode}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition disabled:opacity-50"
+                disabled={isRunningCode || !isEditorUnlocked}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold shadow-sm transition ${
+                  isEditorUnlocked
+                    ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                    : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/60'
+                }`}
+                title={isEditorUnlocked ? 'Run tests against sandbox' : 'Editor locked: Explain approach to Sophia first'}
               >
                 {isRunningCode ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : !isEditorUnlocked ? (
+                  <Lock className="w-3.5 h-3.5" />
                 ) : (
                   <Play className="w-3.5 h-3.5 fill-current" />
                 )}
-                <span>Run Code</span>
+                <span>{isEditorUnlocked ? 'Run Code' : 'Locked'}</span>
               </button>
+
+              {/* Advance to Next Question / Finish Button */}
+              {isEditorUnlocked && (
+                <button
+                  type="button"
+                  onClick={handleAdvanceQuestion}
+                  disabled={isAdvancing}
+                  className="flex items-center gap-1.5 px-3.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition disabled:opacity-50"
+                  title={isLastQuestion ? 'Submit final solution & generate report' : 'Submit solution and advance to next challenge'}
+                >
+                  {isAdvancing ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isLastQuestion ? 'Submit & Conclude' : 'Submit & Next'}</span>
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Monaco Code Editor */}
-          <div className="flex-1 min-h-[220px] rounded-xl overflow-hidden border border-slate-800">
+          {/* Monaco Code Editor with Frosted Lock Overlay */}
+          <div className="flex-1 min-h-[240px] rounded-xl overflow-hidden border border-slate-800 relative">
             <CodeEditor
               language={language}
               value={code}
@@ -425,8 +519,17 @@ export const DSAInterviewPage: React.FC = () => {
                 automaticLayout: true,
                 tabSize: 2,
                 wordWrap: 'on',
+                readOnly: !isEditorUnlocked,
               }}
             />
+
+            {/* Approach First: Lock Overlay when in APPROACH stage */}
+            {!isEditorUnlocked && (
+              <EditorLockOverlay
+                questionTitle={problem?.title}
+                timeComplexityTarget={problem?.timeComplexityTarget}
+              />
+            )}
           </div>
 
           {/* Test Cases Drawer */}
@@ -440,8 +543,8 @@ export const DSAInterviewPage: React.FC = () => {
               />
             </div>
           )}
-        </div>
-      </div>
+        </Panel>
+      </Group>
 
       {/* Post-Interview Evaluation Report Modal */}
       {evaluationReport && <InterviewReportModal report={evaluationReport} />}

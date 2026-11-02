@@ -1,11 +1,12 @@
 import crypto from 'crypto';
 import mongoose from 'mongoose';
-import { SessionStatus, InterviewType, ApplicationStatus } from '@prisma/client';
+import { SessionStatus, InterviewType, InterviewStage, ApplicationStatus } from '@prisma/client';
 import { prisma } from '../../config/postgres';
 import { InterviewTranscriptModel } from '../../models/interviewTranscript.model';
 import { AiEvaluationReportModel } from '../../models/aiEvaluationReport.model';
 import { getAIProvider } from '../../providers/ai';
 import { MockCodeExecutor, TestCaseItem } from '../../providers/judge0/mockExecutor';
+import { DSAQuestion, getRandomDSAQuestions } from './dsaQuestionBank';
 
 // Ephemeral fallback cache for local dev / offline verification if MongoDB Atlas is unreachable
 const memoryTranscripts = new Map<string, any>();
@@ -67,48 +68,15 @@ async function saveReport(reportData: any): Promise<any> {
   return reportData;
 }
 
-const DEFAULT_DSA_PROBLEM = {
-  title: 'Two Sum & Optimal Lookup',
-  prompt:
-    'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice. Please explain your approach, time/space complexity tradeoffs, and write an optimal solution in the code editor.',
-  starterCode:
-    'function twoSum(nums, target) {\n  // Write your solution here\n  // Return [index1, index2]\n}',
-  testCases: [
-    {
-      id: 'tc-dsa-1',
-      input: 'nums = [2, 7, 11, 15], target = 9',
-      expectedOutput: '[0, 1]',
-      isHidden: false,
-      description: 'Standard basic target pair',
-    },
-    {
-      id: 'tc-dsa-2',
-      input: 'nums = [3, 2, 4], target = 6',
-      expectedOutput: '[1, 2]',
-      isHidden: false,
-      description: 'Indices not at start',
-    },
-    {
-      id: 'tc-dsa-3',
-      input: 'nums = [3, 3], target = 6',
-      expectedOutput: '[0, 1]',
-      isHidden: false,
-      description: 'Identical complement values',
-    },
-  ],
-};
-
 export class InterviewService {
   /**
-   * Start or resume an active interview session
+   * Start or resume an active interview session with a randomized 3-question sequence
    */
   public static async startOrResumeSession(
     userId: string,
     interviewType: 'DSA' | 'HR' = 'DSA',
     _domainSlug?: string
   ) {
-    const aiProvider = getAIProvider();
-
     // 1. Check for existing active IN_PROGRESS session for this user
     let session = await prisma.interviewSession.findFirst({
       where: {
@@ -121,8 +89,20 @@ export class InterviewService {
       },
     });
 
-    // If an active session already exists, fetch its transcript and return
+    // If an active session already exists, restore questionQueue and current question state
     if (session) {
+      let questions: DSAQuestion[] = (session.questionQueue as any) || [];
+      if (!questions || questions.length === 0) {
+        questions = getRandomDSAQuestions();
+        await prisma.interviewSession.update({
+          where: { id: session.id },
+          data: { questionQueue: questions as any },
+        });
+      }
+
+      const currentQIdx = session.currentQuestionIndex || 0;
+      const currentQ = questions[currentQIdx] || questions[0];
+
       let transcript = await getTranscript(session.id);
       if (!transcript) {
         transcript = await saveTranscript(session.id, {
@@ -138,18 +118,33 @@ export class InterviewService {
           userId: session.userId,
           type: session.type,
           status: session.status,
-          problemTitle: session.problemTitle,
-          problemPrompt: session.problemPrompt,
-          currentCode: session.currentCode || DEFAULT_DSA_PROBLEM.starterCode,
+          currentQuestionIndex: currentQIdx,
+          stage: session.stage,
           startedAt: session.startedAt,
         },
         transcript: transcript.turns,
-        problem: {
-          title: session.problemTitle || DEFAULT_DSA_PROBLEM.title,
-          prompt: session.problemPrompt || DEFAULT_DSA_PROBLEM.prompt,
-          starterCode: session.currentCode || DEFAULT_DSA_PROBLEM.starterCode,
-          visibleTestCases: DEFAULT_DSA_PROBLEM.testCases,
+        currentQuestion: {
+          index: currentQIdx,
+          total: questions.length,
+          id: currentQ.id,
+          title: currentQ.title,
+          difficulty: currentQ.difficulty,
+          domain: currentQ.domain,
+          prompt: currentQ.prompt,
+          timeComplexityTarget: currentQ.timeComplexityTarget,
+          spaceComplexityTarget: currentQ.spaceComplexityTarget,
+          approachKeywords: currentQ.approachKeywords,
+          starterCode: currentQ.starterCode,
+          visibleTestCases: currentQ.visibleTestCases,
         },
+        questionsOverview: questions.map((q, idx) => ({
+          index: idx,
+          id: q.id,
+          title: q.title,
+          difficulty: q.difficulty,
+        })),
+        currentCode: session.currentCode || currentQ.starterCode.javascript,
+        isEditorUnlocked: session.stage === InterviewStage.CODING,
         isResumed: true,
       };
     }
@@ -160,16 +155,23 @@ export class InterviewService {
       orderBy: { createdAt: 'desc' },
     });
 
-    // 3. Create new InterviewSession in PostgreSQL
+    // 3. Randomize 3 questions: 1 Easy + 2 Medium
+    const questions = getRandomDSAQuestions();
+    const firstQ = questions[0];
+
+    // 4. Create new InterviewSession in PostgreSQL in APPROACH stage
     session = await prisma.interviewSession.create({
       data: {
         userId,
         applicationId: application ? application.id : null,
         type: interviewType as InterviewType,
         status: SessionStatus.IN_PROGRESS,
-        problemTitle: DEFAULT_DSA_PROBLEM.title,
-        problemPrompt: DEFAULT_DSA_PROBLEM.prompt,
-        currentCode: DEFAULT_DSA_PROBLEM.starterCode,
+        currentQuestionIndex: 0,
+        stage: InterviewStage.APPROACH,
+        questionQueue: questions as any,
+        problemTitle: firstQ.title,
+        problemPrompt: firstQ.prompt,
+        currentCode: firstQ.starterCode.javascript,
         startedAt: new Date(),
       },
       include: {
@@ -177,20 +179,20 @@ export class InterviewService {
       },
     });
 
-    // 4. Create InterviewTranscript in MongoDB (or fallback cache)
+    // 5. Generate Opening AI Turn introducing Question 1 and prompting for approach
     const transcriptId = crypto.randomUUID();
+    const openingGreeting = `Hello! Welcome to your technical interview with Sophia. Today we will work through 3 algorithmic challenges (1 warm-up and 2 core technical problems).
 
-    // 5. Generate Opening AI Turn (Greeting + Problem Setup)
-    const openingAiTurn = await aiProvider.generateInterviewTurn({
-      sessionId: session.id,
-      interviewType,
-      dialogueHistory: [],
-    });
+Let's begin with Question 1: ${firstQ.title} (${firstQ.difficulty}).
+
+${firstQ.prompt}
+
+Before writing code, please explain your proposed approach, what data structures you would consider, and your target time and space complexity.`;
 
     const initialTurns = [
       {
         role: 'ai' as const,
-        content: openingAiTurn.replyText,
+        content: openingGreeting,
         timestamp: new Date(),
       },
     ];
@@ -213,28 +215,43 @@ export class InterviewService {
         userId: session.userId,
         type: session.type,
         status: session.status,
-        problemTitle: session.problemTitle,
-        problemPrompt: session.problemPrompt,
-        currentCode: session.currentCode,
+        currentQuestionIndex: 0,
+        stage: session.stage,
         startedAt: session.startedAt,
       },
       transcript: transcript.turns,
       openingTurn: {
         role: 'ai',
-        content: openingAiTurn.replyText,
+        content: openingGreeting,
       },
-      problem: {
-        title: session.problemTitle || DEFAULT_DSA_PROBLEM.title,
-        prompt: session.problemPrompt || DEFAULT_DSA_PROBLEM.prompt,
-        starterCode: session.currentCode || DEFAULT_DSA_PROBLEM.starterCode,
-        visibleTestCases: DEFAULT_DSA_PROBLEM.testCases,
+      currentQuestion: {
+        index: 0,
+        total: questions.length,
+        id: firstQ.id,
+        title: firstQ.title,
+        difficulty: firstQ.difficulty,
+        domain: firstQ.domain,
+        prompt: firstQ.prompt,
+        timeComplexityTarget: firstQ.timeComplexityTarget,
+        spaceComplexityTarget: firstQ.spaceComplexityTarget,
+        approachKeywords: firstQ.approachKeywords,
+        starterCode: firstQ.starterCode,
+        visibleTestCases: firstQ.visibleTestCases,
       },
+      questionsOverview: questions.map((q, idx) => ({
+        index: idx,
+        id: q.id,
+        title: q.title,
+        difficulty: q.difficulty,
+      })),
+      currentCode: firstQ.starterCode.javascript,
+      isEditorUnlocked: false,
       isResumed: false,
     };
   }
 
   /**
-   * Process a conversational turn (Candidate speaks -> AI evaluates & replies)
+   * Process a conversational turn (Candidate speaks -> AI evaluates approach or guides code)
    */
   public static async processTurn(
     userId: string,
@@ -254,6 +271,10 @@ export class InterviewService {
       throw { status: 400, message: `Cannot submit turn: interview is ${session.status}` };
     }
 
+    const questions: DSAQuestion[] = (session.questionQueue as any) || [];
+    const currentQIdx = session.currentQuestionIndex || 0;
+    const currentQ: DSAQuestion = questions[currentQIdx] || questions[0];
+
     let transcript = await getTranscript(session.id);
     if (!transcript) {
       transcript = await saveTranscript(session.id, {
@@ -271,15 +292,85 @@ export class InterviewService {
       codeSnippet,
     });
 
-    // If candidate included code, sync with PostgreSQL
-    if (codeSnippet) {
+    // If candidate included code and stage is CODING, persist in DB
+    if (codeSnippet && session.stage === InterviewStage.CODING) {
       await prisma.interviewSession.update({
         where: { id: session.id },
         data: { currentCode: codeSnippet },
       });
     }
 
-    // 2. Query AI Provider with full dialogue context
+    const lowerUtterance = utterance.toLowerCase();
+
+    // 2. State Machine: APPROACH STAGE Evaluation
+    if (session.stage === InterviewStage.APPROACH) {
+      // Check candidate utterance against current question's approach keywords
+      const matchedKeywords = currentQ.approachKeywords.filter((kw) =>
+        lowerUtterance.includes(kw.toLowerCase())
+      );
+
+      const isSubstantive = utterance.trim().length >= 20;
+      const isNegative =
+        lowerUtterance.includes('no idea') ||
+        lowerUtterance.includes("don't know") ||
+        lowerUtterance.includes('idk') ||
+        lowerUtterance.includes('not sure');
+
+      const isApproved = !isNegative && matchedKeywords.length >= 1;
+
+      if (isApproved) {
+        // UNLOCK Monaco Editor! Transition stage to CODING
+        await prisma.interviewSession.update({
+          where: { id: session.id },
+          data: { stage: InterviewStage.CODING },
+        });
+
+        const replyText = `Excellent approach! That strategy achieves optimal ${currentQ.timeComplexityTarget} time complexity with ${currentQ.spaceComplexityTarget} auxiliary space.
+
+I have unlocked your Monaco code editor on the right—please go ahead and write your implementation. When you're ready, click "Run Code" to test it against our test cases.`;
+
+        transcript.turns.push({
+          role: 'ai',
+          content: replyText,
+          timestamp: new Date(),
+        });
+        await saveTranscript(session.id, transcript);
+
+        return {
+          replyText,
+          stage: InterviewStage.CODING,
+          isEditorUnlocked: true,
+          isTerminalTurn: false,
+          turnEvaluation: { clarity: 9.0, technicalAccuracy: 9.5 },
+          suggestedFollowUp: 'You can now code your solution in the editor on your right.',
+          turnCount: transcript.turns.length,
+        };
+      } else {
+        // Provide guidance/hint and KEEP editor locked in APPROACH stage
+        const replyText = `A brute-force or preliminary strategy is a good starting point, but can we optimize the lookup or traversal to achieve ${currentQ.timeComplexityTarget} time? ${currentQ.approachExplanationHint}
+
+How might you apply that data structure or technique here?`;
+
+        transcript.turns.push({
+          role: 'ai',
+          content: replyText,
+          timestamp: new Date(),
+        });
+        await saveTranscript(session.id, transcript);
+
+        return {
+          replyText,
+          stage: InterviewStage.APPROACH,
+          isEditorUnlocked: false,
+          isTerminalTurn: false,
+          turnEvaluation: { clarity: 7.5, technicalAccuracy: 7.0 },
+          suggestedFollowUp: 'Think about the optimal data structure for O(1) lookup or two-pointer traversal.',
+          turnCount: transcript.turns.length,
+        };
+      }
+    }
+
+    // 3. State Machine: CODING STAGE Assistance
     const aiProvider = getAIProvider();
     const dialogueHistory = transcript.turns.map((t: any) => ({
       role: t.role,
@@ -294,7 +385,6 @@ export class InterviewService {
       codeSnippet: codeSnippet || session.currentCode || undefined,
     });
 
-    // 3. Record AI Reply Turn
     transcript.turns.push({
       role: 'ai',
       content: aiOutput.replyText,
@@ -304,6 +394,8 @@ export class InterviewService {
 
     return {
       replyText: aiOutput.replyText,
+      stage: InterviewStage.CODING,
+      isEditorUnlocked: true,
       isTerminalTurn: aiOutput.isTerminalTurn,
       turnEvaluation: aiOutput.turnEvaluation,
       suggestedFollowUp: aiOutput.suggestedFollowUp,
@@ -312,7 +404,7 @@ export class InterviewService {
   }
 
   /**
-   * Run candidate code against visible test cases
+   * Run candidate code against visible test cases (Protected: Only in CODING stage)
    */
   public static async runCode(
     userId: string,
@@ -328,6 +420,18 @@ export class InterviewService {
       throw { status: 404, message: 'Interview session not found or access denied' };
     }
 
+    // Strict guard: Code execution is forbidden in APPROACH stage
+    if (session.stage === InterviewStage.APPROACH) {
+      throw {
+        status: 403,
+        message: 'Editor is locked. Please discuss and validate your approach with Sophia first before running code.',
+      };
+    }
+
+    const questions: DSAQuestion[] = (session.questionQueue as any) || [];
+    const currentQIdx = session.currentQuestionIndex || 0;
+    const currentQ: DSAQuestion = questions[currentQIdx] || questions[0];
+
     // Persist current code draft in Postgres
     await prisma.interviewSession.update({
       where: { id: session.id },
@@ -338,12 +442,128 @@ export class InterviewService {
     const execution = await MockCodeExecutor.executeTestCases(
       sourceCode,
       language,
-      session.problemTitle || 'Two Sum',
-      DEFAULT_DSA_PROBLEM.testCases as TestCaseItem[],
+      currentQ.title,
+      currentQ.visibleTestCases as TestCaseItem[],
       true
     );
 
     return execution;
+  }
+
+  /**
+   * Advance to the next question in the sequence or conclude interview
+   */
+  public static async advanceQuestion(
+    userId: string,
+    sessionId: string,
+    code: string,
+    language: string = 'javascript'
+  ) {
+    const session = await prisma.interviewSession.findUnique({
+      where: { id: sessionId },
+    });
+
+    if (!session || session.userId !== userId) {
+      throw { status: 404, message: 'Interview session not found or access denied' };
+    }
+
+    const questions: DSAQuestion[] = (session.questionQueue as any) || [];
+    const currentQIdx = session.currentQuestionIndex || 0;
+    const currentQ = questions[currentQIdx] || questions[0];
+
+    // Save candidate's solution for the current question
+    const answers = (session.questionAnswers as any) || {};
+    answers[currentQIdx] = {
+      questionId: currentQ.id,
+      questionTitle: currentQ.title,
+      difficulty: currentQ.difficulty,
+      code,
+      language,
+      completedAt: new Date().toISOString(),
+    };
+
+    const isLastQuestion = currentQIdx >= questions.length - 1;
+
+    // If last question completed, finalize interview and generate report
+    if (isLastQuestion) {
+      await prisma.interviewSession.update({
+        where: { id: session.id },
+        data: {
+          questionAnswers: answers,
+          currentCode: code,
+        },
+      });
+
+      return await this.finishInterview(userId, sessionId, code);
+    }
+
+    // Transition to next question
+    const nextQIdx = currentQIdx + 1;
+    const nextQ = questions[nextQIdx];
+    const nextStarter = (nextQ.starterCode as any)[language] || nextQ.starterCode.javascript;
+
+    const transitionMessage = `Outstanding job completing Question ${currentQIdx + 1}! Let's transition to Question ${nextQIdx + 1} of 3: ${nextQ.title} (${nextQ.difficulty}).
+
+${nextQ.prompt}
+
+Before diving into code, walk me through your high-level approach for this challenge. How do you plan to tackle it?`;
+
+    // Update session state in Postgres: Lock editor for next question approach
+    const updatedSession = await prisma.interviewSession.update({
+      where: { id: session.id },
+      data: {
+        currentQuestionIndex: nextQIdx,
+        stage: InterviewStage.APPROACH,
+        problemTitle: nextQ.title,
+        problemPrompt: nextQ.prompt,
+        currentCode: nextStarter,
+        questionAnswers: answers,
+      },
+    });
+
+    // Append AI transition turn to transcript
+    let transcript = await getTranscript(session.id);
+    if (!transcript) {
+      transcript = { id: crypto.randomUUID(), sessionId: session.id, turns: [] };
+    }
+    transcript.turns.push({
+      role: 'ai',
+      content: transitionMessage,
+      timestamp: new Date(),
+    });
+    await saveTranscript(session.id, transcript);
+
+    return {
+      isFinished: false,
+      currentQuestionIndex: nextQIdx,
+      stage: updatedSession.stage,
+      session: {
+        id: updatedSession.id,
+        currentQuestionIndex: nextQIdx,
+        stage: updatedSession.stage,
+      },
+      currentQuestion: {
+        index: nextQIdx,
+        total: questions.length,
+        id: nextQ.id,
+        title: nextQ.title,
+        difficulty: nextQ.difficulty,
+        domain: nextQ.domain,
+        prompt: nextQ.prompt,
+        timeComplexityTarget: nextQ.timeComplexityTarget,
+        spaceComplexityTarget: nextQ.spaceComplexityTarget,
+        approachKeywords: nextQ.approachKeywords,
+        starterCode: nextQ.starterCode,
+        visibleTestCases: nextQ.visibleTestCases,
+      },
+      starterCode: nextStarter,
+      isEditorUnlocked: false,
+      aiTransitionTurn: {
+        role: 'ai',
+        content: transitionMessage,
+        timestamp: new Date().toISOString(),
+      },
+    };
   }
 
   /**
@@ -366,6 +586,7 @@ export class InterviewService {
           session,
           report: existingReport,
           isIdempotentReplay: true,
+          isFinished: true,
         };
       }
     }
@@ -385,13 +606,20 @@ export class InterviewService {
       content: t.content,
     }));
 
+    // Collect all code submissions across questions
+    const answers = (session.questionAnswers as any) || {};
+    const codeSubmissions = Object.values(answers).map((ans: any) => ans.code || '');
+    if (finalCode && !codeSubmissions.includes(finalCode)) {
+      codeSubmissions.push(finalCode);
+    }
+
     // 2. Invoke AI Provider for multi-pillar interview evaluation
     const aiProvider = getAIProvider();
     const evaluation = await aiProvider.evaluateInterview({
       sessionId: session.id,
       interviewType: session.type,
       turns,
-      codeSubmissions: [finalCode || session.currentCode || ''],
+      codeSubmissions: codeSubmissions.length > 0 ? codeSubmissions : [session.currentCode || ''],
     });
 
     // 3. Persist AI Evaluation Report in MongoDB (or fallback cache)
@@ -413,6 +641,7 @@ export class InterviewService {
       where: { id: session.id },
       data: {
         status: SessionStatus.COMPLETED,
+        stage: InterviewStage.COMPLETED,
         completedAt: new Date(),
         overallScore: evaluation.overallScore,
         evaluationId: report.id,
@@ -433,6 +662,7 @@ export class InterviewService {
     return {
       session: updatedSession,
       report,
+      isFinished: true,
       isIdempotentReplay: false,
     };
   }
@@ -449,21 +679,47 @@ export class InterviewService {
       throw { status: 404, message: 'Interview session not found or access denied' };
     }
 
+    const questions: DSAQuestion[] = (session.questionQueue as any) || [];
+    const currentQIdx = session.currentQuestionIndex || 0;
+    const currentQ = questions[currentQIdx] || questions[0];
+
     const transcript = await getTranscript(session.id);
-    const report = session.evaluationId
-      ? await getReport(session.evaluationId)
-      : null;
+    const report = session.evaluationId ? await getReport(session.evaluationId) : null;
 
     return {
-      session,
+      session: {
+        id: session.id,
+        userId: session.userId,
+        type: session.type,
+        status: session.status,
+        currentQuestionIndex: currentQIdx,
+        stage: session.stage,
+        startedAt: session.startedAt,
+      },
       transcript: transcript?.turns || [],
       report,
-      problem: {
-        title: session.problemTitle || DEFAULT_DSA_PROBLEM.title,
-        prompt: session.problemPrompt || DEFAULT_DSA_PROBLEM.prompt,
-        starterCode: session.currentCode || DEFAULT_DSA_PROBLEM.starterCode,
-        visibleTestCases: DEFAULT_DSA_PROBLEM.testCases,
-      },
+      currentQuestion: currentQ
+        ? {
+            index: currentQIdx,
+            total: questions.length,
+            id: currentQ.id,
+            title: currentQ.title,
+            difficulty: currentQ.difficulty,
+            domain: currentQ.domain,
+            prompt: currentQ.prompt,
+            timeComplexityTarget: currentQ.timeComplexityTarget,
+            spaceComplexityTarget: currentQ.spaceComplexityTarget,
+            starterCode: currentQ.starterCode,
+            visibleTestCases: currentQ.visibleTestCases,
+          }
+        : null,
+      questionsOverview: questions.map((q, idx) => ({
+        index: idx,
+        id: q.id,
+        title: q.title,
+        difficulty: q.difficulty,
+      })),
+      isEditorUnlocked: session.stage === InterviewStage.CODING,
     };
   }
 }

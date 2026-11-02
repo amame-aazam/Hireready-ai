@@ -8,11 +8,15 @@ export interface InterviewTurn {
   codeSnippet?: string;
 }
 
+export type InterviewStage = 'APPROACH' | 'CODING' | 'SUBMITTED' | 'COMPLETED';
+
 export interface InterviewSessionData {
   id: string;
   userId: string;
   type: 'DSA' | 'HR';
   status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED';
+  currentQuestionIndex: number;
+  stage: InterviewStage;
   problemTitle?: string;
   problemPrompt?: string;
   currentCode?: string;
@@ -22,15 +26,36 @@ export interface InterviewSessionData {
 }
 
 export interface ProblemData {
+  index: number;
+  total: number;
+  id: string;
   title: string;
+  difficulty: 'EASY' | 'MEDIUM';
+  domain?: string;
   prompt: string;
-  starterCode: string;
+  timeComplexityTarget?: string;
+  spaceComplexityTarget?: string;
+  starterCode:
+    | {
+        javascript: string;
+        python: string;
+        java: string;
+        cpp: string;
+      }
+    | string;
   visibleTestCases: Array<{
     id: string;
     input: string;
     expectedOutput: string;
     description?: string;
   }>;
+}
+
+export interface QuestionOverviewItem {
+  index: number;
+  id: string;
+  title: string;
+  difficulty: 'EASY' | 'MEDIUM';
 }
 
 export interface StartInterviewResponse {
@@ -40,12 +65,17 @@ export interface StartInterviewResponse {
     role: 'ai';
     content: string;
   };
-  problem: ProblemData;
+  currentQuestion: ProblemData;
+  questionsOverview?: QuestionOverviewItem[];
+  currentCode?: string;
+  isEditorUnlocked: boolean;
   isResumed: boolean;
 }
 
 export interface TurnResponse {
   replyText: string;
+  stage?: InterviewStage;
+  isEditorUnlocked?: boolean;
   isTerminalTurn: boolean;
   suggestedFollowUp?: string;
   turnEvaluation?: {
@@ -76,6 +106,16 @@ export interface FinishInterviewResponse {
   session: InterviewSessionData;
   report: EvaluationReportData;
   isIdempotentReplay: boolean;
+}
+
+export interface AdvanceQuestionResponse {
+  isFinished: boolean;
+  session?: InterviewSessionData;
+  currentQuestion?: ProblemData;
+  starterCode?: string;
+  isEditorUnlocked: boolean;
+  aiTransitionTurn?: InterviewTurn;
+  report?: EvaluationReportData;
 }
 
 export interface CodeExecutionResponse {
@@ -118,6 +158,18 @@ export const interviewApi = {
     const response = await apiClient.post<{ success: boolean; data: CodeExecutionResponse }>(
       `/api/interview/session/${sessionId}/run-code`,
       { sourceCode, language }
+    );
+    return response.data.data;
+  },
+
+  advanceQuestion: async (
+    sessionId: string,
+    code: string,
+    language: string = 'javascript'
+  ): Promise<AdvanceQuestionResponse> => {
+    const response = await apiClient.post<{ success: boolean; data: AdvanceQuestionResponse }>(
+      `/api/interview/session/${sessionId}/advance-question`,
+      { code, language }
     );
     return response.data.data;
   },

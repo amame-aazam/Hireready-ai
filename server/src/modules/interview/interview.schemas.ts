@@ -23,7 +23,13 @@ export const finishInterviewSchema = z.object({
   finalCode: z.string().optional(),
 });
 
+export const advanceQuestionSchema = z.object({
+  code: z.string().default(''),
+  language: z.string().default('javascript'),
+});
+
 export type StartInterviewInput = z.infer<typeof startInterviewSchema>;
 export type InterviewTurnInput = z.infer<typeof interviewTurnSchema>;
 export type RunInterviewCodeInput = z.infer<typeof runInterviewCodeSchema>;
 export type FinishInterviewInput = z.infer<typeof finishInterviewSchema>;
+export type AdvanceQuestionInput = z.infer<typeof advanceQuestionSchema>;

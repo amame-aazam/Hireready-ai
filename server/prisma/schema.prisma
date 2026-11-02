@@ -48,6 +48,13 @@ enum QuestionType {
   CODING
 }
 
+enum InterviewStage {
+  APPROACH
+  CODING
+  SUBMITTED
+  COMPLETED
+}
+
 model User {
   id             String          @id @default(uuid())
   email          String          @unique
@@ -227,16 +234,22 @@ model AssessmentAttempt {
 }
 
 model InterviewSession {
-  id            String        @id @default(uuid())
-  userId        String
-  applicationId String?
-  type          InterviewType @default(DSA)
-  status        SessionStatus @default(SCHEDULED)
+  id                   String         @id @default(uuid())
+  userId               String
+  applicationId        String?
+  type                 InterviewType  @default(DSA)
+  status               SessionStatus  @default(SCHEDULED)
   
-  // Problem Details
-  problemTitle  String?       @default("Two Sum & Optimal Lookup")
-  problemPrompt String?       @db.Text
-  currentCode   String?       @db.Text
+  // Multi-Question State Tracking
+  currentQuestionIndex Int            @default(0)
+  stage                InterviewStage @default(APPROACH)
+  questionQueue        Json?          // Array of 3 questions
+  questionAnswers      Json?          // { [qIndex]: { code: string, language: string, passed: boolean } }
+
+  // Problem Details (Current Question Snapshot)
+  problemTitle         String?        @default("Two Sum & Optimal Lookup")
+  problemPrompt        String?        @db.Text
+  currentCode          String?        @db.Text
 
   // Scoring
   overallScore  Float?

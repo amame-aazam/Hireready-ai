@@ -13,6 +13,9 @@ router.post('/session/:sessionId/turn', authenticate, InterviewController.turn);
 // Run candidate code against test cases in the sandbox
 router.post('/session/:sessionId/run-code', authenticate, InterviewController.runCode);
 
+// Advance to next question in sequence
+router.post('/session/:sessionId/advance-question', authenticate, InterviewController.advanceQuestion);
+
 // Finalize interview, generate AI evaluation report (idempotent)
 router.post('/session/:sessionId/finish', authenticate, InterviewController.finish);
 

@@ -125,6 +125,70 @@ export class MockCodeExecutor {
       return { passesGeneral: false, failureReason: 'Wrong Answer: Palindrome condition not met' };
     }
 
+    if (titleLower.includes('stock') || titleLower.includes('profit')) {
+      const hasMinMax = lower.includes('min') || lower.includes('max') || lower.includes('profit');
+      const hasLoop = lower.includes('for') || lower.includes('while');
+      const hasReturn = lower.includes('return');
+      if (hasReturn && hasLoop && hasMinMax) {
+        return { passesGeneral: true };
+      }
+      return { passesGeneral: false, failureReason: 'Wrong Answer: Maximum profit calculation incorrect' };
+    }
+
+    if (titleLower.includes('parenthes')) {
+      const hasStack = lower.includes('stack') || lower.includes('pop') || lower.includes('push') || lower.includes('append');
+      const hasReturn = lower.includes('return');
+      if (hasReturn && hasStack) {
+        return { passesGeneral: true };
+      }
+      return { passesGeneral: false, failureReason: 'Wrong Answer: Unbalanced parentheses detected' };
+    }
+
+    if (titleLower.includes('anagram')) {
+      const hasMapOrSort = lower.includes('map') || lower.includes('dict') || lower.includes('sort') || lower.includes('values');
+      const hasReturn = lower.includes('return');
+      if (hasReturn && hasMapOrSort) {
+        return { passesGeneral: true };
+      }
+      return { passesGeneral: false, failureReason: 'Wrong Answer: Anagram grouping incomplete' };
+    }
+
+    if (titleLower.includes('water') || titleLower.includes('container')) {
+      const hasTwoPointers = (lower.includes('left') && lower.includes('right')) || (lower.includes('while') && lower.includes('min'));
+      const hasReturn = lower.includes('return');
+      if (hasReturn && hasTwoPointers) {
+        return { passesGeneral: true };
+      }
+      return { passesGeneral: false, failureReason: 'Wrong Answer: Optimal water area not bounded' };
+    }
+
+    if (titleLower.includes('longest substring') || titleLower.includes('substring')) {
+      const hasWindowOrSet = lower.includes('set') || lower.includes('map') || lower.includes('dict') || lower.includes('max');
+      const hasReturn = lower.includes('return');
+      if (hasReturn && hasWindowOrSet) {
+        return { passesGeneral: true };
+      }
+      return { passesGeneral: false, failureReason: 'Wrong Answer: Duplicate characters in substring window' };
+    }
+
+    if (titleLower.includes('coin change')) {
+      const hasDP = lower.includes('dp') || lower.includes('math.min') || lower.includes('min(') || lower.includes('infinity');
+      const hasReturn = lower.includes('return');
+      if (hasReturn && hasDP) {
+        return { passesGeneral: true };
+      }
+      return { passesGeneral: false, failureReason: 'Wrong Answer: Minimal coin count not achieved' };
+    }
+
+    if (titleLower.includes('3sum') || titleLower.includes('three sum')) {
+      const hasSortAndPointers = lower.includes('sort') && (lower.includes('left') || lower.includes('right') || lower.includes('while'));
+      const hasReturn = lower.includes('return');
+      if (hasReturn && hasSortAndPointers) {
+        return { passesGeneral: true };
+      }
+      return { passesGeneral: false, failureReason: 'Wrong Answer: Duplicate triplets or invalid sum' };
+    }
+
     if (titleLower.includes('debounce')) {
       const hasTimer = lower.includes('settimeout') || lower.includes('cleartimeout');
       const hasReturn = lower.includes('return');

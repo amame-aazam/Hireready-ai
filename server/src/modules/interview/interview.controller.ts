@@ -6,6 +6,7 @@ import {
   interviewTurnSchema,
   runInterviewCodeSchema,
   finishInterviewSchema,
+  advanceQuestionSchema,
 } from './interview.schemas';
 
 export class InterviewController {
@@ -50,6 +51,18 @@ export class InterviewController {
       const { finalCode } = finishInterviewSchema.parse(req.body);
       const userId = (req as any).user.id;
       const result = await InterviewService.finishInterview(userId, sessionId, finalCode);
+      return res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  public static async advanceQuestion(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { sessionId } = sessionParamSchema.parse(req.params);
+      const { code, language } = advanceQuestionSchema.parse(req.body);
+      const userId = (req as any).user.id;
+      const result = await InterviewService.advanceQuestion(userId, sessionId, code, language);
       return res.status(200).json({ success: true, data: result });
     } catch (error) {
       return next(error);
