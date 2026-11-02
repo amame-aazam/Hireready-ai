@@ -199,44 +199,87 @@ export class MockAIProvider implements AIProvider {
   }
 
   async generateInterviewTurn(input: InterviewTurnInput): Promise<InterviewTurnOutput> {
-    await this.simulateLatency(300);
+    await this.simulateLatency(250);
 
     const turnCount = input.dialogueHistory.length;
+    const utterance = (input.latestCandidateUtterance || '').toLowerCase();
+    const code = (input.codeSnippet || '').toLowerCase();
 
     if (input.interviewType === 'DSA') {
       if (turnCount === 0) {
         return {
           replyText:
-            "Hello! Welcome to your technical interview. Let's start with a classic problem: Given an array of integers and a target sum, how would you find two numbers such that they add up to the target?",
+            "Hello! Welcome to your technical interview. Let's work on an algorithmic problem: Given an array of integers nums and an integer target, how would you find the indices of the two numbers that add up to target?",
           isTerminalTurn: false,
-          suggestedFollowUp: 'Can you describe your brute-force vs optimal approach?',
+          suggestedFollowUp: 'What is your initial thought on solving this?',
         };
       }
 
-      if (turnCount >= 6) {
+      if (turnCount === 1 || turnCount === 2) {
+        if (utterance.includes('hash') || utterance.includes('map') || utterance.includes('dict') || utterance.includes('linear')) {
+          return {
+            replyText:
+              "Great intuition! Using a hash map achieves linear O(n) time. As you iterate through the numbers, what would you store as keys versus values in the map?",
+            isTerminalTurn: false,
+            turnEvaluation: { clarity: 9.0, technicalAccuracy: 9.0 },
+          };
+        } else if (utterance.includes('brute') || utterance.includes('loop') || utterance.includes('n^2')) {
+          return {
+            replyText:
+              "A brute force nested loop is a great baseline with O(n^2) time. Can you think of how we might use an auxiliary data structure to reduce the time complexity down to O(n)?",
+            isTerminalTurn: false,
+            turnEvaluation: { clarity: 8.0, technicalAccuracy: 7.5 },
+          };
+        } else {
+          return {
+            replyText:
+              "That makes sense. Could you clarify the time and space complexity of that approach before you start implementing?",
+            isTerminalTurn: false,
+            turnEvaluation: { clarity: 8.0, technicalAccuracy: 8.0 },
+          };
+        }
+      }
+
+      if (turnCount === 3 || turnCount === 4) {
         return {
           replyText:
-            'Great job walking through the time and space complexity tradeoffs. That concludes our technical discussion for today! Do you have any questions for me?',
-          isTerminalTurn: true,
+            "Sounds like a solid plan. Please go ahead and write your implementation in the Monaco code editor on your right, and run the test cases when ready.",
+          isTerminalTurn: false,
+          turnEvaluation: { clarity: 8.5, technicalAccuracy: 8.5 },
         };
       }
 
+      if (turnCount === 5 || turnCount === 6) {
+        if (code.includes('map') || code.includes('target - nums') || code.includes('complement')) {
+          return {
+            replyText:
+              "Your code looks very clean and correctly handles the complement lookup. What would the space complexity be if all elements in the input array were distinct?",
+            isTerminalTurn: false,
+            turnEvaluation: { clarity: 9.0, technicalAccuracy: 9.5 },
+          };
+        } else {
+          return {
+            replyText:
+              "Nice progress on the code. Have you tested it with edge cases, such as duplicate elements or negative numbers?",
+            isTerminalTurn: false,
+            turnEvaluation: { clarity: 8.0, technicalAccuracy: 8.0 },
+          };
+        }
+      }
+
+      // Terminal turn (turnCount >= 7)
       return {
         replyText:
-          'That makes sense. Can you explain the space complexity of using a hash map here, and what happens in the case of duplicate elements?',
-        isTerminalTurn: false,
-        turnEvaluation: {
-          clarity: 8.5,
-          technicalAccuracy: 8.0,
-        },
+          "Excellent work! You walked through your approach clearly, optimized the lookup to O(n), and tested your implementation thoroughly. That concludes our technical round for today!",
+        isTerminalTurn: true,
       };
     }
 
-    // HR Interview
+    // HR Behavioral Interview
     if (turnCount === 0) {
       return {
         replyText:
-          'Welcome! To kick things off, could you briefly introduce yourself and share a project you are particularly proud of?',
+          'Welcome to your interview! To kick things off, could you briefly introduce yourself and share a technical project you are particularly proud of?',
         isTerminalTurn: false,
       };
     }
@@ -261,32 +304,67 @@ export class MockAIProvider implements AIProvider {
   }
 
   async evaluateInterview(input: InterviewEvaluationInput): Promise<InterviewEvaluationOutput> {
-    await this.simulateLatency(400);
+    await this.simulateLatency(350);
 
     const isDSA = input.interviewType === 'DSA';
+    const turnsText = input.turns.map((t) => t.content.toLowerCase()).join(' ');
+    const codeText = (input.codeSubmissions || []).join(' ').toLowerCase();
+
+    let technicalScore = isDSA ? 75 : 80;
+    let communicationScore = 80;
+
+    // Technical rubric evaluation
+    if (codeText.includes('map') || codeText.includes('dict') || codeText.includes('complement')) {
+      technicalScore += 10;
+    }
+    if (turnsText.includes('o(n)') || turnsText.includes('time complexity') || turnsText.includes('space')) {
+      technicalScore += 5;
+    }
+    if (turnsText.includes('edge case') || turnsText.includes('duplicate') || turnsText.includes('negative')) {
+      technicalScore += 4;
+    }
+
+    // Communication rubric evaluation
+    if (input.turns.filter((t) => t.role === 'candidate').length >= 3) {
+      communicationScore += 8;
+    }
+    if (turnsText.includes('approach') || turnsText.includes('because') || turnsText.includes('first')) {
+      communicationScore += 6;
+    }
+
+    technicalScore = Math.min(98, Math.max(50, technicalScore));
+    communicationScore = Math.min(98, Math.max(50, communicationScore));
+    const overallScore = Math.round(technicalScore * 0.6 + communicationScore * 0.4);
+
+    let recommendation: 'STRONG_HIRE' | 'HIRE' | 'NEUTRAL' | 'NO_HIRE' = 'HIRE';
+    if (overallScore >= 88) recommendation = 'STRONG_HIRE';
+    else if (overallScore >= 70) recommendation = 'HIRE';
+    else if (overallScore >= 55) recommendation = 'NEUTRAL';
+    else recommendation = 'NO_HIRE';
 
     return {
-      overallScore: isDSA ? 82 : 88,
-      technicalScore: isDSA ? 84 : 80,
-      communicationScore: 86,
+      overallScore,
+      technicalScore,
+      communicationScore,
       keyObservations: [
-        'Articulated thought process before jumping into implementation.',
-        'Good awareness of Big-O time and space complexity constraints.',
-        'Listened attentively to feedback and adapted answers accordingly.',
+        'Articulated algorithmic strategy clearly before diving into implementation.',
+        'Demonstrated strong understanding of time and space complexity tradeoffs.',
+        'Listened attentively to hints and structured code cleanly in the editor.',
       ],
-      recommendation: 'HIRE',
+      recommendation,
       detailedFeedback: {
         strengths: [
-          'Strong analytical thinking and structured communication.',
-          'Understands hash-based data structures and edge case handling.',
+          'Effective communication and structured problem decomposition.',
+          'Successfully identified the optimal O(n) hash map lookup solution.',
+          'Maintained high code quality and readable variable naming.',
         ],
         weaknesses: [
-          'Could verify edge cases (e.g. empty inputs, integer overflow) more proactively.',
+          'Could explicitly state input constraints and boundary conditions earlier in the discussion.',
         ],
         technicalAnalysis:
-          'Demonstrated solid algorithmic knowledge and correctly identified O(N) linear time optimization.',
+          'The candidate demonstrated strong proficiency in data structures and algorithmic efficiency. Solved the problem within expected time constraints.',
         communicationAnalysis:
-          'Clear, concise tone with structured STAR-method storytelling during behavioral queries.',
+          'Maintained a confident, professional cadence throughout the interview. Clearly articulated tradeoff reasoning.',
       },
     };
   }

@@ -13,6 +13,7 @@ import authRoutes from './modules/auth/auth.routes';
 import domainRoutes from './modules/domain/domain.routes';
 import resumeRoutes from './modules/resume/resume.routes';
 import assessmentRoutes from './modules/assessment/assessment.routes';
+import interviewRoutes from './modules/interview/interview.routes';
 
 const app: Application = express();
 
@@ -44,6 +45,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/domains', domainRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/assessment', assessmentRoutes);
+app.use('/api/interview', interviewRoutes);
 
 // Basic Health Check (fast ping for frontend cold-start detection)
 app.get('/health', (_req: Request, res: Response) => {

@@ -62,6 +62,7 @@ model User {
   refreshTokens      RefreshToken[]
   applications       Application[]
   assessmentAttempts AssessmentAttempt[]
+  interviewSessions  InterviewSession[]
 
   @@index([role])
   @@map("users")
@@ -227,20 +228,32 @@ model AssessmentAttempt {
 
 model InterviewSession {
   id            String        @id @default(uuid())
-  applicationId String
-  type          InterviewType
+  userId        String
+  applicationId String?
+  type          InterviewType @default(DSA)
   status        SessionStatus @default(SCHEDULED)
+  
+  // Problem Details
+  problemTitle  String?       @default("Two Sum & Optimal Lookup")
+  problemPrompt String?       @db.Text
+  currentCode   String?       @db.Text
+
+  // Scoring
   overallScore  Float?
-  // UUID referencing MongoDB interview_transcripts document
-  transcriptId  String?
-  // UUID referencing MongoDB ai_evaluation_reports document
-  evaluationId  String?
+  
+  // Cross-DB References
+  transcriptId  String?       // UUID referencing MongoDB interview_transcripts
+  evaluationId  String?       // UUID referencing MongoDB ai_evaluation_reports
+
   startedAt     DateTime?
   completedAt   DateTime?
   createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  application   Application   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  application   Application?  @relation(fields: [applicationId], references: [id], onDelete: SetNull)
 
+  @@index([userId, status])
   @@index([applicationId, status])
   @@index([status, overallScore(sort: Desc)])
   @@map("interview_sessions")
