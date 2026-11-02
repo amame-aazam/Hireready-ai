@@ -13,44 +13,57 @@ export const AIAvatar: React.FC<AIAvatarProps> = ({
   interviewerName = 'Sophia',
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center p-5 bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-2xl relative overflow-hidden text-center space-y-3.5 shadow-xl">
+    <div className="h-full w-full flex flex-col items-center justify-between p-4 sm:p-5 bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-950 border border-slate-800 rounded-2xl relative overflow-hidden text-center shadow-xl">
       {/* Dynamic Background Ambient Glow */}
       <div
         className={`absolute inset-0 transition-opacity duration-700 pointer-events-none ${
           isSpeaking
-            ? 'bg-gradient-to-b from-indigo-600/25 via-cyan-500/10 to-transparent opacity-100'
+            ? 'bg-radial from-indigo-600/30 via-cyan-500/10 to-transparent opacity-100'
             : isListening
-            ? 'bg-gradient-to-b from-emerald-600/25 via-teal-500/10 to-transparent opacity-100'
+            ? 'bg-radial from-emerald-600/30 via-teal-500/10 to-transparent opacity-100'
             : 'opacity-0'
         }`}
       />
 
+      {/* Top Header Label */}
+      <div className="w-full flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+          <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+            AI Technical Interviewer
+          </span>
+        </div>
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+          Staff Bar Raiser
+        </span>
+      </div>
+
       {/* Sophia Vector Portrait & Animated Aura */}
-      <div className="relative group">
+      <div className="relative group my-auto">
         {/* Luminous Pulsing Concentric Sound Rings when Speaking */}
         {isSpeaking && (
           <>
-            <div className="absolute -inset-4 rounded-full border border-indigo-400/30 animate-ping opacity-40 pointer-events-none" />
-            <div className="absolute -inset-2 rounded-full border-2 border-cyan-400/40 animate-pulse pointer-events-none" />
+            <div className="absolute -inset-5 rounded-full border-2 border-indigo-400/40 animate-ping opacity-50 pointer-events-none" />
+            <div className="absolute -inset-2.5 rounded-full border-2 border-cyan-400/50 animate-pulse pointer-events-none" />
           </>
         )}
 
         {/* Luminous Pulsing Ripple when Listening to Candidate */}
         {isListening && (
           <>
-            <div className="absolute -inset-3 rounded-full border border-emerald-400/40 animate-pulse opacity-60 pointer-events-none" />
-            <div className="absolute -inset-1.5 rounded-full border border-teal-400/50 animate-ping opacity-30 pointer-events-none" />
+            <div className="absolute -inset-4 rounded-full border-2 border-emerald-400/50 animate-pulse opacity-70 pointer-events-none" />
+            <div className="absolute -inset-2 rounded-full border-2 border-teal-400/60 animate-ping opacity-40 pointer-events-none" />
           </>
         )}
 
         {/* Circular Avatar Frame */}
         <div
-          className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 border-2 transition-all duration-300 shadow-2xl relative z-10 flex items-center justify-center overflow-hidden ${
+          className={`w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 xl:w-44 xl:h-44 rounded-full p-1.5 border-2 transition-all duration-500 relative z-10 flex items-center justify-center overflow-hidden ${
             isSpeaking
-              ? 'border-indigo-400 shadow-indigo-500/30 ring-4 ring-indigo-500/20 scale-105'
+              ? 'border-indigo-400 shadow-[0_0_45px_rgba(99,102,241,0.5)] ring-4 ring-indigo-500/30 scale-105'
               : isListening
-              ? 'border-emerald-400 shadow-emerald-500/30 ring-4 ring-emerald-500/20 scale-102'
-              : 'border-slate-700 shadow-slate-950/80 bg-slate-900'
+              ? 'border-emerald-400 shadow-[0_0_45px_rgba(16,185,129,0.5)] ring-4 ring-emerald-500/30 scale-102 animate-pulse'
+              : 'border-slate-700/80 shadow-2xl shadow-slate-950/80 bg-slate-900'
           }`}
         >
           {/* Custom SVG Vector Illustration of Sophia (Professional Female AI Technical Assistant) */}
@@ -232,39 +245,40 @@ export const AIAvatar: React.FC<AIAvatarProps> = ({
         </div>
       </div>
 
-      {/* Name & Title */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-center gap-1.5">
-          <h3 className="text-base font-extrabold text-slate-100 tracking-tight">{interviewerName}</h3>
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+      {/* Name, Title & Status */}
+      <div className="w-full flex flex-col items-center space-y-2 relative z-10">
+        <div className="flex items-center justify-center gap-2">
+          <h3 className="text-base sm:text-lg font-extrabold text-slate-100 tracking-tight">{interviewerName}</h3>
+          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
             AI Bar Raiser
           </span>
         </div>
-        <p className="text-[11px] text-slate-400">Senior Staff Engineering Interviewer</p>
-      </div>
 
-      {/* Dynamic Animated Soundwave Visualizer Bars */}
-      <div className="w-full pt-1 flex flex-col items-center space-y-2">
-        <div className="flex items-center gap-1 h-5 justify-center">
+        {/* Dynamic Animated Soundwave Visualizer Bars */}
+        <div className="flex items-center gap-1.5 h-6 justify-center">
           {[
             { delay: '0ms', speakH: 'h-4', listenH: 'h-2' },
-            { delay: '120ms', speakH: 'h-5', listenH: 'h-3' },
+            { delay: '120ms', speakH: 'h-6', listenH: 'h-3' },
             { delay: '240ms', speakH: 'h-3', listenH: 'h-4' },
             { delay: '80ms', speakH: 'h-5', listenH: 'h-2' },
-            { delay: '180ms', speakH: 'h-4', listenH: 'h-3' },
-            { delay: '300ms', speakH: 'h-5', listenH: 'h-4' },
-            { delay: '150ms', speakH: 'h-3', listenH: 'h-2' },
-            { delay: '220ms', speakH: 'h-4', listenH: 'h-3' },
+            { delay: '180ms', speakH: 'h-6', listenH: 'h-3' },
+            { delay: '300ms', speakH: 'h-5', listenH: 'h-5' },
+            { delay: '150ms', speakH: 'h-4', listenH: 'h-2' },
+            { delay: '220ms', speakH: 'h-6', listenH: 'h-3' },
+            { delay: '90ms', speakH: 'h-5', listenH: 'h-4' },
+            { delay: '270ms', speakH: 'h-3', listenH: 'h-2' },
+            { delay: '140ms', speakH: 'h-6', listenH: 'h-3' },
+            { delay: '60ms', speakH: 'h-4', listenH: 'h-2' },
           ].map((bar, i) => (
             <div
               key={i}
               style={{ animationDelay: bar.delay }}
-              className={`w-1 rounded-full transition-all duration-200 ${
+              className={`w-1 sm:w-1.5 rounded-full transition-all duration-200 ${
                 isSpeaking
-                  ? `bg-indigo-400 animate-pulse ${bar.speakH}`
+                  ? `bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)] animate-pulse ${bar.speakH}`
                   : isListening
-                  ? `bg-emerald-400 animate-pulse ${bar.listenH}`
-                  : 'bg-slate-700 h-1.5'
+                  ? `bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse ${bar.listenH}`
+                  : 'bg-slate-700/60 h-1.5'
               }`}
             />
           ))}
@@ -272,7 +286,7 @@ export const AIAvatar: React.FC<AIAvatarProps> = ({
 
         {/* Real-time Status Badge */}
         <div
-          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition-all duration-300 ${
+          className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold border transition-all duration-300 ${
             isSpeaking
               ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300 shadow-sm shadow-indigo-500/20'
               : isListening

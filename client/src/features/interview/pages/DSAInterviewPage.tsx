@@ -317,40 +317,47 @@ export const DSAInterviewPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Grid: Left Column (AI Avatar & Voice Turns) | Right Column (Monaco Editor & Sandbox) */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-[600px]">
-        {/* Left Column: AI Avatar, Turn Feed & Voice Controls */}
-        <div className="lg:col-span-5 flex flex-col space-y-3 h-[600px] lg:h-[calc(100vh-175px)]">
-          {/* AI Avatar */}
-          <AIAvatar
-            isSpeaking={isSpeaking}
-            isListening={isListening}
-            interviewerName="Sophia — Technical Bar Raiser"
-          />
+      {/* Main Grid: Left Column (Sophia Avatar Top Half + Chat Bottom Half) | Right Column (Monaco Editor & Sandbox) */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-[620px]">
+        {/* Left Column: 50/50 Split (Top Half: Prominent Sophia Avatar | Bottom Half: Scrolling Transcript & Voice Controls) */}
+        <div className="lg:col-span-5 flex flex-col gap-3 h-[720px] lg:h-[calc(100vh-140px)] min-h-[620px]">
+          {/* Top Half: Large Prominent AI Avatar area for Sophia */}
+          <div className="h-1/2 min-h-0 flex flex-col">
+            <AIAvatar
+              isSpeaking={isSpeaking}
+              isListening={isListening}
+              interviewerName="Sophia"
+            />
+          </div>
 
-          {/* Turn-by-Turn Dialogue Feed */}
-          <TranscriptFeed
-            turns={transcript}
-            onReplaySpeech={speak}
-            isAiSpeaking={isSpeaking}
-          />
+          {/* Bottom Half: Compact Scrolling Chat Transcript & Voice Controls */}
+          <div className="h-1/2 min-h-0 flex flex-col gap-2 bg-slate-900/60 border border-slate-800 rounded-2xl p-2.5 overflow-hidden shadow-lg">
+            {/* Scrollable Compact Transcript */}
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+              <TranscriptFeed
+                turns={transcript}
+                onReplaySpeech={speak}
+                isAiSpeaking={isSpeaking}
+              />
+            </div>
 
-          {/* Voice & Speech Controls */}
-          <VoiceControls
-            isListening={isListening}
-            transcript={sttTranscript}
-            interimTranscript={interimTranscript}
-            onStartListening={startListening}
-            onStopListening={stopListening}
-            onSendTurn={handleSendTurn}
-            onClearTranscript={resetTranscript}
-            isSendingTurn={isSendingTurn}
-            isSupported={isSttSupported}
-          />
+            {/* Compact Voice Controls */}
+            <VoiceControls
+              isListening={isListening}
+              transcript={sttTranscript}
+              interimTranscript={interimTranscript}
+              onStartListening={startListening}
+              onStopListening={stopListening}
+              onSendTurn={handleSendTurn}
+              onClearTranscript={resetTranscript}
+              isSendingTurn={isSendingTurn}
+              isSupported={isSttSupported}
+            />
+          </div>
         </div>
 
         {/* Right Column: Problem Prompt, Monaco Code Editor & Test Cases */}
-        <div className="lg:col-span-7 flex flex-col space-y-3 h-[600px] lg:h-[calc(100vh-175px)]">
+        <div className="lg:col-span-7 flex flex-col space-y-3 h-[720px] lg:h-[calc(100vh-140px)] min-h-[620px]">
           {/* Problem Prompt Accordion / Card */}
           <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-1.5 shrink-0">
             <div className="flex items-center justify-between">
