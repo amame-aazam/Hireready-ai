@@ -347,10 +347,17 @@ export class MockAIProvider implements AIProvider {
         'saved',
       ];
 
-      const hasSituation = situationKeywords.some((k) => utterance.includes(k));
-      const hasTask = taskKeywords.some((k) => utterance.includes(k));
-      const hasAction = actionKeywords.some((k) => utterance.includes(k));
-      const hasResult = resultKeywords.some((k) => utterance.includes(k));
+      // Check cumulative candidate history for active dialogue
+      const previousCandidateUtterances = (input.dialogueHistory || [])
+        .filter((t) => t.role === 'candidate')
+        .map((t) => t.content.toLowerCase())
+        .join(' ');
+      const cumulativeText = `${previousCandidateUtterances} ${utterance}`.trim();
+
+      const hasSituation = situationKeywords.some((k) => cumulativeText.includes(k));
+      const hasTask = taskKeywords.some((k) => cumulativeText.includes(k));
+      const hasAction = actionKeywords.some((k) => cumulativeText.includes(k));
+      const hasResult = resultKeywords.some((k) => cumulativeText.includes(k));
 
       const starProgress = {
         situation: hasSituation,
@@ -364,47 +371,68 @@ export class MockAIProvider implements AIProvider {
           replyText:
             "Hello! Welcome to your HR Behavioral Interview. I am Sophia. Today we will explore your past engineering experiences using the STAR method: Situation, Task, Action, and Result. To get started, please tell me about a time when you strongly disagreed with a team member on an architectural decision. How did you navigate that?",
           isTerminalTurn: false,
+          isQuestionComplete: false,
           starProgress,
         };
       }
 
-      // Probing follow-up if critical elements are missing
+      // Generate natural, conversational acknowledgment based on the student's specific answer
+      let naturalAck = "I see, that makes a lot of sense.";
+      if (utterance.includes('disagree') || utterance.includes('conflict') || utterance.includes('debate') || utterance.includes('architect')) {
+        naturalAck = "I understand completely—navigating architectural disagreements and conflicting technical perspectives requires both diplomatic empathy and solid objective data.";
+      } else if (utterance.includes('outage') || utterance.includes('production') || utterance.includes('incident') || utterance.includes('down') || utterance.includes('bug') || utterance.includes('fail')) {
+        naturalAck = "Production incidents and downtime can be extremely stressful, and having a blameless, systematic recovery mindset is essential.";
+      } else if (utterance.includes('deadline') || utterance.includes('crunch') || utterance.includes('blocker') || utterance.includes('pressure') || utterance.includes('urgent')) {
+        naturalAck = "Facing tight deadlines and unforeseen blockers really tests an engineer's composure and prioritization skills.";
+      } else if (utterance.includes('priority') || utterance.includes('priorities') || utterance.includes('stakeholder') || utterance.includes('competing')) {
+        naturalAck = "Balancing competing stakeholder expectations while protecting core code quality and team velocity is a delicate challenge.";
+      } else if (utterance.includes('database') || utterance.includes('pool') || utterance.includes('latency') || utterance.includes('refactor') || utterance.includes('service')) {
+        naturalAck = "Tackling backend bottlenecks and connection pooling issues is critical for long-term system stability.";
+      } else if (utterance.length > 50) {
+        naturalAck = "Thank you for walking me through those details—I appreciate the context you shared.";
+      }
+
+      // 1. If Action is missing
       if (!hasAction && (hasSituation || hasTask)) {
         return {
-          replyText:
-            "You set up the situation and challenge very clearly. What specific actions or initiatives did you personally take to address it?",
+          replyText: `${naturalAck} You've framed the situation and challenges clearly. Could you walk me through the specific technical or interpersonal actions you personally took to resolve it?`,
           isTerminalTurn: false,
-          suggestedFollowUp: 'Describe your direct personal action.',
+          isQuestionComplete: false,
+          suggestedFollowUp: 'Explain the concrete actions you personally took.',
           starProgress,
           turnEvaluation: { clarity: 8.5, technicalAccuracy: 8.0 },
         };
       }
 
+      // 2. If Result is missing
       if (!hasResult && (hasSituation || hasAction)) {
         return {
-          replyText:
-            "That provides great insight into the steps you took. What was the ultimate outcome or measurable impact of that decision on the project?",
+          replyText: `${naturalAck} You explained the steps and initiatives you took very clearly. What was the ultimate outcome, quantifiable metric improvement, or key engineering takeaway from that experience?`,
           isTerminalTurn: false,
-          suggestedFollowUp: 'Quantify the final result or key takeaway.',
+          isQuestionComplete: false,
+          suggestedFollowUp: 'Quantify the final result, impact, or key takeaways.',
           starProgress,
-          turnEvaluation: { clarity: 8.5, technicalAccuracy: 8.5 },
+          turnEvaluation: { clarity: 8.8, technicalAccuracy: 8.5 },
         };
       }
 
-      if (hasSituation && hasAction && hasResult) {
+      // 3. Complete STAR story delivered!
+      if (hasAction && hasResult && (hasSituation || hasTask)) {
         return {
-          replyText:
-            "Excellent explanation! You clearly structured your response with the context, your specific contributions, and the tangible outcome. When you're ready, feel free to advance to the next behavioral question.",
+          replyText: `${naturalAck} That was a wonderfully structured STAR response! You clearly set the context, highlighted your direct personal contributions, and demonstrated measurable impact.
+
+I have unlocked the "Next Question" button for you. Whenever you are ready, please click it to proceed.`,
           isTerminalTurn: false,
+          isQuestionComplete: true,
           starProgress,
           turnEvaluation: { clarity: 9.5, technicalAccuracy: 9.0 },
         };
       }
 
       return {
-        replyText:
-          "Thank you for sharing that experience. Could you elaborate on what you learned from that process and how it influenced your subsequent engineering work?",
+        replyText: `${naturalAck} Could you elaborate on what you learned from that process and how it influenced your subsequent engineering and team collaboration?`,
         isTerminalTurn: false,
+        isQuestionComplete: false,
         starProgress,
         turnEvaluation: { clarity: 8.5, technicalAccuracy: 8.0 },
       };

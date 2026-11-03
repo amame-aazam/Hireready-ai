@@ -36,6 +36,7 @@ export interface InterviewTurnOutput {
     action: boolean;
     result: boolean;
   };
+  isQuestionComplete?: boolean;
   turnEvaluation?: {
     clarity: number;
     technicalAccuracy: number;

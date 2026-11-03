@@ -126,6 +126,7 @@ export interface TurnResponse {
   isTerminalTurn: boolean;
   suggestedFollowUp?: string;
   starProgress?: StarProgress;
+  isQuestionComplete?: boolean;
   turnEvaluation?: {
     clarity: number;
     technicalAccuracy: number;

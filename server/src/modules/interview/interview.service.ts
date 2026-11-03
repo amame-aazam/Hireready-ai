@@ -422,6 +422,7 @@ Before writing code, please explain your proposed approach, what data structures
         isEditorUnlocked: false,
         isTerminalTurn: aiReply.isTerminalTurn,
         starProgress: aiReply.starProgress,
+        isQuestionComplete: aiReply.isQuestionComplete,
         turnEvaluation: aiReply.turnEvaluation,
         suggestedFollowUp: aiReply.suggestedFollowUp,
         turnCount: transcript.turns.length,
