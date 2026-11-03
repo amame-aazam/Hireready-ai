@@ -54,16 +54,22 @@ export const QuestionStepper: React.FC<QuestionStepperProps> = ({
               Q{idx + 1}: {q.title}
             </span>
 
-            {/* Difficulty Badge */}
-            <span
-              className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider ${
-                q.difficulty === 'EASY'
-                  ? 'bg-emerald-500/15 text-emerald-400'
-                  : 'bg-amber-500/15 text-amber-400'
-              }`}
-            >
-              {q.difficulty}
-            </span>
+            {/* Difficulty or Competency Badge */}
+            {q.difficulty ? (
+              <span
+                className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider ${
+                  q.difficulty === 'EASY'
+                    ? 'bg-emerald-500/15 text-emerald-400'
+                    : 'bg-amber-500/15 text-amber-400'
+                }`}
+              >
+                {q.difficulty}
+              </span>
+            ) : q.competency ? (
+              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-300">
+                {q.competency}
+              </span>
+            ) : null}
           </div>
         );
       })}

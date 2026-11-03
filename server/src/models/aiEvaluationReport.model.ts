@@ -1,11 +1,23 @@
 import { Schema, model, Document } from 'mongoose';
 
+export interface IStarBreakdown {
+  situationScore: number;
+  taskScore: number;
+  actionScore: number;
+  resultScore: number;
+  situationFeedback?: string;
+  taskFeedback?: string;
+  actionFeedback?: string;
+  resultFeedback?: string;
+}
+
 export interface IAiEvaluationReport extends Document {
   id: string; // UUID primary identifier
   sessionId: string; // UUID of InterviewSession in Postgres
   overallScore: number;
   technicalScore: number;
   communicationScore: number;
+  starBreakdown?: IStarBreakdown;
   keyObservations: string[];
   recommendation: 'STRONG_HIRE' | 'HIRE' | 'NEUTRAL' | 'NO_HIRE';
   detailedFeedback: {
@@ -24,6 +36,16 @@ const AiEvaluationReportSchema = new Schema<IAiEvaluationReport>(
     overallScore: { type: Number, required: true },
     technicalScore: { type: Number, required: true },
     communicationScore: { type: Number, required: true },
+    starBreakdown: {
+      situationScore: { type: Number },
+      taskScore: { type: Number },
+      actionScore: { type: Number },
+      resultScore: { type: Number },
+      situationFeedback: { type: String },
+      taskFeedback: { type: String },
+      actionFeedback: { type: String },
+      resultFeedback: { type: String },
+    },
     keyObservations: { type: [String], default: [] },
     recommendation: {
       type: String,

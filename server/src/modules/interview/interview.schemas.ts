@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const startInterviewSchema = z.object({
   interviewType: z.enum(['DSA', 'HR']).default('DSA'),
   domainSlug: z.string().optional(),
+  applicationId: z.string().optional(),
 });
 
 export const sessionParamSchema = z.object({

@@ -7,6 +7,12 @@ import { AiEvaluationReportModel } from '../../models/aiEvaluationReport.model';
 import { getAIProvider } from '../../providers/ai';
 import { MockCodeExecutor, TestCaseItem } from '../../providers/judge0/mockExecutor';
 import { DSAQuestion, getRandomDSAQuestions } from './dsaQuestionBank';
+import { HRQuestion, HR_QUESTION_BANK } from './hrQuestionBank';
+
+export function getRandomHRQuestions(): HRQuestion[] {
+  const shuffled = [...HR_QUESTION_BANK].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
+}
 
 // Ephemeral fallback cache for local dev / offline verification if MongoDB Atlas is unreachable
 const memoryTranscripts = new Map<string, any>();
@@ -75,7 +81,8 @@ export class InterviewService {
   public static async startOrResumeSession(
     userId: string,
     interviewType: 'DSA' | 'HR' = 'DSA',
-    _domainSlug?: string
+    _domainSlug?: string,
+    applicationId?: string
   ) {
     // 1. Check for existing active IN_PROGRESS session for this user
     let session = await prisma.interviewSession.findFirst({
@@ -91,9 +98,10 @@ export class InterviewService {
 
     // If an active session already exists, restore questionQueue and current question state
     if (session) {
-      let questions: DSAQuestion[] = (session.questionQueue as any) || [];
+      const isHR = session.type === InterviewType.HR;
+      let questions: any[] = (session.questionQueue as any) || [];
       if (!questions || questions.length === 0) {
-        questions = getRandomDSAQuestions();
+        questions = isHR ? getRandomHRQuestions() : getRandomDSAQuestions();
         await prisma.interviewSession.update({
           where: { id: session.id },
           data: { questionQueue: questions as any },
@@ -110,6 +118,39 @@ export class InterviewService {
           sessionId: session.id,
           turns: [],
         });
+      }
+
+      if (isHR) {
+        return {
+          session: {
+            id: session.id,
+            userId: session.userId,
+            type: session.type,
+            status: session.status,
+            currentQuestionIndex: currentQIdx,
+            stage: session.stage,
+            startedAt: session.startedAt,
+          },
+          transcript: transcript.turns,
+          currentQuestion: {
+            index: currentQIdx,
+            total: questions.length,
+            id: currentQ.id,
+            title: currentQ.title,
+            competency: currentQ.competency,
+            prompt: currentQ.prompt,
+            starTips: currentQ.starTips,
+            probingFollowUps: currentQ.probingFollowUps,
+          },
+          questionsOverview: questions.map((q: any, idx: number) => ({
+            index: idx,
+            id: q.id,
+            title: q.title,
+            competency: q.competency,
+          })),
+          isEditorUnlocked: false,
+          isResumed: true,
+        };
       }
 
       return {
@@ -137,7 +178,7 @@ export class InterviewService {
           starterCode: currentQ.starterCode,
           visibleTestCases: currentQ.visibleTestCases,
         },
-        questionsOverview: questions.map((q, idx) => ({
+        questionsOverview: questions.map((q: any, idx: number) => ({
           index: idx,
           id: q.id,
           title: q.title,
@@ -151,27 +192,30 @@ export class InterviewService {
 
     // 2. Check if student has an existing application
     const application = await prisma.application.findFirst({
-      where: { userId },
+      where: {
+        userId,
+        ...(applicationId ? { id: applicationId } : {}),
+      },
       orderBy: { createdAt: 'desc' },
     });
 
-    // 3. Randomize 3 questions: 1 Easy + 2 Medium
-    const questions = getRandomDSAQuestions();
+    const isHR = interviewType === 'HR';
+    const questions = isHR ? getRandomHRQuestions() : getRandomDSAQuestions();
     const firstQ = questions[0];
 
-    // 4. Create new InterviewSession in PostgreSQL in APPROACH stage
+    // 3. Create new InterviewSession in PostgreSQL
     session = await prisma.interviewSession.create({
       data: {
         userId,
-        applicationId: application ? application.id : null,
+        applicationId: applicationId || (application ? application.id : null),
         type: interviewType as InterviewType,
         status: SessionStatus.IN_PROGRESS,
         currentQuestionIndex: 0,
-        stage: InterviewStage.APPROACH,
+        stage: isHR ? InterviewStage.QUESTION : InterviewStage.APPROACH,
         questionQueue: questions as any,
         problemTitle: firstQ.title,
         problemPrompt: firstQ.prompt,
-        currentCode: firstQ.starterCode.javascript,
+        currentCode: isHR ? null : (firstQ as DSAQuestion).starterCode.javascript,
         startedAt: new Date(),
       },
       include: {
@@ -179,15 +223,28 @@ export class InterviewService {
       },
     });
 
-    // 5. Generate Opening AI Turn introducing Question 1 and prompting for approach
+    // 4. Generate Opening AI Turn
     const transcriptId = crypto.randomUUID();
-    const openingGreeting = `Hello! Welcome to your technical interview with Sophia. Today we will work through 3 algorithmic challenges (1 warm-up and 2 core technical problems).
+    let openingGreeting = '';
+    if (isHR) {
+      openingGreeting = `Hello and welcome to your HR Behavioral Interview! I am Sophia, your interviewer today.
 
-Let's begin with Question 1: ${firstQ.title} (${firstQ.difficulty}).
+We will explore your past engineering experiences and situational judgment using the STAR method: Situation, Task, Action, and Result.
+
+Let's begin with Question 1: ${(firstQ as HRQuestion).title} (${(firstQ as HRQuestion).competency}).
+
+${firstQ.prompt}
+
+Please take your time to describe the context, your specific responsibilities, the concrete actions you took, and the final quantifiable outcome or learnings.`;
+    } else {
+      openingGreeting = `Hello! Welcome to your technical interview with Sophia. Today we will work through 3 algorithmic challenges (1 warm-up and 2 core technical problems).
+
+Let's begin with Question 1: ${(firstQ as DSAQuestion).title} (${(firstQ as DSAQuestion).difficulty}).
 
 ${firstQ.prompt}
 
 Before writing code, please explain your proposed approach, what data structures you would consider, and your target time and space complexity.`;
+    }
 
     const initialTurns = [
       {
@@ -209,6 +266,44 @@ Before writing code, please explain your proposed approach, what data structures
       data: { transcriptId },
     });
 
+    if (isHR) {
+      return {
+        session: {
+          id: session.id,
+          userId: session.userId,
+          type: session.type,
+          status: session.status,
+          currentQuestionIndex: 0,
+          stage: session.stage,
+          startedAt: session.startedAt,
+        },
+        transcript: transcript.turns,
+        openingTurn: {
+          role: 'ai',
+          content: openingGreeting,
+        },
+        currentQuestion: {
+          index: 0,
+          total: questions.length,
+          id: firstQ.id,
+          title: firstQ.title,
+          competency: (firstQ as HRQuestion).competency,
+          prompt: firstQ.prompt,
+          starTips: (firstQ as HRQuestion).starTips,
+          probingFollowUps: (firstQ as HRQuestion).probingFollowUps,
+        },
+        questionsOverview: questions.map((q: any, idx: number) => ({
+          index: idx,
+          id: q.id,
+          title: q.title,
+          competency: q.competency,
+        })),
+        isEditorUnlocked: false,
+        isResumed: false,
+      };
+    }
+
+    const dsaQ = firstQ as DSAQuestion;
     return {
       session: {
         id: session.id,
@@ -227,24 +322,24 @@ Before writing code, please explain your proposed approach, what data structures
       currentQuestion: {
         index: 0,
         total: questions.length,
-        id: firstQ.id,
-        title: firstQ.title,
-        difficulty: firstQ.difficulty,
-        domain: firstQ.domain,
-        prompt: firstQ.prompt,
-        timeComplexityTarget: firstQ.timeComplexityTarget,
-        spaceComplexityTarget: firstQ.spaceComplexityTarget,
-        approachKeywords: firstQ.approachKeywords,
-        starterCode: firstQ.starterCode,
-        visibleTestCases: firstQ.visibleTestCases,
+        id: dsaQ.id,
+        title: dsaQ.title,
+        difficulty: dsaQ.difficulty,
+        domain: dsaQ.domain,
+        prompt: dsaQ.prompt,
+        timeComplexityTarget: dsaQ.timeComplexityTarget,
+        spaceComplexityTarget: dsaQ.spaceComplexityTarget,
+        approachKeywords: dsaQ.approachKeywords,
+        starterCode: dsaQ.starterCode,
+        visibleTestCases: dsaQ.visibleTestCases,
       },
-      questionsOverview: questions.map((q, idx) => ({
+      questionsOverview: questions.map((q: any, idx: number) => ({
         index: idx,
         id: q.id,
         title: q.title,
         difficulty: q.difficulty,
       })),
-      currentCode: firstQ.starterCode.javascript,
+      currentCode: dsaQ.starterCode.javascript,
       isEditorUnlocked: false,
       isResumed: false,
     };
@@ -302,7 +397,38 @@ Before writing code, please explain your proposed approach, what data structures
 
     const lowerUtterance = utterance.toLowerCase();
 
-    // 2. State Machine: APPROACH STAGE Evaluation
+    // Handle HR Behavioral Interview Turns
+    if (session.type === InterviewType.HR) {
+      const aiProvider = getAIProvider();
+      const currentHRQ: HRQuestion = (questions[currentQIdx] as any) || HR_QUESTION_BANK[0];
+
+      const aiReply = await aiProvider.generateInterviewTurn({
+        sessionId: session.id,
+        interviewType: 'HR',
+        dialogueHistory: transcript.turns,
+        latestCandidateUtterance: utterance,
+      });
+
+      transcript.turns.push({
+        role: 'ai',
+        content: aiReply.replyText,
+        timestamp: new Date(),
+      });
+      await saveTranscript(session.id, transcript);
+
+      return {
+        replyText: aiReply.replyText,
+        stage: InterviewStage.QUESTION,
+        isEditorUnlocked: false,
+        isTerminalTurn: aiReply.isTerminalTurn,
+        starProgress: aiReply.starProgress,
+        turnEvaluation: aiReply.turnEvaluation,
+        suggestedFollowUp: aiReply.suggestedFollowUp,
+        turnCount: transcript.turns.length,
+      };
+    }
+
+    // 2. State Machine: APPROACH STAGE Evaluation (DSA)
     if (session.stage === InterviewStage.APPROACH) {
       // Check candidate utterance against current question's approach keywords
       const matchedKeywords = currentQ.approachKeywords.filter((kw) =>
@@ -467,7 +593,8 @@ How might you apply that data structure or technique here?`;
       throw { status: 404, message: 'Interview session not found or access denied' };
     }
 
-    const questions: DSAQuestion[] = (session.questionQueue as any) || [];
+    const isHR = session.type === InterviewType.HR;
+    const questions: any[] = (session.questionQueue as any) || [];
     const currentQIdx = session.currentQuestionIndex || 0;
     const currentQ = questions[currentQIdx] || questions[0];
 
@@ -476,9 +603,10 @@ How might you apply that data structure or technique here?`;
     answers[currentQIdx] = {
       questionId: currentQ.id,
       questionTitle: currentQ.title,
-      difficulty: currentQ.difficulty,
-      code,
-      language,
+      difficulty: isHR ? undefined : currentQ.difficulty,
+      competency: isHR ? currentQ.competency : undefined,
+      code: isHR ? '' : code,
+      language: isHR ? '' : language,
       completedAt: new Date().toISOString(),
     };
 
@@ -490,33 +618,44 @@ How might you apply that data structure or technique here?`;
         where: { id: session.id },
         data: {
           questionAnswers: answers,
-          currentCode: code,
+          currentCode: isHR ? null : code,
         },
       });
 
-      return await this.finishInterview(userId, sessionId, code);
+      return await this.finishInterview(userId, sessionId, isHR ? undefined : code);
     }
 
     // Transition to next question
     const nextQIdx = currentQIdx + 1;
     const nextQ = questions[nextQIdx];
-    const nextStarter = (nextQ.starterCode as any)[language] || nextQ.starterCode.javascript;
+    const nextStarter = isHR
+      ? ''
+      : (nextQ.starterCode as any)[language] || nextQ.starterCode.javascript;
 
-    const transitionMessage = `Outstanding job completing Question ${currentQIdx + 1}! Let's transition to Question ${nextQIdx + 1} of 3: ${nextQ.title} (${nextQ.difficulty}).
+    let transitionMessage = '';
+    if (isHR) {
+      transitionMessage = `That was a very structured and insightful example! Let's move to Question ${nextQIdx + 1} of 3: ${nextQ.title} (${nextQ.competency}).
+
+${nextQ.prompt}
+
+Please walk me through your experience using the STAR approach: Situation, Task, Action, and Result.`;
+    } else {
+      transitionMessage = `Outstanding job completing Question ${currentQIdx + 1}! Let's transition to Question ${nextQIdx + 1} of 3: ${nextQ.title} (${nextQ.difficulty}).
 
 ${nextQ.prompt}
 
 Before diving into code, walk me through your high-level approach for this challenge. How do you plan to tackle it?`;
+    }
 
-    // Update session state in Postgres: Lock editor for next question approach
+    // Update session state in Postgres
     const updatedSession = await prisma.interviewSession.update({
       where: { id: session.id },
       data: {
         currentQuestionIndex: nextQIdx,
-        stage: InterviewStage.APPROACH,
+        stage: isHR ? InterviewStage.QUESTION : InterviewStage.APPROACH,
         problemTitle: nextQ.title,
         problemPrompt: nextQ.prompt,
-        currentCode: nextStarter,
+        currentCode: isHR ? null : nextStarter,
         questionAnswers: answers,
       },
     });
@@ -532,6 +671,35 @@ Before diving into code, walk me through your high-level approach for this chall
       timestamp: new Date(),
     });
     await saveTranscript(session.id, transcript);
+
+    if (isHR) {
+      return {
+        isFinished: false,
+        currentQuestionIndex: nextQIdx,
+        stage: updatedSession.stage,
+        session: {
+          id: updatedSession.id,
+          currentQuestionIndex: nextQIdx,
+          stage: updatedSession.stage,
+        },
+        currentQuestion: {
+          index: nextQIdx,
+          total: questions.length,
+          id: nextQ.id,
+          title: nextQ.title,
+          competency: nextQ.competency,
+          prompt: nextQ.prompt,
+          starTips: nextQ.starTips,
+          probingFollowUps: nextQ.probingFollowUps,
+        },
+        isEditorUnlocked: false,
+        aiTransitionTurn: {
+          role: 'ai',
+          content: transitionMessage,
+          timestamp: new Date().toISOString(),
+        },
+      };
+    }
 
     return {
       isFinished: false,
@@ -630,6 +798,7 @@ Before diving into code, walk me through your high-level approach for this chall
       overallScore: evaluation.overallScore,
       technicalScore: evaluation.technicalScore,
       communicationScore: evaluation.communicationScore,
+      starBreakdown: evaluation.starBreakdown,
       keyObservations: evaluation.keyObservations,
       recommendation: evaluation.recommendation,
       detailedFeedback: evaluation.detailedFeedback,
@@ -679,12 +848,48 @@ Before diving into code, walk me through your high-level approach for this chall
       throw { status: 404, message: 'Interview session not found or access denied' };
     }
 
-    const questions: DSAQuestion[] = (session.questionQueue as any) || [];
+    const isHR = session.type === InterviewType.HR;
+    const questions: any[] = (session.questionQueue as any) || [];
     const currentQIdx = session.currentQuestionIndex || 0;
     const currentQ = questions[currentQIdx] || questions[0];
 
     const transcript = await getTranscript(session.id);
     const report = session.evaluationId ? await getReport(session.evaluationId) : null;
+
+    if (isHR) {
+      return {
+        session: {
+          id: session.id,
+          userId: session.userId,
+          type: session.type,
+          status: session.status,
+          currentQuestionIndex: currentQIdx,
+          stage: session.stage,
+          startedAt: session.startedAt,
+        },
+        transcript: transcript?.turns || [],
+        report,
+        currentQuestion: currentQ
+          ? {
+              index: currentQIdx,
+              total: questions.length,
+              id: currentQ.id,
+              title: currentQ.title,
+              competency: currentQ.competency,
+              prompt: currentQ.prompt,
+              starTips: currentQ.starTips,
+              probingFollowUps: currentQ.probingFollowUps,
+            }
+          : null,
+        questionsOverview: questions.map((q: any, idx: number) => ({
+          index: idx,
+          id: q.id,
+          title: q.title,
+          competency: q.competency,
+        })),
+        isEditorUnlocked: false,
+      };
+    }
 
     return {
       session: {
@@ -713,7 +918,7 @@ Before diving into code, walk me through your high-level approach for this chall
             visibleTestCases: currentQ.visibleTestCases,
           }
         : null,
-      questionsOverview: questions.map((q, idx) => ({
+      questionsOverview: questions.map((q: any, idx: number) => ({
         index: idx,
         id: q.id,
         title: q.title,

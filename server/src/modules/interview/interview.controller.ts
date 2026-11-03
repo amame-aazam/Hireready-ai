@@ -12,9 +12,9 @@ import {
 export class InterviewController {
   public static async start(req: Request, res: Response, next: NextFunction) {
     try {
-      const { interviewType, domainSlug } = startInterviewSchema.parse(req.body);
+      const { interviewType, domainSlug, applicationId } = startInterviewSchema.parse(req.body);
       const userId = (req as any).user.id;
-      const result = await InterviewService.startOrResumeSession(userId, interviewType, domainSlug);
+      const result = await InterviewService.startOrResumeSession(userId, interviewType, domainSlug, applicationId);
       return res.status(200).json({ success: true, data: result });
     } catch (error) {
       return next(error);

@@ -8,7 +8,25 @@ export interface InterviewTurn {
   codeSnippet?: string;
 }
 
-export type InterviewStage = 'APPROACH' | 'CODING' | 'SUBMITTED' | 'COMPLETED';
+export type InterviewStage = 'APPROACH' | 'CODING' | 'QUESTION' | 'FOLLOW_UP' | 'SUBMITTED' | 'COMPLETED';
+
+export interface StarProgress {
+  situation: boolean;
+  task: boolean;
+  action: boolean;
+  result: boolean;
+}
+
+export interface StarBreakdown {
+  situationScore: number;
+  taskScore: number;
+  actionScore: number;
+  resultScore: number;
+  situationFeedback?: string;
+  taskFeedback?: string;
+  actionFeedback?: string;
+  resultFeedback?: string;
+}
 
 export interface InterviewSessionData {
   id: string;
@@ -25,17 +43,45 @@ export interface InterviewSessionData {
   overallScore?: number;
 }
 
+export interface HRQuestionData {
+  index: number;
+  total: number;
+  id: string;
+  title: string;
+  competency: string;
+  prompt: string;
+  starTips?: {
+    situation: string;
+    task: string;
+    action: string;
+    result: string;
+  };
+  probingFollowUps?: {
+    missingAction: string;
+    missingResult: string;
+    missingTask: string;
+    missingSituation: string;
+  };
+}
+
 export interface ProblemData {
   index: number;
   total: number;
   id: string;
   title: string;
-  difficulty: 'EASY' | 'MEDIUM';
+  difficulty?: 'EASY' | 'MEDIUM';
+  competency?: string;
   domain?: string;
   prompt: string;
   timeComplexityTarget?: string;
   spaceComplexityTarget?: string;
-  starterCode:
+  starTips?: {
+    situation: string;
+    task: string;
+    action: string;
+    result: string;
+  };
+  starterCode?:
     | {
         javascript: string;
         python: string;
@@ -43,7 +89,7 @@ export interface ProblemData {
         cpp: string;
       }
     | string;
-  visibleTestCases: Array<{
+  visibleTestCases?: Array<{
     id: string;
     input: string;
     expectedOutput: string;
@@ -55,7 +101,8 @@ export interface QuestionOverviewItem {
   index: number;
   id: string;
   title: string;
-  difficulty: 'EASY' | 'MEDIUM';
+  difficulty?: 'EASY' | 'MEDIUM';
+  competency?: string;
 }
 
 export interface StartInterviewResponse {
@@ -78,6 +125,7 @@ export interface TurnResponse {
   isEditorUnlocked?: boolean;
   isTerminalTurn: boolean;
   suggestedFollowUp?: string;
+  starProgress?: StarProgress;
   turnEvaluation?: {
     clarity: number;
     technicalAccuracy: number;
@@ -91,6 +139,7 @@ export interface EvaluationReportData {
   overallScore: number;
   technicalScore: number;
   communicationScore: number;
+  starBreakdown?: StarBreakdown;
   keyObservations: string[];
   recommendation: 'STRONG_HIRE' | 'HIRE' | 'NEUTRAL' | 'NO_HIRE';
   detailedFeedback: {
@@ -110,6 +159,8 @@ export interface FinishInterviewResponse {
 
 export interface AdvanceQuestionResponse {
   isFinished: boolean;
+  currentQuestionIndex?: number;
+  stage?: InterviewStage;
   session?: InterviewSessionData;
   currentQuestion?: ProblemData;
   starterCode?: string;
@@ -129,11 +180,12 @@ export interface CodeExecutionResponse {
 export const interviewApi = {
   startOrResume: async (
     interviewType: 'DSA' | 'HR' = 'DSA',
-    domainSlug?: string
+    domainSlug?: string,
+    applicationId?: string
   ): Promise<StartInterviewResponse> => {
     const response = await apiClient.post<{ success: boolean; data: StartInterviewResponse }>(
       '/api/interview/session/start',
-      { interviewType, domainSlug }
+      { interviewType, domainSlug, applicationId }
     );
     return response.data.data;
   },

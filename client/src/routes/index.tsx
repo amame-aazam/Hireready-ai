@@ -8,6 +8,7 @@ import { ResumePage } from '../features/resume/pages/ResumePage';
 import { OALandingPage } from '../features/assessment/pages/OALandingPage';
 import { OAWorkspacePage } from '../features/assessment/pages/OAWorkspacePage';
 import { DSAInterviewPage } from '../features/interview/pages/DSAInterviewPage';
+import { HRInterviewPage } from '../features/interview/pages/HRInterviewPage';
 import {
   FileText,
   Terminal,
@@ -185,7 +186,22 @@ export const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="/interview/hr" element={<PlaceholderPage title="AI HR Behavioral Interview" category="Round 3 Interview" />} />
+      <Route
+        path="/interview/hr"
+        element={
+          <ProtectedRoute>
+            <HRInterviewPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interview/hr/:sessionId"
+        element={
+          <ProtectedRoute>
+            <HRInterviewPage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/leaderboard" element={<PlaceholderPage title="Scoring & Leaderboard" category="Analytics" />} />
       <Route
         path="/admin"

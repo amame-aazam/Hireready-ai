@@ -51,6 +51,8 @@ enum QuestionType {
 enum InterviewStage {
   APPROACH
   CODING
+  QUESTION
+  FOLLOW_UP
   SUBMITTED
   COMPLETED
 }

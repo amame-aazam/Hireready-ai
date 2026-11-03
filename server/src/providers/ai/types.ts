@@ -30,6 +30,12 @@ export interface InterviewTurnOutput {
   replyText: string;
   isTerminalTurn: boolean;
   suggestedFollowUp?: string;
+  starProgress?: {
+    situation: boolean;
+    task: boolean;
+    action: boolean;
+    result: boolean;
+  };
   turnEvaluation?: {
     clarity: number;
     technicalAccuracy: number;
@@ -47,6 +53,16 @@ export interface InterviewEvaluationOutput {
   overallScore: number;
   technicalScore: number;
   communicationScore: number;
+  starBreakdown?: {
+    situationScore: number;
+    taskScore: number;
+    actionScore: number;
+    resultScore: number;
+    situationFeedback?: string;
+    taskFeedback?: string;
+    actionFeedback?: string;
+    resultFeedback?: string;
+  };
   keyObservations: string[];
   recommendation: 'STRONG_HIRE' | 'HIRE' | 'NEUTRAL' | 'NO_HIRE';
   detailedFeedback: {

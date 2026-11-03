@@ -276,30 +276,143 @@ export class MockAIProvider implements AIProvider {
     }
 
     // HR Behavioral Interview
-    if (turnCount === 0) {
-      return {
-        replyText:
-          'Welcome to your interview! To kick things off, could you briefly introduce yourself and share a technical project you are particularly proud of?',
-        isTerminalTurn: false,
-      };
-    }
+    if (input.interviewType === 'HR') {
+      const situationKeywords = [
+        'project',
+        'team',
+        'architecture',
+        'company',
+        'deadline',
+        'production',
+        'service',
+        'client',
+        'blocker',
+        'disagree',
+        'incident',
+        'failure',
+        'outage',
+        'priority',
+        'startup',
+        'situation',
+      ];
+      const taskKeywords = [
+        'responsible',
+        'task',
+        'goal',
+        'deliver',
+        'role',
+        'needed to',
+        'had to',
+        'assignment',
+        'objective',
+        'sla',
+        'responsibility',
+      ];
+      const actionKeywords = [
+        'i ',
+        'my ',
+        'personally',
+        'implemented',
+        'investigated',
+        'benchmarked',
+        'refactored',
+        'communicated',
+        'designed',
+        'created',
+        'organized',
+        'triaged',
+        'decided',
+        'stepped up',
+        'wrote',
+        'set up',
+        'built',
+        'patched',
+        'action',
+      ];
+      const resultKeywords = [
+        'result',
+        'outcome',
+        'impact',
+        'resolved',
+        'learned',
+        'improved',
+        'reduced',
+        'prevented',
+        'metric',
+        'percent',
+        '%',
+        'on time',
+        'success',
+        'launched',
+        'saved',
+      ];
 
-    if (turnCount >= 6) {
+      const hasSituation = situationKeywords.some((k) => utterance.includes(k));
+      const hasTask = taskKeywords.some((k) => utterance.includes(k));
+      const hasAction = actionKeywords.some((k) => utterance.includes(k));
+      const hasResult = resultKeywords.some((k) => utterance.includes(k));
+
+      const starProgress = {
+        situation: hasSituation,
+        task: hasTask,
+        action: hasAction,
+        result: hasResult,
+      };
+
+      if (turnCount === 0) {
+        return {
+          replyText:
+            "Hello! Welcome to your HR Behavioral Interview. I am Sophia. Today we will explore your past engineering experiences using the STAR method: Situation, Task, Action, and Result. To get started, please tell me about a time when you strongly disagreed with a team member on an architectural decision. How did you navigate that?",
+          isTerminalTurn: false,
+          starProgress,
+        };
+      }
+
+      // Probing follow-up if critical elements are missing
+      if (!hasAction && (hasSituation || hasTask)) {
+        return {
+          replyText:
+            "You set up the situation and challenge very clearly. What specific actions or initiatives did you personally take to address it?",
+          isTerminalTurn: false,
+          suggestedFollowUp: 'Describe your direct personal action.',
+          starProgress,
+          turnEvaluation: { clarity: 8.5, technicalAccuracy: 8.0 },
+        };
+      }
+
+      if (!hasResult && (hasSituation || hasAction)) {
+        return {
+          replyText:
+            "That provides great insight into the steps you took. What was the ultimate outcome or measurable impact of that decision on the project?",
+          isTerminalTurn: false,
+          suggestedFollowUp: 'Quantify the final result or key takeaway.',
+          starProgress,
+          turnEvaluation: { clarity: 8.5, technicalAccuracy: 8.5 },
+        };
+      }
+
+      if (hasSituation && hasAction && hasResult) {
+        return {
+          replyText:
+            "Excellent explanation! You clearly structured your response with the context, your specific contributions, and the tangible outcome. When you're ready, feel free to advance to the next behavioral question.",
+          isTerminalTurn: false,
+          starProgress,
+          turnEvaluation: { clarity: 9.5, technicalAccuracy: 9.0 },
+        };
+      }
+
       return {
         replyText:
-          'Thank you for sharing your experiences and handling these situational questions thoughtfully. This wraps up our behavioral round!',
-        isTerminalTurn: true,
+          "Thank you for sharing that experience. Could you elaborate on what you learned from that process and how it influenced your subsequent engineering work?",
+        isTerminalTurn: false,
+        starProgress,
+        turnEvaluation: { clarity: 8.5, technicalAccuracy: 8.0 },
       };
     }
 
     return {
-      replyText:
-        'Thank you for explaining that. Tell me about a time when you disagreed with a teammate on an architectural decision. How did you resolve it?',
+      replyText: "Thank you for that response. Let's continue.",
       isTerminalTurn: false,
-      turnEvaluation: {
-        clarity: 9.0,
-        technicalAccuracy: 8.5,
-      },
     };
   }
 
@@ -310,7 +423,91 @@ export class MockAIProvider implements AIProvider {
     const turnsText = input.turns.map((t) => t.content.toLowerCase()).join(' ');
     const codeText = (input.codeSubmissions || []).join(' ').toLowerCase();
 
-    let technicalScore = isDSA ? 75 : 80;
+    if (!isDSA) {
+      // HR Behavioral STAR Evaluation
+      let situationScore = 78;
+      let taskScore = 76;
+      let actionScore = 80;
+      let resultScore = 75;
+      let communicationScore = 82;
+
+      // Scan candidate turns for STAR components
+      if (turnsText.includes('project') || turnsText.includes('team') || turnsText.includes('architecture') || turnsText.includes('production')) {
+        situationScore += 10;
+      }
+      if (turnsText.includes('responsible') || turnsText.includes('goal') || turnsText.includes('task') || turnsText.includes('needed to')) {
+        taskScore += 11;
+      }
+      if (turnsText.includes('i ') || turnsText.includes('personally') || turnsText.includes('implemented') || turnsText.includes('investigated')) {
+        actionScore += 12;
+      }
+      if (turnsText.includes('result') || turnsText.includes('outcome') || turnsText.includes('improved') || turnsText.includes('reduced') || turnsText.includes('%')) {
+        resultScore += 13;
+      }
+      if (input.turns.filter((t) => t.role === 'candidate').length >= 3) {
+        communicationScore += 8;
+      }
+
+      situationScore = Math.min(98, Math.max(60, situationScore));
+      taskScore = Math.min(98, Math.max(60, taskScore));
+      actionScore = Math.min(98, Math.max(60, actionScore));
+      resultScore = Math.min(98, Math.max(60, resultScore));
+      communicationScore = Math.min(98, Math.max(60, communicationScore));
+
+      const competencyScore = Math.round(
+        situationScore * 0.2 + taskScore * 0.2 + actionScore * 0.35 + resultScore * 0.25
+      );
+      const overallScore = Math.round(competencyScore * 0.65 + communicationScore * 0.35);
+
+      let recommendation: 'STRONG_HIRE' | 'HIRE' | 'NEUTRAL' | 'NO_HIRE' = 'HIRE';
+      if (overallScore >= 88) recommendation = 'STRONG_HIRE';
+      else if (overallScore >= 70) recommendation = 'HIRE';
+      else if (overallScore >= 55) recommendation = 'NEUTRAL';
+      else recommendation = 'NO_HIRE';
+
+      return {
+        overallScore,
+        technicalScore: competencyScore, // Competency score for HR
+        communicationScore,
+        starBreakdown: {
+          situationScore,
+          taskScore,
+          actionScore,
+          resultScore,
+          situationFeedback:
+            'Articulated background, team context, and technical stakes with commendable clarity.',
+          taskFeedback:
+            'Clearly defined personal role, assignments, and expected milestones under pressure.',
+          actionFeedback:
+            'Demonstrated strong technical ownership, proactive communication, and hands-on initiative.',
+          resultFeedback:
+            'Effectively highlighted quantifiable impact, performance gains, and reflective growth.',
+        },
+        keyObservations: [
+          'Consistently applied the STAR framework to organize real-world workplace examples.',
+          'Demonstrated high emotional intelligence when resolving technical disagreements.',
+          'Showed genuine ownership and blameless post-mortem accountability during outages.',
+        ],
+        recommendation,
+        detailedFeedback: {
+          strengths: [
+            'Structured storytelling using Situation, Task, Action, and Result.',
+            'Strong leadership and cross-functional communication skills.',
+            'Clear emphasis on business metrics, latency reduction, and reliability.',
+          ],
+          weaknesses: [
+            'Could quantify secondary team productivity gains in addition to direct system metrics.',
+          ],
+          technicalAnalysis:
+            'The candidate demonstrated strong behavioral alignment with senior engineering expectations, exhibiting accountability, leadership, and methodical problem solving.',
+          communicationAnalysis:
+            'Articulate, concise, and structured. Maintained professional tone with minimal hesitation and excellent response pacing.',
+        },
+      };
+    }
+
+    // DSA Evaluation
+    let technicalScore = 75;
     let communicationScore = 80;
 
     // Technical rubric evaluation
