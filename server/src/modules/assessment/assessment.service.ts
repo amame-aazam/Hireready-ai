@@ -1,6 +1,7 @@
 import { AssessmentState, ApplicationStatus, QuestionType } from '@prisma/client';
 import { prisma } from '../../config/postgres';
 import { MockCodeExecutor, TestCaseItem } from '../../providers/judge0/mockExecutor';
+import { ScoringService } from '../scoring/scoring.service';
 
 const GRACE_PERIOD_MS = 30000; // 30 seconds network latency grace period
 
@@ -414,14 +415,13 @@ export class AssessmentService {
       },
     });
 
-    // Update Application status if application is linked
+    // Update Application status and authoritative scores if application is linked
     if (finalizedAttempt.applicationId) {
-      await prisma.application.update({
-        where: { id: finalizedAttempt.applicationId },
-        data: {
-          status: passed ? ApplicationStatus.OA_PASSED : ApplicationStatus.OA_FAILED,
-        },
-      });
+      try {
+        await ScoringService.recalculateApplicationScore(finalizedAttempt.applicationId);
+      } catch (err) {
+        console.warn('Could not recalculate application score on OA submit:', err);
+      }
     }
 
     return {

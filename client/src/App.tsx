@@ -5,7 +5,7 @@ import { queryClient } from './lib/queryClient';
 import { AppRoutes } from './routes';
 import { ColdStartBanner } from './components/common/ColdStartBanner';
 import { useAuth } from './features/auth/hooks/useAuth';
-import { Sparkles, LayoutDashboard, LogOut, User as UserIcon } from 'lucide-react';
+import { Sparkles, LayoutDashboard, Award, LogOut, User as UserIcon } from 'lucide-react';
 
 const HeaderNav: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -29,6 +29,9 @@ const HeaderNav: React.FC = () => {
         <nav className="flex items-center gap-4 text-sm text-slate-300">
           <Link to="/dashboard" className="hover:text-white flex items-center gap-1.5 transition">
             <LayoutDashboard className="w-4 h-4" /> Dashboard
+          </Link>
+          <Link to="/leaderboard" className="hover:text-white flex items-center gap-1.5 transition">
+            <Award className="w-4 h-4" /> Leaderboard
           </Link>
 
           {isAuthenticated && user ? (

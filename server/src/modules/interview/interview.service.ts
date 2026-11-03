@@ -8,6 +8,7 @@ import { getAIProvider } from '../../providers/ai';
 import { MockCodeExecutor, TestCaseItem } from '../../providers/judge0/mockExecutor';
 import { DSAQuestion, getRandomDSAQuestions } from './dsaQuestionBank';
 import { HRQuestion, HR_QUESTION_BANK } from './hrQuestionBank';
+import { ScoringService } from '../scoring/scoring.service';
 
 export function getRandomHRQuestions(): HRQuestion[] {
   const shuffled = [...HR_QUESTION_BANK].sort(() => 0.5 - Math.random());
@@ -819,14 +820,13 @@ Before diving into code, walk me through your high-level approach for this chall
       },
     });
 
-    // 5. Update Application status if linked
+    // 5. Recalculate authoritative application composite score and final outcome
     if (updatedSession.applicationId) {
-      await prisma.application.update({
-        where: { id: updatedSession.applicationId },
-        data: {
-          status: ApplicationStatus.COMPLETED,
-        },
-      });
+      try {
+        await ScoringService.recalculateApplicationScore(updatedSession.applicationId);
+      } catch (err) {
+        console.warn('Could not recalculate application score on interview finish:', err);
+      }
     }
 
     return {

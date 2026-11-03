@@ -9,6 +9,8 @@ import { OALandingPage } from '../features/assessment/pages/OALandingPage';
 import { OAWorkspacePage } from '../features/assessment/pages/OAWorkspacePage';
 import { DSAInterviewPage } from '../features/interview/pages/DSAInterviewPage';
 import { HRInterviewPage } from '../features/interview/pages/HRInterviewPage';
+import { StudentDashboardPage } from '../features/dashboard/pages/StudentDashboardPage';
+import { LeaderboardPage } from '../features/leaderboard/pages/LeaderboardPage';
 import {
   FileText,
   Terminal,
@@ -142,7 +144,7 @@ export const AppRoutes: React.FC = () => {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <PlaceholderPage title="Student Dashboard" category="Overview" />
+            <StudentDashboardPage />
           </ProtectedRoute>
         }
       />
@@ -202,7 +204,7 @@ export const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="/leaderboard" element={<PlaceholderPage title="Scoring & Leaderboard" category="Analytics" />} />
+      <Route path="/leaderboard" element={<LeaderboardPage />} />
       <Route
         path="/admin"
         element={

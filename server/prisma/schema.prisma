@@ -21,6 +21,9 @@ enum ApplicationStatus {
   OA_FAILED
   INTERVIEW_PENDING
   COMPLETED
+  SELECTED
+  WAITLISTED
+  NOT_SELECTED
   REJECTED
 }
 
@@ -137,6 +140,15 @@ model Application {
   status           ApplicationStatus @default(DRAFT)
   // UUID referencing MongoDB resume_analyses document (unstructured)
   resumeAnalysisId String?
+
+  // Cached Authoritative Scores (0 - 100)
+  resumeScore      Float?
+  oaScore          Float?
+  dsaScore         Float?
+  hrScore          Float?
+  compositeScore   Float?
+  finalOutcomeAt   DateTime?
+
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
@@ -147,6 +159,9 @@ model Application {
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([domainId])
+  @@index([compositeScore(sort: Desc)])
+  @@index([targetDomain, compositeScore(sort: Desc)])
+  @@index([status, compositeScore(sort: Desc)])
   @@map("applications")
 }
 
