@@ -5,7 +5,7 @@ import { queryClient } from './lib/queryClient';
 import { AppRoutes } from './routes';
 import { ColdStartBanner } from './components/common/ColdStartBanner';
 import { useAuth } from './features/auth/hooks/useAuth';
-import { Sparkles, LayoutDashboard, Award, LogOut, User as UserIcon } from 'lucide-react';
+import { Sparkles, LayoutDashboard, Award, ShieldAlert, LogOut, User as UserIcon } from 'lucide-react';
 
 const HeaderNav: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -33,6 +33,12 @@ const HeaderNav: React.FC = () => {
           <Link to="/leaderboard" className="hover:text-white flex items-center gap-1.5 transition">
             <Award className="w-4 h-4" /> Leaderboard
           </Link>
+
+          {isAuthenticated && user?.role === 'ADMIN' && (
+            <Link to="/admin" className="text-amber-400 hover:text-amber-300 flex items-center gap-1.5 font-semibold transition">
+              <ShieldAlert className="w-4 h-4" /> Admin Console
+            </Link>
+          )}
 
           {isAuthenticated && user ? (
             <div className="flex items-center gap-3">

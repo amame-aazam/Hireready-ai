@@ -75,6 +75,7 @@ model User {
   applications       Application[]
   assessmentAttempts AssessmentAttempt[]
   interviewSessions  InterviewSession[]
+  auditLogs          AuditLog[]
 
   @@index([role])
   @@map("users")
@@ -287,4 +288,22 @@ model InterviewSession {
   @@index([applicationId, status])
   @@index([status, overallScore(sort: Desc)])
   @@map("interview_sessions")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  adminId     String
+  targetType  String   // "APPLICATION_STATUS_OVERRIDE"
+  targetId    String   // applicationId
+  previousVal String?
+  newVal      String
+  reason      String   @db.Text
+  createdAt   DateTime @default(now())
+
+  admin       User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([targetType, targetId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
 }

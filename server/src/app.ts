@@ -16,6 +16,7 @@ import assessmentRoutes from './modules/assessment/assessment.routes';
 import interviewRoutes from './modules/interview/interview.routes';
 import leaderboardRoutes from './modules/leaderboard/leaderboard.routes';
 import dashboardRoutes from './modules/dashboard/dashboard.routes';
+import { adminRoutes } from './modules/admin/admin.routes';
 
 const app: Application = express();
 
@@ -52,6 +53,8 @@ app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/v1/leaderboard', leaderboardRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 // Basic Health Check (fast ping for frontend cold-start detection)
 app.get('/health', (_req: Request, res: Response) => {

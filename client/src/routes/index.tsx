@@ -11,6 +11,7 @@ import { DSAInterviewPage } from '../features/interview/pages/DSAInterviewPage';
 import { HRInterviewPage } from '../features/interview/pages/HRInterviewPage';
 import { StudentDashboardPage } from '../features/dashboard/pages/StudentDashboardPage';
 import { LeaderboardPage } from '../features/leaderboard/pages/LeaderboardPage';
+import { AdminPage } from '../features/admin/pages/AdminPage';
 import {
   FileText,
   Terminal,
@@ -209,7 +210,7 @@ export const AppRoutes: React.FC = () => {
         path="/admin"
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
-            <PlaceholderPage title="Admin Console" category="Administration" />
+            <AdminPage />
           </ProtectedRoute>
         }
       />
