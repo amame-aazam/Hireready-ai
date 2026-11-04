@@ -14,7 +14,7 @@ export const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
 export const getAccessTokenCookieOptions = (): CookieOptions => {
   return {
     httpOnly: true,
-    secure: isProduction || env.COOKIE_SECURE,
+    secure: isProduction ? true : Boolean(env.COOKIE_SECURE),
     sameSite: isProduction ? 'none' : 'lax',
     domain: env.COOKIE_DOMAIN || undefined,
     maxAge: ACCESS_TOKEN_EXPIRY_MS,
@@ -25,18 +25,18 @@ export const getAccessTokenCookieOptions = (): CookieOptions => {
 export const getRefreshTokenCookieOptions = (): CookieOptions => {
   return {
     httpOnly: true,
-    secure: isProduction || env.COOKIE_SECURE,
+    secure: isProduction ? true : Boolean(env.COOKIE_SECURE),
     sameSite: isProduction ? 'none' : 'lax',
     domain: env.COOKIE_DOMAIN || undefined,
     maxAge: REFRESH_TOKEN_EXPIRY_MS,
-    path: '/api/auth/refresh',
+    path: '/',
   };
 };
 
 export const getClearCookieOptions = (path: string = '/'): CookieOptions => {
   return {
     httpOnly: true,
-    secure: isProduction || env.COOKIE_SECURE,
+    secure: isProduction ? true : Boolean(env.COOKIE_SECURE),
     sameSite: isProduction ? 'none' : 'lax',
     domain: env.COOKIE_DOMAIN || undefined,
     path,

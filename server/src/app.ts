@@ -20,14 +20,37 @@ import { adminRoutes } from './modules/admin/admin.routes';
 
 const app: Application = express();
 
+// Trust Render edge reverse proxy for SSL termination & HTTPS cookies
+app.set('trust proxy', 1);
+
 // Security HTTP headers
 app.use(helmet());
 
-// CORS configuration
+// Dynamic CORS configuration for production split architecture
+const allowedOrigins = [
+  env.CLIENT_URL.replace(/\/$/, ''),
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
 app.use(
   cors({
-    origin: [env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, server-to-server, health checks)
+      if (!origin) return callback(null, true);
+
+      const cleanOrigin = origin.replace(/\/$/, '');
+      if (
+        allowedOrigins.includes(cleanOrigin) ||
+        cleanOrigin.endsWith('.vercel.app')
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   })
 );
 

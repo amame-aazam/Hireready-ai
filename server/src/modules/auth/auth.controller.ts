@@ -69,10 +69,7 @@ export class AuthController {
       if (!rawRefreshToken) {
         // Cleanly clear cookies and return structured 401 without unhandled server exception
         res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
-        res.clearCookie(
-          REFRESH_TOKEN_COOKIE_NAME,
-          getClearCookieOptions('/api/auth/refresh')
-        );
+        res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
         return res.status(401).json({
           success: false,
           error: {
@@ -85,10 +82,7 @@ export class AuthController {
       const newTokens = await authService.refresh(rawRefreshToken);
       if (!newTokens) {
         res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
-        res.clearCookie(
-          REFRESH_TOKEN_COOKIE_NAME,
-          getClearCookieOptions('/api/auth/refresh')
-        );
+        res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
         return res.status(401).json({
           success: false,
           error: {
@@ -116,10 +110,7 @@ export class AuthController {
     } catch (error: any) {
       // Clear cookies if refresh failed
       res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
-      res.clearCookie(
-        REFRESH_TOKEN_COOKIE_NAME,
-        getClearCookieOptions('/api/auth/refresh')
-      );
+      res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
 
       // Return clean client 401/403 responses without dumping to unhandled 500 error handler
       if (error?.statusCode === 401 || error?.statusCode === 403) {
@@ -143,10 +134,7 @@ export class AuthController {
 
       // Clear both cookies
       res.clearCookie(ACCESS_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
-      res.clearCookie(
-        REFRESH_TOKEN_COOKIE_NAME,
-        getClearCookieOptions('/api/auth/refresh')
-      );
+      res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, getClearCookieOptions('/'));
 
       return res.status(200).json({
         success: true,
