@@ -26,6 +26,10 @@
     "express",
     "prisma"
   ],
-  "author": "",
-  "license": "ISC"
+  "author": "Amame Aazam",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amame-aazam/Hireready-ai.git"
+  },
+  "license": "MIT"
 }

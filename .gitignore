@@ -3,21 +3,26 @@ node_modules/
 .pnp/
 .pnp.js
 
-# Build artifacts
+# Production and intermediate build artifacts
 dist/
 build/
 out/
 .next/
+*.tsbuildinfo
 
-# Environment files
+# Environment variables (keep example templates public)
 .env
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
 *.env
+!.env.example
 
-# Logs
+# Runtime logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -36,11 +41,22 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
-# Database / Prisma
+# Database & Engine artifacts
 prisma/*.db
 prisma/*.db-journal
+*.tmp*
+*.old
 
-# Temporary files
+# Scratch test and debug scripts
+capture_*.js
+test_*.js
+test_*.png
+dinner.html
+jquery.js
+core.js
+screenshots/
+
+# Cache & Coverage
 coverage/
 .turbo/
 .cache/

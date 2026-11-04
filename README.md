@@ -1,5 +1,16 @@
 # HireReady AI 🚀
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-rose.svg)](LICENSE)
+[![React](https://img.shields.io/badge/Frontend-React_18_%2B_Vite-blue.svg)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6.svg)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Crimson_%26_Slate-06B6D4.svg)](https://tailwindcss.com)
+[![Prisma](https://img.shields.io/badge/ORM-Prisma_5-2D3748.svg)](https://www.prisma.io)
+[![PostgreSQL](https://img.shields.io/badge/Database-Neon_Serverless_Postgres-00E599.svg)](https://neon.tech)
+[![MongoDB](https://img.shields.io/badge/Document_Store-MongoDB_Atlas-47A248.svg)](https://www.mongodb.com/atlas)
+
+> **Created & Developed by [Amame Aazam](https://github.com/amame-aazam)**  
+> **Repository:** [https://github.com/amame-aazam/Hireready-ai](https://github.com/amame-aazam/Hireready-ai)
+
 An end-to-end AI-powered technical and behavioral placement preparation platform with real-time interactive voice interviews, automated ATS resume scoring, proctored online assessments, and instant PDF credentials.
 
 ---
@@ -8,8 +19,8 @@ An end-to-end AI-powered technical and behavioral placement preparation platform
 
 | Component | Platform | Deployment URL | Status |
 | :--- | :--- | :--- | :--- |
-| **Frontend Application** | Vercel (Hobby) | [https://hireready-ai.vercel.app](https://hireready-ai.vercel.app) | Production |
-| **Backend API** | Render (Free Web Service) | [https://hireready-api.onrender.com](https://hireready-api.onrender.com) | Production |
+| **Frontend Application** | Vercel (Hobby) | [https://hireready-ai.vercel.app](https://hireready-ai.vercel.app) | Production Ready |
+| **Backend API** | Render (Free Web Service) | [https://hireready-api.onrender.com](https://hireready-api.onrender.com) | Production Ready |
 | **API Health Check** | Render | [https://hireready-api.onrender.com/health](https://hireready-api.onrender.com/health) | Live |
 | **Relational Database** | Neon PostgreSQL | Serverless Pooled Instance (AWS us-east-2) | Active |
 | **Document Database** | MongoDB Atlas | M0 Replica Set Cluster | Active |
@@ -77,7 +88,7 @@ HireReady AI uses a modern split-architecture with a dual-database design patter
 
 ### 1. Frontend on Vercel (Hobby Tier)
 
-1. Connect your repository to Vercel.
+1. Connect your GitHub repository to Vercel.
 2. Select the **Vite** framework preset.
 3. Set **Root Directory** to `client`.
 4. Build Settings:
@@ -98,7 +109,7 @@ HireReady AI uses a modern split-architecture with a dual-database design patter
 
 ### 2. Backend on Render (Free Web Service)
 
-1. Create a new **Web Service** on Render and link your repository.
+1. Create a new **Web Service** on Render and link your GitHub repository.
 2. Set **Root Directory** to `server`.
 3. Set **Runtime** to `Node`.
 4. Build & Start Commands:
@@ -144,8 +155,8 @@ npx tsx src/scripts/seed-admin.ts
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/your-username/hireready-ai.git
-cd hireready-ai
+git clone https://github.com/amame-aazam/Hireready-ai.git
+cd Hireready-ai
 
 # Install all workspace dependencies
 npm install
@@ -175,6 +186,14 @@ npm run dev:all
 
 ---
 
+## 👤 Author
+
+**Amame Aazam**
+- GitHub: [@amame-aazam](https://github.com/amame-aazam)
+- Repository: [https://github.com/amame-aazam/Hireready-ai](https://github.com/amame-aazam/Hireready-ai)
+
+---
+
 ## 🛡️ License
 
-This project is licensed under the [ISC License](LICENSE).
+This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
