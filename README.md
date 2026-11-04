@@ -1,188 +1,227 @@
-# HireReady AI 🚀
+# HireReady AI — Next-Gen AI Interview & Assessment Platform 🚀
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-rose.svg)](LICENSE)
 [![React](https://img.shields.io/badge/Frontend-React_18_%2B_Vite-blue.svg)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6.svg)](https://www.typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Crimson_%26_Slate-06B6D4.svg)](https://tailwindcss.com)
-[![Prisma](https://img.shields.io/badge/ORM-Prisma_5-2D3748.svg)](https://www.prisma.io)
-[![PostgreSQL](https://img.shields.io/badge/Database-Neon_Serverless_Postgres-00E599.svg)](https://neon.tech)
-[![MongoDB](https://img.shields.io/badge/Document_Store-MongoDB_Atlas-47A248.svg)](https://www.mongodb.com/atlas)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js_20_%2B_Express-339933.svg)](https://nodejs.org)
+[![PostgreSQL](https://img.shields.io/badge/Database-Neon_PostgreSQL-00E599.svg)](https://neon.tech)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB_Atlas-47A248.svg)](https://www.mongodb.com/atlas)
+[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind_CSS_(Crimson_%26_Slate)-06B6D4.svg)](https://tailwindcss.com)
 
-> **Created & Developed by [Amame Aazam](https://github.com/amame-aazam)**  
-> **Repository:** [https://github.com/amame-aazam/Hireready-ai](https://github.com/amame-aazam/Hireready-ai)
-
-An end-to-end AI-powered technical and behavioral placement preparation platform with real-time interactive voice interviews, automated ATS resume scoring, proctored online assessments, and instant PDF credentials.
+> **Created by [Amame Aazam](https://github.com/amame-aazam)**  
+> **GitHub Repository:** [https://github.com/amame-aazam/Hireready-ai](https://github.com/amame-aazam/Hireready-ai)
 
 ---
 
-## 🔗 Live Deployments
+## 📖 Overview
 
-| Component | Platform | Deployment URL | Status |
-| :--- | :--- | :--- | :--- |
-| **Frontend Application** | Vercel (Hobby) | [https://hireready-ai.vercel.app](https://hireready-ai.vercel.app) | Production Ready |
-| **Backend API** | Render (Free Web Service) | [https://hireready-api.onrender.com](https://hireready-api.onrender.com) | Production Ready |
-| **API Health Check** | Render | [https://hireready-api.onrender.com/health](https://hireready-api.onrender.com/health) | Live |
-| **Relational Database** | Neon PostgreSQL | Serverless Pooled Instance (AWS us-east-2) | Active |
-| **Document Database** | MongoDB Atlas | M0 Replica Set Cluster | Active |
+**HireReady AI** is an enterprise-grade placement preparation and interview simulation platform designed to bridge the gap between academic preparation and real-world tech recruitment. 
+
+Powered by intelligent AI personas, turn-based Web Speech voice synthesis, and real-time code evaluation, HireReady AI simulates complete recruitment drives — from automated ATS resume qualification to rigorous technical and behavioral evaluation rounds — culminating in server-verified weighted scoring and downloadable PDF credentials.
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## 🌟 Key Features
 
-HireReady AI uses a modern split-architecture with a dual-database design pattern:
+- 🎙️ **Voice-Interactive Technical DSA Interview (Sophia)**:
+  - Turn-based real-time voice interaction powered by the Web Speech API.
+  - **Approach-First State Machine**: Requires candidates to explain their algorithmic intuition before unlocking the code editor.
+  - 3-question progressive flow evaluating code correctness, time/space complexity, and technical articulation.
 
-```
-┌─────────────────────────────────┐        ┌──────────────────────────────────┐
-│      Client (Vercel SPA)        │        │     Backend (Render Service)     │
-│  React 18 + TypeScript + Vite   │───────▶│     Node.js + Express + Prisma   │
-│  Tailwind (Crimson Dark Theme)  │ HTTPS  │  SameSite=None; Secure=true Auth │
-│  Monaco Editor + jsPDF          │        │  trust proxy 1 + CORS Allowlist  │
-└─────────────────────────────────┘        └─────────────────┬────────────────┘
-                                                             │
-                              ┌──────────────────────────────┴──────────────────────────────┐
-                              ▼                                                             ▼
-               ┌──────────────────────────────┐                              ┌──────────────────────────────┐
-               │    Neon PostgreSQL (Prisma)  │                              │     MongoDB Atlas (Mongoose) │
-               │  - User Auth & RBAC (Admin)  │                              │  - Resume ATS Parse Trees    │
-               │  - Application States        │                              │  - DSA Voice Transcripts     │
-               │  - OA Attempts & Scores      │                              │  - HR STAR Behavioral Logs   │
-               │  - Audit Logs & Sessions     │                              │  - Detailed Feedback Reports │
-               └──────────────────────────────┘                              └──────────────────────────────┘
-```
+- 🤝 **Behavioral HR Interview (STAR Method)**:
+  - Natural back-and-forth dialogue with Sophia in a 100vh fitted video interview room.
+  - Live webcam feed integration with an active audio sound-wave visualizer.
+  - **Real-Time STAR Tracker**: Evaluates answers across Situation, Task, Action, and Result, with dynamic probing for missing components.
 
-- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS (Crimson Red `#E11D48` & Slate Dark Theme), TanStack Query, Monaco Editor, Lucide Icons, jsPDF.
-- **Backend**: Node.js, Express, TypeScript, Prisma ORM, Mongoose.
-- **Databases**:
-  - **Neon PostgreSQL**: Structured state, relational integrity, applications, rounds, user roles, audit trails.
-  - **MongoDB Atlas**: Unstructured conversational dialogues, STAR interview evaluations, code snapshots, ATS keyword trees.
-- **AI & Evaluation**: DeepSeek V3 API adapter with zero-cost offline `MockAIProvider` fallback for voice dialogue & evaluation.
-- **Security**: HttpOnly cross-origin cookies (`SameSite=None; Secure=true; path=/`), bcrypt password hashing, JWT token rotation, role-based access control (`STUDENT` / `ADMIN`).
+- 💻 **Proctored Online Assessment (OA)**:
+  - Timed multi-question assessments featuring MCQs and algorithmic coding challenges.
+  - Integrated **Monaco Code Editor** with multi-language execution, custom test case runners, and real-time autosave indicators.
 
----
+- 📄 **AI Resume ATS Scanner**:
+  - Instant parsing of `.pdf` and `.docx` resumes with automated semantic matching against targeted software engineering domains.
+  - Detailed score breakdown, missing keyword alerts, and actionable recommendations.
 
-## 🌟 Key Platform Features
+- 📜 **Server-Side Scoring Engine & Vector PDF Certificate**:
+  - Multi-round weighted composite scoring formula: **Resume (15%) + OA (25%) + DSA (40%) + HR (20%)**.
+  - Strict exclusion of incomplete candidates and privacy-safe masked public leaderboard.
+  - Instant client-side A4 landscape credential generation with unique verification hashes for `SELECTED` candidates.
 
-1. **Dynamic Student Journey Tracker**: Persistent visual milestone stepper tracking progress across `Profile ➔ Resume/ATS ➔ Online OA ➔ AI DSA ➔ AI HR ➔ Final Result`.
-2. **AI Resume ATS Scanner**: Upload `.pdf` / `.docx` resumes for instant ATS match scoring, missing critical keywords, and domain-aligned recommendations.
-3. **Timed Online Assessment (OA)**: Auto-proctored environment with MCQ questions, Monaco coding IDE, multi-language support, automated test-case runner, and autosave state preservation.
-4. **AI Technical DSA Interview (Sophia)**:
-   - Voice-interactive interviewer using Web Speech API synthesis & speech recognition.
-   - **Approach-First State Machine**: Requires candidate to explain their approach before unlocking the code workspace.
-   - 3-question structured technical round evaluating code correctness, time complexity, and technical articulation.
-5. **AI Behavioral HR Interview (Sophia)**:
-   - Live turn-based voice interview with webcam video integration and audio waveform visualizer.
-   - Real-time **STAR Tracker** (Situation, Task, Action, Result) that actively probes for missing components.
-6. **Server-Side Scoring Engine & Vector PDF Certificate**:
-   - Weighted composite formula: **Resume (15%) + OA (25%) + DSA (40%) + HR (20%)**.
-   - Strict incomplete candidate exclusion and privacy-masked public leaderboard.
-   - Instant client-side A4 landscape credential generation with unique verification hashes for selected candidates.
-7. **Admin Management Console (`/admin`)**:
-   - RBAC-guarded administrative dashboard.
-   - Platform metrics, OA assessment studio, and candidate directory.
-   - **Dual-DB Unified Report Inspector**: Inspect ATS metrics, DSA code submissions, and HR dialogue transcripts side-by-side.
-   - Status overrides with tamper-evident audit logging.
+- 🛡️ **Comprehensive Admin Dashboard (`/admin`)**:
+  - RBAC-guarded administrator portal (`Role.ADMIN`).
+  - Real-time platform statistics, candidate management directory, and OA template creation studio.
+  - **Dual-DB Unified Report Inspector**: Inspect ATS parse trees, DSA code submissions, and HR dialogue transcripts side-by-side.
+  - Status overrides with tamper-evident audit logging.
+
+- 🎨 **Premium Crimson & Slate Dark Theme**:
+  - Polished SaaS aesthetic utilizing crimson red accents (`#E11D48` / `#DC2626`), clean slate backgrounds, and a persistent step-by-step candidate journey tracker.
 
 ---
 
-## 🚀 Deployment Guide
+## 🏗️ Architecture & Data Flow
 
-### 1. Frontend on Vercel (Hobby Tier)
+HireReady AI employs a modern split-architecture with a dual-database design:
 
-1. Connect your GitHub repository to Vercel.
-2. Select the **Vite** framework preset.
-3. Set **Root Directory** to `client`.
-4. Build Settings:
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-   - **Install Command**: `npm install`
-5. Configure Environment Variables:
-   - `VITE_API_URL`: `https://<your-render-service>.onrender.com`
-   - `VITE_APP_NAME`: `HireReady AI`
-6. `client/vercel.json` contains SPA routing rewrites to ensure deep links (`/dashboard`, `/admin`) resolve smoothly:
-   ```json
-   {
-     "rewrites": [
-       { "source": "/(.*)", "destination": "/index.html" }
-     ]
-   }
-   ```
+```mermaid
+flowchart TD
+    subgraph Client["Frontend Client (Vercel)"]
+        SPA["React 18 + Vite SPA<br/><code>https://hireready-ai.vercel.app</code>"]
+        JT["Candidate Journey Tracker"]
+        CE["Monaco Code Editor"]
+        WSA["Web Speech & Webcam API"]
+        PDF["jsPDF Certificate Engine"]
+    end
 
-### 2. Backend on Render (Free Web Service)
+    subgraph Server["Backend API (Render)"]
+        API["Node.js + Express API<br/><code>https://hireready-api.onrender.com</code>"]
+        PROXY["<code>app.set('trust proxy', 1)</code>"]
+        AUTH["Auth Module & Token Rotation<br/><code>SameSite=None; Secure=true; path=/</code>"]
+        SE["Server-Side Weighted Scoring Engine"]
+        AI["AI Provider Adapter (DeepSeek / MockAI)"]
+    end
 
-1. Create a new **Web Service** on Render and link your GitHub repository.
-2. Set **Root Directory** to `server`.
-3. Set **Runtime** to `Node`.
-4. Build & Start Commands:
-   - **Build Command**: `npm install && npx prisma generate && npm run build`
-   - **Start Command**: `npm run start`
-5. Environment Variables:
-   | Variable | Value | Description |
-   | :--- | :--- | :--- |
-   | `NODE_ENV` | `production` | Enables production security & optimizations |
-   | `PORT` | `10000` | Port assigned by Render |
-   | `CLIENT_URL` | `https://<your-vercel-app>.vercel.app` | Vercel frontend URL (no trailing slash) |
-   | `POSTGRES_PRISMA_URL` | *(Neon pooled connection string)* | Pooled PostgreSQL URL with `sslmode=require` |
-   | `POSTGRES_URL_NON_POOLING` | *(Neon direct connection string)* | Direct PostgreSQL URL for migrations |
-   | `DATABASE_URL` | *(Same as `POSTGRES_PRISMA_URL`)* | Fallback for Prisma CLI |
-   | `MONGODB_URI` | *(MongoDB Atlas connection string)* | Cluster URI with database name `/hireready` |
-   | `JWT_ACCESS_SECRET` | *(32+ character random string)* | Secret for access tokens |
-   | `JWT_REFRESH_SECRET` | *(32+ character random string)* | Secret for refresh tokens |
-   | `COOKIE_SECURE` | `true` | Enforces HTTPS-only cookies |
-   | `AI_PROVIDER` | `mock` *(or `deepseek`)* | AI Interview provider |
-   | `DEEPSEEK_API_KEY` | *(Optional if using mock)* | DeepSeek API Key |
-   | `JUDGE0_MOCK` | `true` | In-memory code evaluation |
+    subgraph RelationalDB["Relational Core: Neon PostgreSQL"]
+        PG[("Neon Serverless Postgres<br/><code>(PgBouncer Pooled)</code>")]
+        USERS["Users & RBAC Roles"]
+        APPS["Applications & Round States"]
+        OA["OA Templates & Submissions"]
+        AUDIT["Audit Logs & Token Blacklist"]
+    end
 
-### 3. Database Initialization & Admin Seeding
+    subgraph DocumentDB["Unstructured Core: MongoDB Atlas"]
+        M0[("MongoDB Atlas M0 Cluster")]
+        ATS["Resume ATS Parse Trees"]
+        TRANS["DSA Voice Transcripts & Code Diffs"]
+        STAR["HR Behavioral Logs & STAR Evaluations"]
+    end
 
-Once deployed, open the **Shell** tab in your Render service and seed the default administrator account:
-
-```bash
-npx tsx src/scripts/seed-admin.ts
+    SPA -->|HTTPS + HttpOnly Cookies| PROXY
+    PROXY --> API
+    API --> AUTH
+    API --> SE
+    API --> AI
+    API -->|Prisma ORM Client| PG
+    API -->|Mongoose ODM| M0
+    PG --- USERS & APPS & OA & AUDIT
+    M0 --- ATS & TRANS & STAR
 ```
 
-- **Default Admin Email**: `admin@hireready.ai`
-- **Default Admin Password**: `Admin@123456`
+---
+
+## 🛠️ Tech Stack
+
+| Domain | Technologies |
+| :--- | :--- |
+| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, TanStack Query v5, Monaco Editor, React Router v6, Lucide Icons, jsPDF |
+| **Backend** | Node.js 20, Express, TypeScript, Prisma ORM 5, Mongoose 8, Zod, Multer, bcryptjs, jsonwebtoken, Helmet, CORS |
+| **Databases** | **Neon PostgreSQL** (Relational state & sessions), **MongoDB Atlas** (Conversational transcripts & reports) |
+| **AI / Voice** | DeepSeek API adapter, MockAIProvider fallback, Web Speech Synthesis & Recognition API, HTML5 MediaDevices |
+| **Deployment** | **Vercel** (Frontend SPA), **Render** (Backend Web Service), **Neon** (Postgres), **Atlas** (MongoDB) |
 
 ---
 
-## 💻 Local Development Setup
+## 💻 Getting Started (Local Setup)
 
 ### Prerequisites
-- Node.js >= 18
-- npm >= 9
-- PostgreSQL (or free Neon instance)
-- MongoDB (or local MongoDB Community / Atlas free tier)
+- [Node.js](https://nodejs.org/) >= 18.0.0
+- [npm](https://www.npmjs.com/) >= 9.0.0
+- A [Neon PostgreSQL](https://neon.tech/) connection string (or local PostgreSQL)
+- A [MongoDB Atlas](https://www.mongodb.com/atlas) connection URI (or local MongoDB)
 
-### 1. Clone & Install
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/amame-aazam/Hireready-ai.git
 cd Hireready-ai
+```
 
-# Install all workspace dependencies
+### 2. Install Dependencies
+```bash
+# Installs dependencies for root, client, and server workspaces
 npm install
 ```
 
-### 2. Configure Environment Files
-Copy example configs into respective directories:
-```bash
-cp client/.env.example client/.env
-cp server/.env.example server/.env
+### 3. Environment Configuration
+
+Create `.env` files in both `client/` and `server/` using the provided templates:
+
+**Client (`client/.env`)**:
+```env
+VITE_API_URL="http://localhost:5000"
+VITE_APP_NAME="HireReady AI"
 ```
 
-### 3. Initialize Prisma & Run Migrations
+**Server (`server/.env`)**:
+```env
+PORT=5000
+NODE_ENV=development
+CLIENT_URL="http://localhost:5173"
+
+# PostgreSQL (Neon)
+POSTGRES_PRISMA_URL="postgresql://user:password@ep-sample-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require"
+POSTGRES_URL_NON_POOLING="postgresql://user:password@ep-sample.us-east-2.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://user:password@ep-sample-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require"
+
+# MongoDB Atlas
+MONGODB_URI="mongodb+srv://user:password@cluster0.sample.mongodb.net/hireready?retryWrites=true&w=majority"
+
+# JWT Secrets
+JWT_ACCESS_SECRET="dev_access_secret_key_hireready_12345678"
+JWT_REFRESH_SECRET="dev_refresh_secret_key_hireready_87654321"
+
+# AI Provider ("mock" | "deepseek")
+AI_PROVIDER=mock
+DEEPSEEK_API_KEY=""
+DEEPSEEK_BASE_URL="https://api.deepseek.com"
+
+# Code Execution Sandbox
+JUDGE0_MOCK=true
+```
+
+### 4. Database Setup & Migrations
 ```bash
 cd server
+
+# Generate Prisma Client
 npx prisma generate
-npx prisma migrate dev --name init
+
+# Push schema directly to database
+npx prisma db push
+
+# Seed initial Administrator account
 npx tsx src/scripts/seed-admin.ts
+
 cd ..
 ```
 
-### 4. Start Development Servers
+*Default Admin Credentials:*
+- **Email**: `admin@hireready.ai`
+- **Password**: `Admin@123456`
+
+### 5. Run the Application
 ```bash
-# Starts backend on http://localhost:5000 and frontend on http://localhost:5173
+# Starts both Backend (http://localhost:5000) and Frontend (http://localhost:5173)
 npm run dev:all
 ```
+
+---
+
+## 🌐 Production Deployment
+
+The project is pre-configured for seamless cloud deployment:
+
+- **Frontend (Vercel)**:
+  - Framework: `Vite` | Root Directory: `client`
+  - Build Command: `npm run build` | Output Directory: `dist`
+  - Environment Variables: `VITE_API_URL`
+  - SPA Routing: Handled by `client/vercel.json` rewrites.
+- **Backend (Render)**:
+  - Runtime: `Node` | Root Directory: `server`
+  - Build Command: `npm install && npx prisma generate && npm run build`
+  - Start Command: `npm run start`
+  - Port: `10000` (via `PORT` environment variable)
+  - Security: `app.set('trust proxy', 1)` and `SameSite=None; Secure=true` cookies for cross-origin authentication.
+- **Databases**:
+  - **Neon Serverless PostgreSQL**: Auto-scaling connection-pooled SQL storage.
+  - **MongoDB Atlas**: High-availability M0 Replica Set (IP Access: `0.0.0.0/0`).
 
 ---
 
@@ -194,6 +233,7 @@ npm run dev:all
 
 ---
 
-## 🛡️ License
+## 📄 License
 
-This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
+This project is open-source software licensed under the [MIT License](LICENSE).  
+Copyright © 2026 **Amame Aazam**. All rights reserved.
