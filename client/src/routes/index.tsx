@@ -12,6 +12,7 @@ import { HRInterviewPage } from '../features/interview/pages/HRInterviewPage';
 import { StudentDashboardPage } from '../features/dashboard/pages/StudentDashboardPage';
 import { LeaderboardPage } from '../features/leaderboard/pages/LeaderboardPage';
 import { AdminPage } from '../features/admin/pages/AdminPage';
+import { BrandLogo } from '../components/common/BrandLogo';
 import {
   FileText,
   Terminal,
@@ -26,13 +27,13 @@ const LandingPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-6 py-12 space-y-12">
       <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium">
-          <Sparkles className="w-4 h-4" /> Next-Gen AI Interview Prep Platform
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-crimson-600/10 border border-crimson-500/20 text-crimson-400 text-xs font-bold tracking-wide uppercase">
+          <Sparkles className="w-3.5 h-3.5" /> Intelligent SaaS Recruitment Platform
         </div>
-        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
-          HireReady AI
-        </h1>
-        <p className="text-slate-400 max-w-2xl mx-auto text-base sm:text-lg">
+        <div className="flex justify-center">
+          <BrandLogo size="lg" />
+        </div>
+        <p className="text-slate-400 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
           Master your technical and behavioral interviews with real-time turn-based AI voice dialogue, automated ATS scoring, and timed coding assessments.
         </p>
       </div>
@@ -58,7 +59,7 @@ const LandingPage: React.FC = () => {
             desc: 'Voice-based algorithm and system design interviews powered by DeepSeek.',
             path: '/interview/dsa',
             icon: Mic,
-            color: 'text-indigo-400',
+            color: 'text-crimson-400',
           },
           {
             title: 'AI HR Behavioral Round',
@@ -79,7 +80,7 @@ const LandingPage: React.FC = () => {
             desc: 'Review candidate attempt pipelines, questions pool, and rubric thresholds.',
             path: '/admin',
             icon: ShieldAlert,
-            color: 'text-purple-400',
+            color: 'text-amber-400',
           },
         ].map((feat) => {
           const Icon = feat.icon;
@@ -87,15 +88,15 @@ const LandingPage: React.FC = () => {
             <Link
               key={feat.path}
               to={feat.path}
-              className="p-5 rounded-xl bg-slate-800/50 border border-slate-700/60 hover:border-indigo-500/50 hover:bg-slate-800 transition duration-150 flex flex-col justify-between group"
+              className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-crimson-500/50 hover:bg-slate-900 transition-all duration-200 flex flex-col justify-between group shadow-lg"
             >
               <div className="space-y-2">
-                <div className={`p-2.5 rounded-lg bg-slate-900/60 w-fit ${feat.color}`}>
+                <div className={`p-2.5 rounded-xl bg-slate-950/80 w-fit ${feat.color}`}>
                   <Icon className="w-5 h-5" />
                 </div>
-                <h3 className="font-semibold text-slate-200 group-hover:text-white flex items-center justify-between">
+                <h3 className="font-bold text-slate-200 group-hover:text-white flex items-center justify-between">
                   {feat.title}
-                  <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition" />
+                  <ArrowRight className="w-4 h-4 text-crimson-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                 </h3>
                 <p className="text-xs text-slate-400 leading-relaxed">{feat.desc}</p>
               </div>

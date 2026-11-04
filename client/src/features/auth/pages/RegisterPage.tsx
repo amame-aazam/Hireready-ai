@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Lock, Mail, User as UserIcon, AlertCircle, Loader2 } from 'lucide-react';
+import { BrandLogo } from '../../../components/common/BrandLogo';
 
 export const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -40,8 +41,11 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto my-10 p-8 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-6">
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold text-white tracking-tight">Create Account</h1>
+      <div className="text-center space-y-3">
+        <div className="flex justify-center">
+          <BrandLogo size="md" />
+        </div>
+        <h1 className="text-xl font-bold text-white tracking-tight">Create an Account</h1>
         <p className="text-xs text-slate-400">
           Join HireReady AI to practice technical and behavioral interviews
         </p>
@@ -67,7 +71,7 @@ export const RegisterPage: React.FC = () => {
                 value={formData.firstName}
                 onChange={handleChange}
                 placeholder="Jane"
-                className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition"
+                className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-crimson-500 transition"
               />
             </div>
           </div>
@@ -80,7 +84,7 @@ export const RegisterPage: React.FC = () => {
               value={formData.lastName}
               onChange={handleChange}
               placeholder="Doe"
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition"
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-crimson-500 transition"
             />
           </div>
         </div>
@@ -96,7 +100,7 @@ export const RegisterPage: React.FC = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="jane.doe@example.com"
-              className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition"
+              className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-crimson-500 transition"
             />
           </div>
         </div>
@@ -112,7 +116,7 @@ export const RegisterPage: React.FC = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Min 8 chars, 1 uppercase, 1 symbol"
-              className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition"
+              className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-crimson-500 transition"
             />
           </div>
           <p className="text-[10px] text-slate-500">
@@ -123,7 +127,7 @@ export const RegisterPage: React.FC = () => {
         <button
           type="submit"
           disabled={isRegisterPending}
-          className="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm transition flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full py-2.5 rounded-xl bg-crimson-600 hover:bg-crimson-500 text-white font-bold text-xs transition shadow-crimson-sm hover:shadow-crimson-glow flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {isRegisterPending ? (
             <>
@@ -137,10 +141,11 @@ export const RegisterPage: React.FC = () => {
 
       <div className="text-center text-xs text-slate-500">
         Already registered?{' '}
-        <Link to="/auth/login" className="text-indigo-400 hover:text-indigo-300 font-medium">
+        <Link to="/auth/login" className="text-crimson-400 hover:text-crimson-300 font-semibold">
           Sign In
         </Link>
       </div>
     </div>
   );
 };
+export default RegisterPage;

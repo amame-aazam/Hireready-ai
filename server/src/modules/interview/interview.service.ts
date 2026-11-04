@@ -224,11 +224,17 @@ export class InterviewService {
       },
     });
 
-    // 4. Generate Opening AI Turn
+    // 4. Generate Personalized Opening AI Turn
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true },
+    });
+    const candidateName = user?.firstName ? ` ${user.firstName}` : '';
+
     const transcriptId = crypto.randomUUID();
     let openingGreeting = '';
     if (isHR) {
-      openingGreeting = `Hello and welcome to your HR Behavioral Interview! I am Sophia, your interviewer today.
+      openingGreeting = `Hello${candidateName}! Welcome to your HR Behavioral Interview! I am Sophia, your interviewer today.
 
 We will explore your past engineering experiences and situational judgment using the STAR method: Situation, Task, Action, and Result.
 
@@ -238,7 +244,7 @@ ${firstQ.prompt}
 
 Please take your time to describe the context, your specific responsibilities, the concrete actions you took, and the final quantifiable outcome or learnings.`;
     } else {
-      openingGreeting = `Hello! Welcome to your technical interview with Sophia. Today we will work through 3 algorithmic challenges (1 warm-up and 2 core technical problems).
+      openingGreeting = `Hello${candidateName}! Welcome to your technical interview with Sophia. Today we will work through 3 algorithmic challenges (1 warm-up and 2 core technical problems).
 
 Let's begin with Question 1: ${(firstQ as DSAQuestion).title} (${(firstQ as DSAQuestion).difficulty}).
 

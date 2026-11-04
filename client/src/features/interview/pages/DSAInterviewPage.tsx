@@ -31,6 +31,7 @@ import {
   ArrowRight,
   Lock,
 } from 'lucide-react';
+import { BackButton } from '../../../components/common/BackButton';
 
 export const DSAInterviewPage: React.FC = () => {
   const { sessionId: routeSessionId } = useParams<{ sessionId?: string }>();
@@ -315,8 +316,9 @@ export const DSAInterviewPage: React.FC = () => {
     <div className="min-h-[calc(100vh-65px)] flex flex-col space-y-2.5 px-3 sm:px-6 py-2.5">
       {/* Top Bar: Title + Question Stepper + Mute + End Interview */}
       <div className="flex items-center justify-between p-3 bg-slate-900 border border-slate-800 rounded-xl shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-indigo-600/10 border border-indigo-500/20 text-indigo-400">
+        <div className="flex items-center gap-2.5">
+          <BackButton label="Exit" fallbackRoute="/dashboard" />
+          <div className="p-2 rounded-lg bg-crimson-600/10 border border-crimson-500/20 text-crimson-400">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>

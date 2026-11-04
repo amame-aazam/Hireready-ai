@@ -15,6 +15,7 @@ import {
   Layout,
   Server,
 } from 'lucide-react';
+import { BackButton } from '../../../components/common/BackButton';
 
 interface DomainItem {
   id: string;
@@ -96,7 +97,8 @@ export const OALandingPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8 animate-fadeIn">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6 animate-fadeIn">
+      <BackButton />
       {/* Header */}
       <div className="space-y-3 text-center sm:text-left">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">

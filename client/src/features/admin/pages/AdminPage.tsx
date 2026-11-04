@@ -13,6 +13,7 @@ import {
   Award,
   RefreshCw,
 } from 'lucide-react';
+import { BackButton } from '../../../components/common/BackButton';
 
 export const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'stats' | 'candidates' | 'assessments' | 'leaderboard'>('stats');
@@ -24,7 +25,8 @@ export const AdminPage: React.FC = () => {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
+      <BackButton />
       {/* 1. Master Header Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-800/40 border border-slate-700/60 p-6 rounded-2xl backdrop-blur">
         <div className="space-y-1">

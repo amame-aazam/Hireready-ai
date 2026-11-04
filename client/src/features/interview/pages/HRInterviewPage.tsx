@@ -31,6 +31,7 @@ import {
   MessageCircle,
   Lock,
 } from 'lucide-react';
+import { BackButton } from '../../../components/common/BackButton';
 
 export const HRInterviewPage: React.FC = () => {
   const { sessionId: routeSessionId } = useParams<{ sessionId?: string }>();
@@ -283,7 +284,8 @@ export const HRInterviewPage: React.FC = () => {
       {/* Top Header Bar (Fixed Height) */}
       <div className="flex items-center justify-between px-3 py-2 bg-slate-900/90 border border-slate-800 rounded-xl shrink-0 shadow-md">
         <div className="flex items-center gap-2.5">
-          <div className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+          <BackButton label="Exit" fallbackRoute="/dashboard" />
+          <div className="p-1.5 rounded-lg bg-crimson-600/10 border border-crimson-500/20 text-crimson-400">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>

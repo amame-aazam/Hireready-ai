@@ -24,6 +24,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import { BackButton } from '../../../components/common/BackButton';
 
 export const OAWorkspacePage: React.FC = () => {
   const { attemptId } = useParams<{ attemptId: string }>();
@@ -288,7 +289,8 @@ export const OAWorkspacePage: React.FC = () => {
     <div className="min-h-[calc(100vh-70px)] flex flex-col space-y-3 px-3 sm:px-6 py-3">
       {/* Top Bar: Title + Timer + Autosave + Submit */}
       <div className="flex items-center justify-between p-3.5 bg-slate-900 border border-slate-800 rounded-xl shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <BackButton label="Exit" fallbackRoute="/oa" />
           <button
             type="button"
             onClick={() => setShowPaletteMobile(!showPaletteMobile)}

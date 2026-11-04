@@ -5,6 +5,7 @@ import { ATSScoreCard } from '../components/ATSScoreCard';
 import { MissingKeywords } from '../components/MissingKeywords';
 import { ATSActionPlan } from '../components/ATSActionPlan';
 import { FileText, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { BackButton } from '../../../components/common/BackButton';
 
 export const ResumePage: React.FC = () => {
   const {
@@ -44,7 +45,8 @@ export const ResumePage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8">
+    <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
+      <BackButton />
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

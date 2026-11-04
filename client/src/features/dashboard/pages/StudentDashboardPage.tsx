@@ -19,7 +19,10 @@ import {
   ChevronRight,
   TrendingUp,
   Percent,
+  Download,
 } from 'lucide-react';
+import { JourneyTracker } from '../../../components/common/JourneyTracker';
+import { generatePlacementCertificate } from '../../../lib/certificateGenerator';
 
 export const StudentDashboardPage: React.FC = () => {
   const {
@@ -130,21 +133,24 @@ export const StudentDashboardPage: React.FC = () => {
           </button>
           <Link
             to="/leaderboard"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition shadow-lg shadow-indigo-600/20"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-crimson-600 hover:bg-crimson-500 text-white rounded-xl text-xs font-semibold transition shadow-crimson-sm hover:shadow-crimson-glow"
           >
             <Award className="w-4 h-4" /> View Leaderboard
           </Link>
         </div>
       </div>
 
-      {/* 2. Next Action Prompt (Dynamic CTA Banner) */}
-      <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-950/60 via-slate-900/80 to-slate-900 border border-indigo-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* 2. Step-by-Step Journey Tracker */}
+      <JourneyTracker rounds={rounds} isComplete={application.isComplete} />
+
+      {/* 3. Next Action Prompt (Dynamic CTA Banner) */}
+      <div className="p-5 rounded-2xl bg-gradient-to-r from-crimson-950/40 via-slate-900/80 to-slate-900 border border-crimson-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
         <div className="flex items-start gap-3.5">
-          <div className="p-2.5 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 mt-0.5">
+          <div className="p-2.5 rounded-xl bg-crimson-600/20 text-crimson-400 border border-crimson-500/30 mt-0.5">
             <Sparkles className="w-5 h-5" />
           </div>
           <div className="space-y-1">
-            <div className="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+            <div className="text-xs font-semibold uppercase tracking-wider text-crimson-400 flex items-center gap-1.5">
               <span>Next Milestone</span>
               <span>&bull;</span>
               <span>Step {nextAction.stepNumber} of 4</span>
@@ -156,7 +162,7 @@ export const StudentDashboardPage: React.FC = () => {
 
         <Link
           to={nextAction.route}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition shadow-md group shrink-0"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-crimson-600 hover:bg-crimson-500 text-white text-xs font-bold rounded-xl transition shadow-crimson-sm hover:shadow-crimson-glow group shrink-0"
         >
           <span>Continue Assessment</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition" />
@@ -497,10 +503,31 @@ export const StudentDashboardPage: React.FC = () => {
         </p>
 
         {finalOutcome.decision === 'SELECTED' && (
-          <div className="pt-2 flex items-center gap-3">
-            <span className="text-xs text-emerald-300 font-semibold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+          <div className="pt-3 flex flex-wrap items-center gap-3">
+            <span className="text-xs text-emerald-300 font-semibold bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
               Placement Bar Cleared &bull; Target Domain: {application.targetDomain}
             </span>
+            <button
+              onClick={() =>
+                generatePlacementCertificate({
+                  candidateName: `${user.firstName} ${user.lastName}`,
+                  targetDomain: application.targetDomain,
+                  compositeScore: application.compositeScore || 0,
+                  percentile: application.percentileRank,
+                  applicationId: application.id,
+                  issueDate: finalOutcome.decidedAt || undefined,
+                  roundScores: {
+                    resume: rounds.resume.score,
+                    oa: rounds.oa.score,
+                    dsa: rounds.dsa.score,
+                    hr: rounds.hr.score,
+                  },
+                })
+              }
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-crimson-600 to-rose-600 hover:from-crimson-500 hover:to-rose-500 text-white rounded-xl text-xs font-bold transition shadow-crimson-sm hover:shadow-crimson-glow"
+            >
+              <Download className="w-4 h-4" /> Download Official PDF Certificate
+            </button>
           </div>
         )}
       </div>
