@@ -79,6 +79,18 @@ app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
+// Root API Welcome Endpoint
+app.get('/', (_req: Request, res: Response) => {
+  res.status(200).json({
+    name: 'HireReady AI Backend API',
+    version: '1.0.0',
+    status: 'online',
+    healthCheck: '/health',
+    dbHealth: '/api/health/db',
+    author: 'Amame Aazam',
+  });
+});
+
 // Basic Health Check (fast ping for frontend cold-start detection)
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
