@@ -109,9 +109,10 @@ export class DashboardService {
       });
 
       candidateRank = higherCount + 1;
+      const rankNum = candidateRank ?? 1;
       candidatePercentile =
         totalCandidates > 0
-          ? Number((((totalCandidates - candidateRank + 1) / totalCandidates) * 100).toFixed(1))
+          ? Number((((totalCandidates - rankNum + 1) / totalCandidates) * 100).toFixed(1))
           : 100.0;
     }
 

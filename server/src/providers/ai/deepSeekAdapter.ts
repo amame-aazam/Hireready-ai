@@ -15,8 +15,8 @@ export class DeepSeekAdapter implements AIProvider {
   private readonly baseUrl: string;
 
   constructor() {
-    this.apiKey = env.DEEPSEEK_API_KEY;
-    this.baseUrl = env.DEEPSEEK_BASE_URL.replace(/\/+$/, '');
+    this.apiKey = env?.DEEPSEEK_API_KEY || '';
+    this.baseUrl = (env?.DEEPSEEK_BASE_URL || 'https://api.deepseek.com').replace(/\/+$/, '');
   }
 
   private async callChatCompletion(systemPrompt: string, userMessage: string): Promise<any> {

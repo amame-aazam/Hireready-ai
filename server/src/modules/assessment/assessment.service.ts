@@ -145,11 +145,11 @@ export class AssessmentService {
       : 0;
 
     // Sanitize questions to protect exam integrity (strip correct answers & hidden tests)
-    const sanitizedQuestions = assessment.questions.map((q) => {
+    const sanitizedQuestions = assessment.questions.map((q: any) => {
       const rawTestCases = (q.testCases as unknown as TestCaseItem[]) || [];
       const visibleTestCases = rawTestCases
-        .filter((tc) => !tc.isHidden)
-        .map(({ id, input, expectedOutput, description }) => ({
+        .filter((tc: any) => !tc.isHidden)
+        .map(({ id, input, expectedOutput, description }: any) => ({
           id,
           input,
           expectedOutput,

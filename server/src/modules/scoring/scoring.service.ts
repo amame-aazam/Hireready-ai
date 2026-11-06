@@ -123,7 +123,7 @@ export class ScoringService {
 
     // 3. Fetch AI DSA Technical Score from PostgreSQL
     let dsaScore: number | null = null;
-    const dsaSession = application.interviewSessions.find((s) => s.type === 'DSA' && s.overallScore !== null);
+    const dsaSession = application.interviewSessions.find((s: any) => s.type === 'DSA' && s.overallScore !== null);
     if (dsaSession && dsaSession.overallScore !== null) {
       dsaScore = dsaSession.overallScore;
     } else {
@@ -143,7 +143,7 @@ export class ScoringService {
 
     // 4. Fetch AI HR Behavioral Score from PostgreSQL
     let hrScore: number | null = null;
-    const hrSession = application.interviewSessions.find((s) => s.type === 'HR' && s.overallScore !== null);
+    const hrSession = application.interviewSessions.find((s: any) => s.type === 'HR' && s.overallScore !== null);
     if (hrSession && hrSession.overallScore !== null) {
       hrScore = hrSession.overallScore;
     } else {

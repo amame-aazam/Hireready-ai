@@ -91,7 +91,7 @@ export class LeaderboardService {
       take: validLimit,
     });
 
-    const rankings: LeaderboardEntry[] = applications.map((app, index) => {
+    const rankings: LeaderboardEntry[] = applications.map((app: any, index: number) => {
       const overallRank = skip + index + 1;
       const percentile =
         totalCandidates > 0

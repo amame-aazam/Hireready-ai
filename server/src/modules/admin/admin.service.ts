@@ -123,7 +123,7 @@ export class AdminService {
       completedDomainMap.set(c.targetDomain, c._count.targetDomain);
     }
 
-    const domainBreakdown = domains.map((d) => ({
+    const domainBreakdown = domains.map((d: any) => ({
       domain: d.targetDomain,
       applicationsCount: d._count.targetDomain,
       completedCount: completedDomainMap.get(d.targetDomain) || 0,
@@ -207,7 +207,7 @@ export class AdminService {
       }),
     ]);
 
-    const candidates = applications.map((app) => ({
+    const candidates = applications.map((app: any) => ({
       applicationId: app.id,
       userId: app.userId,
       firstName: app.user.firstName,
@@ -517,7 +517,7 @@ export class AdminService {
 
     // Compute pass rates for each assessment
     const result = await Promise.all(
-      assessments.map(async (a) => {
+      assessments.map(async (a: any) => {
         const passedCount = await prisma.assessmentAttempt.count({
           where: { assessmentId: a.id, passed: true },
         });
@@ -535,8 +535,8 @@ export class AdminService {
           passingScore: a.passingScore,
           isActive: a.isActive,
           totalQuestions: a.questions.length,
-          mcqCount: a.questions.filter((q) => q.type === QuestionType.MCQ).length,
-          codingCount: a.questions.filter((q) => q.type === QuestionType.CODING).length,
+          mcqCount: a.questions.filter((q: any) => q.type === QuestionType.MCQ).length,
+          codingCount: a.questions.filter((q: any) => q.type === QuestionType.CODING).length,
           totalAttempts,
           passedCount,
           passRate,
@@ -604,7 +604,7 @@ export class AdminService {
     // Create questions if provided
     if (data.questions && data.questions.length > 0) {
       await Promise.all(
-        data.questions.map((q, idx) =>
+        data.questions.map((q: any, idx: number) =>
           prisma.question.create({
             data: {
               assessmentId: assessment.id,
@@ -672,7 +672,7 @@ export class AdminService {
       }),
     ]);
 
-    const rankings = applications.map((app, index) => {
+    const rankings = applications.map((app: any, index: number) => {
       const rank = skip + index + 1;
       const percentile =
         totalCandidates > 1

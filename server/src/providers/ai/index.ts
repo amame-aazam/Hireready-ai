@@ -10,7 +10,7 @@ export const getAIProvider = (): AIProvider => {
     return providerInstance;
   }
 
-  if (env.AI_PROVIDER === 'deepseek' && env.DEEPSEEK_API_KEY) {
+  if (env?.AI_PROVIDER === 'deepseek' && env?.DEEPSEEK_API_KEY) {
     console.log('🤖 Initializing DeepSeek AI Provider adapter');
     providerInstance = new DeepSeekAdapter();
   } else {
