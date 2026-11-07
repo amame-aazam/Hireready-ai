@@ -105,27 +105,33 @@ export const ResumeDefensePage: React.FC = () => {
     };
 
     const nextStep = currentStep + 1;
-    let aiReplyText = '';
-
     if (nextStep < DEFENSE_QUESTIONS.length) {
       const nextQ = DEFENSE_QUESTIONS[nextStep];
-      aiReplyText = `Understood. Now on ${nextQ.phase}: ${nextQ.question}`;
+      const aiReply = `Understood. Now moving to ${nextQ.phase}: ${nextQ.question}`;
+
+      const aiTurn: DefenseTurn = {
+        id: `turn-ai-${Date.now()}`,
+        sender: 'ai',
+        text: aiReply,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+
+      setTurns((prev) => [...prev, candidateTurn, aiTurn]);
       setCurrentStep(nextStep);
+      speak(aiReply);
     } else {
-      aiReplyText = `Good defense. You held your ground with sound engineering justification. Let me compile your Resume Defense evaluation report now.`;
+      const finalTurn: DefenseTurn = {
+        id: `turn-final-${Date.now()}`,
+        sender: 'ai',
+        text: "Thank you. That concludes your Resume Defense. You defended your architectural decisions and engineering metrics with poise. Generating your evaluation now.",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setTurns((prev) => [...prev, candidateTurn, finalTurn]);
       setIsCompleted(true);
+      speak(finalTurn.text);
     }
 
-    const aiTurn: DefenseTurn = {
-      id: `turn-ai-${Date.now()}`,
-      sender: 'ai',
-      text: aiReplyText,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    setTurns((prev) => [...prev, candidateTurn, aiTurn]);
     resetTranscript();
-    speak(aiReplyText);
   };
 
   const compositeDefenseScore = Math.round(
@@ -137,48 +143,55 @@ export const ResumeDefensePage: React.FC = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
-      {/* Top Navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#F2DDD2] pb-4">
-        <div className="flex items-center gap-3">
-          <BackButton />
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase font-bold text-[#A83E14] bg-[#FFEBE1] px-2.5 py-0.5 rounded-full border border-[#FFD0BC]">
-                Deep Dive Round
-              </span>
-              <span className="text-xs text-[#8C7268]">Candidate Project Examination</span>
-            </div>
-            <h1 className="text-xl font-serif font-medium text-[#0A0706]">
-              Resume &amp; Project Defense
-            </h1>
-          </div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8 text-[#F5E8DD]">
+      <BackButton />
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#F0B87A] bg-[#2D1A10] px-3 py-1 rounded-full border border-[#522E22]">
+            Bonus Deep Dive
+          </span>
+          <h1 className="text-3xl sm:text-4xl font-serif font-normal text-[#F5E8DD] mt-2">
+            Resume Defense Round
+          </h1>
+          <p className="text-xs text-[#A88879] mt-1">
+            Real-time cross-examination on your actual resume projects, technical decisions, and architecture trade-offs.
+          </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-[#6B544A] bg-white px-3 py-1.5 rounded-full border border-[#F2DDD2] shadow-sm">
-            Phase {Math.min(currentStep + 1, 4)} of 4: {DEFENSE_QUESTIONS[Math.min(currentStep, 3)].phase}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono text-[#F0B87A] bg-[#140705] border border-[#3E1D19] px-3 py-1.5 rounded-full">
+            Phase {currentStep + 1} of {DEFENSE_QUESTIONS.length}
           </span>
         </div>
       </div>
 
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Avatar, Question Stepper, and Transcript */}
-        <div className="lg:col-span-7 space-y-5">
-          {/* Persona Card */}
-          <div className="p-6 rounded-3xl bg-white border border-[#F2DDD2] shadow-sm flex items-center justify-between gap-4">
-            <AIAvatar
-              persona={selectedPersona}
-              isSpeaking={isSpeaking}
-              isListening={isListening}
-              isMuted={isMuted}
-              onToggleMute={toggleMute}
-            />
-            <div className="text-right">
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#FFEBE1] text-[#A83E14] border border-[#FFD0BC]">
+        {/* Left Column: Interviewer & Question Dialogue */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Interviewer Persona Card */}
+          <div className="p-6 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-sm flex items-center gap-5 backdrop-blur-md">
+            <div className="w-24 h-24 shrink-0">
+              <AIAvatar
+                isSpeaking={isSpeaking}
+                isListening={isListening}
+                interviewerName={selectedPersona.name}
+                personaKey={selectedPersona.id}
+                isMuted={isMuted}
+                onToggleMute={toggleMute}
+              />
+            </div>
+            <div>
+              <h2 className="text-lg font-serif font-medium text-[#F5E8DD]">
+                {selectedPersona.name}
+              </h2>
+              <div className="text-xs text-[#A88879]">{selectedPersona.role}</div>
+              <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#F0B87A] bg-[#2D1A10] px-2.5 py-0.5 rounded-full border border-[#522E22] mt-1">
                 {selectedPersona.difficultyTier}
               </span>
-              <p className="text-[11px] text-[#8C7268] mt-1 italic max-w-xs">
+              <p className="text-[11px] text-[#856658] mt-1 italic max-w-xs">
                 &ldquo;{selectedPersona.quote}&rdquo;
               </p>
             </div>
@@ -191,10 +204,10 @@ export const ResumeDefensePage: React.FC = () => {
                 key={q.phase}
                 className={`p-2.5 rounded-2xl border text-center transition ${
                   idx === currentStep
-                    ? 'bg-[#FFEBE1] border-[#FF7A48] text-[#A83E14] font-semibold shadow-sm'
+                    ? 'bg-[#2D1A10] border-[#F0B87A] text-[#F0B87A] font-semibold shadow-[0_0_15px_rgba(240,184,122,0.2)]'
                     : idx < currentStep
-                    ? 'bg-[#E6F4EA] border-[#B7E1CD] text-[#1F7A3A]'
-                    : 'bg-white border-[#F2DDD2] text-[#8C7268]'
+                    ? 'bg-[#152B1E] border-[#255436] text-emerald-300'
+                    : 'bg-[#140705] border-[#3E1D19] text-[#856658]'
                 }`}
               >
                 <div className="text-[10px] uppercase tracking-wider">Phase {idx + 1}</div>
@@ -204,9 +217,9 @@ export const ResumeDefensePage: React.FC = () => {
           </div>
 
           {/* Dialogue Transcript */}
-          <div className="rounded-3xl bg-white border border-[#F2DDD2] p-5 shadow-sm space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8C7268] flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-[#FF7A48]" /> Spoken Defense Dialogue
+          <div className="rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] p-5 shadow-sm space-y-4 backdrop-blur-md">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F0B87A] flex items-center gap-1.5">
+              <Layers className="w-4 h-4 text-[#F0B87A]" /> Spoken Defense Dialogue
             </h3>
             <div className="max-h-96 overflow-y-auto pr-1">
               <TranscriptFeed turns={turns as any} />
@@ -217,29 +230,29 @@ export const ResumeDefensePage: React.FC = () => {
         {/* Right Column: Project Focus, Voice Controls & Live Rubric */}
         <div className="lg:col-span-5 space-y-5">
           {/* Project Details */}
-          <div className="p-5 rounded-3xl bg-white border border-[#F2DDD2] shadow-sm space-y-3">
+          <div className="p-5 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-sm space-y-3 backdrop-blur-md">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8C7268]">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#856658]">
                 Examined Project
               </h3>
-              <span className="text-[10px] text-[#FF7A48] font-bold">From Resume</span>
+              <span className="text-[10px] text-[#F0B87A] font-bold">From Resume</span>
             </div>
             <input
               type="text"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
-              className="w-full px-3 py-2 bg-[#FFFAF7] border border-[#F2DDD2] rounded-xl text-sm font-semibold text-[#0A0706] focus:outline-none focus:border-[#FF7A48]"
+              className="w-full px-3 py-2 bg-[#140705] border border-[#3E1D19] rounded-xl text-sm font-semibold text-[#F5E8DD] focus:outline-none focus:border-[#F0B87A]"
             />
             <textarea
               rows={2}
               value={projectDescription}
               onChange={(e) => setProjectDescription(e.target.value)}
-              className="w-full px-3 py-2 bg-[#FFFAF7] border border-[#F2DDD2] rounded-xl text-xs text-[#6B544A] focus:outline-none focus:border-[#FF7A48] resize-none"
+              className="w-full px-3 py-2 bg-[#140705] border border-[#3E1D19] rounded-xl text-xs text-[#A88879] focus:outline-none focus:border-[#F0B87A] resize-none"
             />
           </div>
 
           {/* Voice Input Panel */}
-          <div className="p-6 rounded-3xl bg-white border border-[#F2DDD2] shadow-sm space-y-4">
+          <div className="p-6 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-sm space-y-4 backdrop-blur-md">
             <VoiceControls
               isListening={isListening}
               transcript={transcript}
@@ -251,39 +264,39 @@ export const ResumeDefensePage: React.FC = () => {
           </div>
 
           {/* Defense Defense Metrics */}
-          <div className="p-5 rounded-3xl bg-white border border-[#F2DDD2] shadow-sm space-y-3">
+          <div className="p-5 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-sm space-y-3 backdrop-blur-md">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8C7268] flex items-center gap-1.5">
-                <Activity className="w-4 h-4 text-[#FF7A48]" /> Live Rubric Standing
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#856658] flex items-center gap-1.5">
+                <Activity className="w-4 h-4 text-[#F0B87A]" /> Live Rubric Standing
               </h3>
-              <span className="text-sm font-serif font-bold text-[#0A0706]">
+              <span className="text-sm font-serif font-bold text-[#F0B87A]">
                 {compositeDefenseScore}/100
               </span>
             </div>
 
             <div className="space-y-2 text-xs">
-              <div className="flex justify-between text-[#6B544A]">
+              <div className="flex justify-between text-[#A88879]">
                 <span>Architecture Justification</span>
-                <span className="font-semibold text-[#0A0706]">{defenseScores.architecture}%</span>
+                <span className="font-semibold text-[#F5E8DD]">{defenseScores.architecture}%</span>
               </div>
-              <div className="w-full bg-[#FFFAF7] h-2 rounded-full border border-[#F2DDD2] overflow-hidden">
-                <div className="bg-[#FF7A48] h-full rounded-full" style={{ width: `${defenseScores.architecture}%` }} />
+              <div className="w-full bg-[#140705] h-2 rounded-full border border-[#3E1D19] overflow-hidden">
+                <div className="bg-gradient-to-r from-[#E2A664] to-[#F0B87A] h-full rounded-full" style={{ width: `${defenseScores.architecture}%` }} />
               </div>
 
-              <div className="flex justify-between text-[#6B544A] pt-1">
+              <div className="flex justify-between text-[#A88879] pt-1">
                 <span>Metrics &amp; Benchmark Honesty</span>
-                <span className="font-semibold text-[#0A0706]">{defenseScores.metricsHonesty}%</span>
+                <span className="font-semibold text-[#F5E8DD]">{defenseScores.metricsHonesty}%</span>
               </div>
-              <div className="w-full bg-[#FFFAF7] h-2 rounded-full border border-[#F2DDD2] overflow-hidden">
-                <div className="bg-sky-500 h-full rounded-full" style={{ width: `${defenseScores.metricsHonesty}%` }} />
+              <div className="w-full bg-[#140705] h-2 rounded-full border border-[#3E1D19] overflow-hidden">
+                <div className="bg-gradient-to-r from-[#E2A664] to-[#F0B87A] h-full rounded-full" style={{ width: `${defenseScores.metricsHonesty}%` }} />
               </div>
 
-              <div className="flex justify-between text-[#6B544A] pt-1">
+              <div className="flex justify-between text-[#A88879] pt-1">
                 <span>Trade-off Awareness</span>
-                <span className="font-semibold text-[#0A0706]">{defenseScores.tradeoffAwareness}%</span>
+                <span className="font-semibold text-[#F5E8DD]">{defenseScores.tradeoffAwareness}%</span>
               </div>
-              <div className="w-full bg-[#FFFAF7] h-2 rounded-full border border-[#F2DDD2] overflow-hidden">
-                <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${defenseScores.tradeoffAwareness}%` }} />
+              <div className="w-full bg-[#140705] h-2 rounded-full border border-[#3E1D19] overflow-hidden">
+                <div className="bg-gradient-to-r from-[#E2A664] to-[#F0B87A] h-full rounded-full" style={{ width: `${defenseScores.tradeoffAwareness}%` }} />
               </div>
             </div>
           </div>
@@ -292,48 +305,48 @@ export const ResumeDefensePage: React.FC = () => {
 
       {/* Completion Modal */}
       {isCompleted && (
-        <div className="fixed inset-0 bg-[#0A0706]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white border border-[#F2DDD2] rounded-3xl p-8 max-w-lg w-full space-y-6 shadow-xl text-center">
-            <div className="p-4 rounded-full bg-[#E6F4EA] text-[#1F7A3A] w-fit mx-auto border border-[#B7E1CD]">
+        <div className="fixed inset-0 bg-[#0D0403]/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-[#1A0C09] border border-[#3E1D19] rounded-3xl p-8 max-w-lg w-full space-y-6 shadow-2xl text-center text-[#F5E8DD]">
+            <div className="p-4 rounded-full bg-[#152B1E] text-emerald-300 w-fit mx-auto border border-[#255436]">
               <Trophy className="w-8 h-8" />
             </div>
 
             <div className="space-y-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#1F7A3A]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-300">
                 Defense Cleared
               </span>
-              <h2 className="text-2xl font-serif font-normal text-[#0A0706]">
+              <h2 className="text-2xl font-serif font-normal text-[#F5E8DD]">
                 Resume Defense Evaluation
               </h2>
-              <p className="text-xs text-[#6B544A] max-w-sm mx-auto">
+              <p className="text-xs text-[#A88879] max-w-sm mx-auto">
                 You successfully defended your project against cross-examination by {selectedPersona.name}.
               </p>
             </div>
 
-            <div className="p-4 bg-[#FFFAF7] border border-[#F2DDD2] rounded-2xl flex items-center justify-around">
+            <div className="p-4 bg-[#140705] border border-[#3E1D19] rounded-2xl flex items-center justify-around">
               <div>
-                <div className="text-xs text-[#8C7268]">Defense Score</div>
-                <div className="text-2xl font-serif font-bold text-[#0A0706]">
+                <div className="text-xs text-[#856658]">Defense Score</div>
+                <div className="text-2xl font-serif font-bold text-[#F0B87A]">
                   {compositeDefenseScore}/100
                 </div>
               </div>
-              <div className="w-px h-8 bg-[#F2DDD2]" />
+              <div className="w-px h-8 bg-[#3E1D19]" />
               <div>
-                <div className="text-xs text-[#8C7268]">Standing</div>
-                <div className="text-sm font-semibold text-[#1F7A3A]">Senior Tier Pass</div>
+                <div className="text-xs text-[#856658]">Standing</div>
+                <div className="text-sm font-semibold text-emerald-300">Senior Tier Pass</div>
               </div>
             </div>
 
             <div className="flex items-center justify-center gap-3 pt-2">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="px-6 py-3 rounded-full bg-[#0A0706] hover:bg-[#221C19] text-white text-xs font-semibold transition"
+                className="px-6 py-3 rounded-full bg-[#140705] border border-[#3E1D19] hover:bg-[#24110E] text-[#F5E8DD] text-xs font-semibold transition"
               >
                 Return to Dashboard
               </button>
               <button
                 onClick={() => navigate('/interview/dsa')}
-                className="px-6 py-3 rounded-full bg-[#FF7A48] hover:bg-[#FF6428] text-white text-xs font-semibold transition flex items-center gap-1.5"
+                className="px-6 py-3 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] text-xs font-bold transition flex items-center gap-1.5 shadow-[0_0_20px_rgba(240,184,122,0.3)]"
               >
                 <span>Take DSA Technical Round</span>
                 <ArrowRight className="w-4 h-4" />

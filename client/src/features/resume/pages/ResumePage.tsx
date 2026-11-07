@@ -45,32 +45,32 @@ export const ResumePage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-8 text-[#F5E8DD]">
       <BackButton />
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFEBE1] border border-[#FFD0BC] text-[#A83E14] text-xs font-semibold mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-[#FF7A48]" /> Step 1 Resume Audit
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#2D1A10] border border-[#522E22] text-[#F0B87A] text-xs font-semibold mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-[#F0B87A]" /> Step 1 Resume Audit
           </div>
-          <h1 className="text-3xl font-serif font-normal text-[#0A0706] tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-serif font-normal text-[#F5E8DD] tracking-tight">
             Resume Optimization &amp; ATS Scoring
           </h1>
-          <p className="text-sm text-[#6B544A] mt-1">
+          <p className="text-sm text-[#A88879] mt-1">
             Evaluate your resume against top technical domain rubrics with explainable 4-pillar analysis.
           </p>
         </div>
 
         {/* Tab Toggle */}
         {latestAnalysis && (
-          <div className="flex items-center bg-[#FFFAF7] p-1 rounded-full border border-[#F2DDD2] self-start md:self-auto shadow-sm">
+          <div className="flex items-center bg-[#140705] p-1 rounded-full border border-[#3E1D19] self-start md:self-auto shadow-sm">
             <button
               onClick={() => setActiveTab('upload')}
               className={`px-4 py-2 rounded-full text-xs font-semibold transition ${
                 activeTab === 'upload'
-                  ? 'bg-[#0A0706] text-white shadow-sm'
-                  : 'text-[#6B544A] hover:text-[#0A0706]'
+                  ? 'bg-gradient-to-r from-[#F0B87A] to-[#E2A664] text-[#140808] font-bold shadow-sm'
+                  : 'text-[#A88879] hover:text-[#F5E8DD]'
               }`}
             >
               Upload New
@@ -79,8 +79,8 @@ export const ResumePage: React.FC = () => {
               onClick={() => setActiveTab('report')}
               className={`px-4 py-2 rounded-full text-xs font-semibold transition ${
                 activeTab === 'report'
-                  ? 'bg-[#0A0706] text-white shadow-sm'
-                  : 'text-[#6B544A] hover:text-[#0A0706]'
+                  ? 'bg-gradient-to-r from-[#F0B87A] to-[#E2A664] text-[#140808] font-bold shadow-sm'
+                  : 'text-[#A88879] hover:text-[#F5E8DD]'
               }`}
             >
               View Latest Report
@@ -93,11 +93,11 @@ export const ResumePage: React.FC = () => {
       {activeTab === 'upload' && (
         <div className="max-w-3xl mx-auto space-y-6">
           {/* Target Domain Selector */}
-          <div className="p-6 rounded-3xl bg-white border border-[#F2DDD2] space-y-3 shadow-sm">
-            <label className="text-xs font-semibold uppercase tracking-wider text-[#0A0706]">
+          <div className="p-6 sm:p-8 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] space-y-3 shadow-sm backdrop-blur-md">
+            <label className="text-xs font-semibold uppercase tracking-wider text-[#F0B87A]">
               Select Target Engineering Domain
             </label>
-            <p className="text-xs text-[#6B544A]">
+            <p className="text-xs text-[#A88879]">
               ATS keywords and technical criteria will be tailored directly to your chosen track.
             </p>
             <select
@@ -105,7 +105,7 @@ export const ResumePage: React.FC = () => {
               onChange={(e) => setSelectedDomainId(e.target.value)}
               disabled={isDomainsLoading || isUploading}
               aria-label="Select Target Engineering Domain"
-              className="w-full px-4 py-2.5 bg-[#FFFAF7] border border-[#F2DDD2] rounded-xl text-sm text-[#0A0706] focus:outline-none focus:border-[#FF7A48] transition"
+              className="w-full px-4 py-2.5 bg-[#140705] border border-[#3E1D19] rounded-xl text-sm text-[#F5E8DD] focus:outline-none focus:border-[#F0B87A] transition"
             >
               <option value="">Default (Full Stack Web Development)</option>
               {domains.map((dom) => (
@@ -124,8 +124,8 @@ export const ResumePage: React.FC = () => {
             />
 
             {(errorMessage || uploadError) && (
-              <div className="p-3.5 rounded-2xl bg-[#FFF4EC] border border-[#F2DDD2] text-xs text-[#A83E14] flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-[#FF7A48]" />
+              <div className="p-3.5 rounded-2xl bg-[#2A100E] border border-red-800/60 text-xs text-red-300 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
                 <span>
                   {errorMessage ||
                     (uploadError as any)?.response?.data?.error?.message ||
@@ -137,16 +137,16 @@ export const ResumePage: React.FC = () => {
             <button
               onClick={handleUploadAndAnalyze}
               disabled={!selectedFile || isUploading}
-              className="w-full py-3.5 rounded-full bg-[#0A0706] hover:bg-[#221C19] disabled:opacity-40 text-white font-medium text-sm transition flex items-center justify-center gap-2 shadow-sm"
+              className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] font-bold text-sm transition shadow-[0_0_20px_rgba(240,184,122,0.3)] flex items-center justify-center gap-2 disabled:opacity-40"
             >
               {isUploading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-[#FF7A48]" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#140808]" />
                   <span>Analyzing Resume with AI Engine...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-[#FF7A48]" />
+                  <Sparkles className="w-4 h-4 text-[#140808]" />
                   <span>Run AI ATS Analysis</span>
                 </>
               )}
@@ -159,8 +159,8 @@ export const ResumePage: React.FC = () => {
       {activeTab === 'report' && (
         <div className="space-y-8">
           {isLatestLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-3 text-[#6B544A]">
-              <Loader2 className="w-8 h-8 animate-spin text-[#FF7A48]" />
+            <div className="flex flex-col items-center justify-center py-20 gap-3 text-[#A88879]">
+              <Loader2 className="w-8 h-8 animate-spin text-[#F0B87A]" />
               <p className="text-sm font-medium">Loading ATS evaluation report...</p>
             </div>
           ) : latestAnalysis ? (
@@ -184,15 +184,15 @@ export const ResumePage: React.FC = () => {
               />
             </>
           ) : (
-            <div className="p-12 text-center rounded-3xl bg-white border border-[#F2DDD2] space-y-4 shadow-sm">
-              <FileText className="w-10 h-10 mx-auto text-[#8C7268]" />
-              <h3 className="text-lg font-serif font-medium text-[#0A0706]">No Previous Analysis Found</h3>
-              <p className="text-xs text-[#6B544A] max-w-sm mx-auto">
+            <div className="p-12 text-center rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] space-y-4 shadow-sm backdrop-blur-md">
+              <FileText className="w-10 h-10 mx-auto text-[#856658]" />
+              <h3 className="text-lg font-serif font-medium text-[#F5E8DD]">No Previous Analysis Found</h3>
+              <p className="text-xs text-[#A88879] max-w-sm mx-auto">
                 You haven&apos;t uploaded a resume yet. Upload one to receive your personalized score.
               </p>
               <button
                 onClick={() => setActiveTab('upload')}
-                className="px-5 py-2.5 rounded-full bg-[#0A0706] hover:bg-[#221C19] text-white text-xs font-semibold transition"
+                className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] text-[#140808] font-bold text-xs transition"
               >
                 Upload Resume
               </button>

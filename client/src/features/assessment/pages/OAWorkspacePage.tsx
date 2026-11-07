@@ -98,58 +98,38 @@ export const OAWorkspacePage: React.FC = () => {
 
   // Load attempt data on mount
   useEffect(() => {
-    if (!attemptId) {
-      navigate('/oa');
-      return;
-    }
+    if (!attemptId) return;
 
-    const initWorkspace = async () => {
+    const loadAttempt = async () => {
       try {
         setIsLoading(true);
         setError(null);
+        const res = await assessmentApi.startOrResume(attemptId);
 
-        // Resume attempt
-        const data = await assessmentApi.startOrResume(attemptId);
+        setQuestions(res.assessment.questions);
+        setAssessmentTitle(res.assessment.title);
+        setInitialSeconds(Math.max(0, res.attempt.remainingSeconds));
 
-        setAssessmentTitle(data.assessment.title);
-        setQuestions(data.assessment.questions);
-        setInitialSeconds(data.attempt.remainingSeconds);
-
-        // Populate existing answers
-        const loadedAnswers: AttemptAnswers = {
-          mcq: data.attempt.answers?.mcq || {},
-          code: data.attempt.answers?.code || {},
-        };
-
-        // Initialize code starter templates if question doesn't have an answer yet
-        data.assessment.questions.forEach((q) => {
-          if (q.type === 'CODING' && !loadedAnswers.code[q.id]) {
-            const starter = q.starterCode?.javascript || '// Write solution here\n';
-            loadedAnswers.code[q.id] = { code: starter, language: 'javascript' };
-          }
-        });
-
-        setAnswers(loadedAnswers);
-
-        // If attempt was already SUBMITTED, fetch final result
-        if (data.attempt.status === 'SUBMITTED') {
-          const submitRes = await assessmentApi.submit(attemptId);
-          setFinalResult(submitRes);
+        // Restore prior saved answers if present
+        if (res.attempt.answers) {
+          setAnswers({
+            mcq: res.attempt.answers.mcq || {},
+            code: res.attempt.answers.code || {},
+          });
         }
       } catch (err: any) {
-        console.error('Failed to initialize assessment workspace:', err);
-        setError(err.response?.data?.message || 'Failed to load assessment. Attempt may be invalid.');
+        console.error('Failed to load attempt:', err);
+        setError(err.response?.data?.message || 'Failed to initialize assessment workspace.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    initWorkspace();
-  }, [attemptId, navigate]);
+    loadAttempt();
+  }, [attemptId]);
 
   const currentQuestion = questions[currentIndex];
 
-  // MCQ answer change handler
   const handleMcqSelect = (optionIndex: number) => {
     if (!currentQuestion) return;
     setAnswers((prev) => ({
@@ -164,41 +144,35 @@ export const OAWorkspacePage: React.FC = () => {
   const handleMcqClear = () => {
     if (!currentQuestion) return;
     setAnswers((prev) => {
-      const updatedMcq = { ...prev.mcq };
-      delete updatedMcq[currentQuestion.id];
-      return { ...prev, mcq: updatedMcq };
+      const nextMcq = { ...prev.mcq };
+      delete nextMcq[currentQuestion.id];
+      return { ...prev, mcq: nextMcq };
     });
   };
 
-  // Coding answer change handler
   const handleCodeChange = (newCode: string) => {
     if (!currentQuestion) return;
-    const currentLang = answers.code[currentQuestion.id]?.language || 'javascript';
     setAnswers((prev) => ({
       ...prev,
       code: {
         ...prev.code,
         [currentQuestion.id]: {
           code: newCode,
-          language: currentLang,
+          language: prev.code[currentQuestion.id]?.language || 'javascript',
         },
       },
     }));
   };
 
-  const handleLanguageChange = (newLang: string) => {
+  const handleLanguageChange = (newLanguage: string) => {
     if (!currentQuestion) return;
-    const starter =
-      currentQuestion.starterCode?.[newLang] ||
-      (newLang === 'python' ? '# Write solution here\n' : '// Write solution here\n');
-
     setAnswers((prev) => ({
       ...prev,
       code: {
         ...prev.code,
         [currentQuestion.id]: {
-          code: starter,
-          language: newLang,
+          code: prev.code[currentQuestion.id]?.code || '',
+          language: newLanguage,
         },
       },
     }));
@@ -206,26 +180,23 @@ export const OAWorkspacePage: React.FC = () => {
 
   const handleResetCode = () => {
     if (!currentQuestion) return;
-    const currentLang = answers.code[currentQuestion.id]?.language || 'javascript';
     const starter =
-      currentQuestion.starterCode?.[currentLang] ||
-      (currentLang === 'python' ? '# Write solution here\n' : '// Write solution here\n');
-
+      currentQuestion.starterCode?.[answers.code[currentQuestion.id]?.language || 'javascript'] ||
+      '';
     setAnswers((prev) => ({
       ...prev,
       code: {
         ...prev.code,
         [currentQuestion.id]: {
           code: starter,
-          language: currentLang,
+          language: prev.code[currentQuestion.id]?.language || 'javascript',
         },
       },
     }));
   };
 
-  // Run visible test cases
   const handleRunCode = async () => {
-    if (!currentQuestion || !attemptId) return;
+    if (!attemptId || !currentQuestion) return;
     const codeEntry = answers.code[currentQuestion.id];
     if (!codeEntry) return;
 
@@ -256,22 +227,22 @@ export const OAWorkspacePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="h-[calc(100vh-80px)] flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="w-10 h-10 text-[#FF7A48] animate-spin" />
-        <p className="text-[#6B544A] text-sm">Preparing secure assessment environment...</p>
+      <div className="h-[calc(100vh-80px)] flex flex-col items-center justify-center space-y-4 text-[#F5E8DD]">
+        <Loader2 className="w-10 h-10 text-[#F0B87A] animate-spin" />
+        <p className="text-[#A88879] text-sm">Preparing secure assessment environment...</p>
       </div>
     );
   }
 
   if (error || !currentQuestion) {
     return (
-      <div className="max-w-md mx-auto my-16 p-8 bg-white border border-[#F2DDD2] rounded-3xl space-y-4 text-center shadow-sm">
-        <AlertTriangle className="w-10 h-10 text-[#FF7A48] mx-auto" />
-        <h2 className="text-lg font-serif font-medium text-[#0A0706]">Unable to load assessment</h2>
-        <p className="text-xs text-[#6B544A]">{error || 'Session could not be recovered.'}</p>
+      <div className="max-w-md mx-auto my-16 p-8 bg-[#1A0C09]/90 border border-[#3E1D19] rounded-3xl space-y-4 text-center shadow-sm text-[#F5E8DD]">
+        <AlertTriangle className="w-10 h-10 text-[#F0B87A] mx-auto" />
+        <h2 className="text-lg font-serif font-medium text-[#F5E8DD]">Unable to load assessment</h2>
+        <p className="text-xs text-[#A88879]">{error || 'Session could not be recovered.'}</p>
         <button
           onClick={() => navigate('/oa')}
-          className="px-5 py-2.5 rounded-full bg-[#0A0706] hover:bg-[#221C19] text-white text-xs font-semibold transition"
+          className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] text-[#140808] font-bold text-xs transition"
         >
           Return to Assessments
         </button>
@@ -285,23 +256,23 @@ export const OAWorkspacePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-70px)] flex flex-col space-y-3 px-3 sm:px-6 py-4">
+    <div className="min-h-[calc(100vh-70px)] flex flex-col space-y-3 px-3 sm:px-6 py-4 text-[#F5E8DD]">
       {/* Top Bar: Title + Timer + Autosave + Submit */}
-      <div className="flex items-center justify-between p-4 bg-white border border-[#F2DDD2] rounded-3xl shadow-sm shrink-0">
+      <div className="flex items-center justify-between p-4 bg-[#1A0C09]/90 border border-[#3E1D19] rounded-3xl shadow-sm shrink-0 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <BackButton label="Exit" fallbackRoute="/oa" />
           <button
             type="button"
             onClick={() => setShowPaletteMobile(!showPaletteMobile)}
-            className="p-1.5 rounded-xl bg-[#FFFAF7] border border-[#F2DDD2] text-[#0A0706] lg:hidden hover:bg-[#FBF1EA]"
+            className="p-1.5 rounded-xl bg-[#140705] border border-[#3E1D19] text-[#F5E8DD] lg:hidden hover:bg-[#24110E]"
           >
             {showPaletteMobile ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <div>
-            <h1 className="text-sm sm:text-base font-serif font-medium text-[#0A0706] leading-tight">
+            <h1 className="text-sm sm:text-base font-serif font-medium text-[#F5E8DD] leading-tight">
               {assessmentTitle}
             </h1>
-            <p className="text-[11px] text-[#6B544A]">
+            <p className="text-[11px] text-[#A88879]">
               Question {currentIndex + 1} of {questions.length}
             </p>
           </div>
@@ -326,12 +297,12 @@ export const OAWorkspacePage: React.FC = () => {
             type="button"
             onClick={() => handleSubmit(false)}
             disabled={isSubmitting}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0A0706] hover:bg-[#221C19] text-white text-xs font-semibold shadow-sm transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] text-xs font-bold shadow-[0_0_15px_rgba(240,184,122,0.3)] transition disabled:opacity-50"
           >
             {isSubmitting ? (
-              <Loader2 className="w-4 h-4 animate-spin text-[#FF7A48]" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#140808]" />
             ) : (
-              <Send className="w-3.5 h-3.5 text-[#FF7A48]" />
+              <Send className="w-3.5 h-3.5 text-[#140808]" />
             )}
             <span className="hidden sm:inline">Submit Assessment</span>
             <span className="sm:hidden">Submit</span>
@@ -353,7 +324,7 @@ export const OAWorkspacePage: React.FC = () => {
 
         {/* Mobile Palette Overlay */}
         {showPaletteMobile && (
-          <div className="lg:hidden fixed inset-0 z-40 bg-[#0A0706]/40 p-4 pt-20 backdrop-blur-sm">
+          <div className="lg:hidden fixed inset-0 z-40 bg-[#0D0403]/80 p-4 pt-20 backdrop-blur-md">
             <QuestionPalette
               questions={questions}
               currentIndex={currentIndex}
@@ -393,18 +364,18 @@ export const OAWorkspacePage: React.FC = () => {
           </div>
 
           {/* Bottom Navigation Buttons */}
-          <div className="flex items-center justify-between p-3.5 bg-white border border-[#F2DDD2] rounded-3xl shadow-sm shrink-0">
+          <div className="flex items-center justify-between p-3.5 bg-[#1A0C09]/90 border border-[#3E1D19] rounded-3xl shadow-sm shrink-0 backdrop-blur-md">
             <button
               type="button"
               onClick={() => handleSelectQuestion(Math.max(0, currentIndex - 1))}
               disabled={currentIndex === 0}
-              className="flex items-center gap-1 px-4 py-2 rounded-full border border-[#F2DDD2] bg-[#FFFAF7] hover:bg-[#FBF1EA] text-[#0A0706] text-xs font-semibold disabled:opacity-30 disabled:pointer-events-none transition"
+              className="flex items-center gap-1 px-4 py-2 rounded-full border border-[#3E1D19] bg-[#140705] hover:bg-[#24110E] hover:border-[#52251D] text-[#F5E8DD] text-xs font-semibold disabled:opacity-30 disabled:pointer-events-none transition"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Previous</span>
             </button>
 
-            <span className="text-xs text-[#6B544A] font-mono">
+            <span className="text-xs text-[#A88879] font-mono">
               {currentIndex + 1} / {questions.length}
             </span>
 
@@ -414,7 +385,7 @@ export const OAWorkspacePage: React.FC = () => {
                 handleSelectQuestion(Math.min(questions.length - 1, currentIndex + 1))
               }
               disabled={currentIndex === questions.length - 1}
-              className="flex items-center gap-1 px-4 py-2 rounded-full border border-[#F2DDD2] bg-[#FFFAF7] hover:bg-[#FBF1EA] text-[#0A0706] text-xs font-semibold disabled:opacity-30 disabled:pointer-events-none transition"
+              className="flex items-center gap-1 px-4 py-2 rounded-full border border-[#3E1D19] bg-[#140705] hover:bg-[#24110E] hover:border-[#52251D] text-[#F5E8DD] text-xs font-semibold disabled:opacity-30 disabled:pointer-events-none transition"
             >
               <span>Next</span>
               <ChevronRight className="w-4 h-4" />

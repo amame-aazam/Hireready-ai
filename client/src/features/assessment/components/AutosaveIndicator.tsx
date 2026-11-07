@@ -14,7 +14,7 @@ export const AutosaveIndicator: React.FC<AutosaveIndicatorProps> = ({
 }) => {
   if (saveError) {
     return (
-      <div className="flex items-center gap-1.5 text-xs text-[#9B1C1C]">
+      <div className="flex items-center gap-1.5 text-xs text-red-400">
         <AlertCircle className="w-3.5 h-3.5" />
         <span>Save failed</span>
       </div>
@@ -23,7 +23,7 @@ export const AutosaveIndicator: React.FC<AutosaveIndicatorProps> = ({
 
   if (isSaving) {
     return (
-      <div className="flex items-center gap-1.5 text-xs text-[#FF7A48]">
+      <div className="flex items-center gap-1.5 text-xs text-[#F0B87A]">
         <Loader2 className="w-3.5 h-3.5 animate-spin" />
         <span>Saving...</span>
       </div>
@@ -32,8 +32,8 @@ export const AutosaveIndicator: React.FC<AutosaveIndicatorProps> = ({
 
   if (lastSavedAt) {
     return (
-      <div className="flex items-center gap-1.5 text-xs text-[#6B544A]">
-        <CheckCircle2 className="w-3.5 h-3.5 text-[#1F7A3A]" />
+      <div className="flex items-center gap-1.5 text-xs text-[#A88879]">
+        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
         <span>
           Saved at{' '}
           {lastSavedAt.toLocaleTimeString([], {
@@ -47,7 +47,7 @@ export const AutosaveIndicator: React.FC<AutosaveIndicatorProps> = ({
   }
 
   return (
-    <div className="flex items-center gap-1.5 text-xs text-[#8C7268]">
+    <div className="flex items-center gap-1.5 text-xs text-[#856658]">
       <span>Ready to save</span>
     </div>
   );

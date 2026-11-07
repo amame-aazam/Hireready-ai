@@ -3,115 +3,133 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
-  --bg: #FFFAF7;
-  --text: #0A0706;
-  --muted: #6B544A;
-  --dim: #8C7268;
-  --accent: #FF7A48;
-  --accent-text: #A83E14;
-  --chip: #FFEBE1;
-  --line: #F2DDD2;
-  --line-2: #E8CBBE;
-  --card: #FFFFFF;
-  --card-border: #F2DDD2;
-  --btn-from: #FFB896;
-  --btn-to: #FF7A48;
-  --on-accent: #2A1206;
+  --bg-canvas: #0D0403;
+  --bg-card: #1A0C09;
+  --bg-card-hover: #24110E;
+  --border-hairline: #3E1D19;
+  --border-light: #52251E;
+  --text-main: #F5E8DD;
+  --text-muted: #A88879;
+  --text-dim: #856658;
+  --gold-accent: #F0B87A;
+  --gold-hover: #F3C48E;
+  --gold-bg: #2D1A10;
+  --gold-border: #54321C;
 }
 
 body {
   margin: 0;
-  font-family: 'Hanken Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--bg);
-  color: var(--text);
+  background-color: #0D0403;
+  background-image: 
+    radial-gradient(ellipse 75% 55% at 50% -5%, rgba(68, 23, 19, 0.6) 0%, rgba(22, 10, 8, 0.8) 50%, #0D0403 100%),
+    radial-gradient(circle at 100% 20%, rgba(55, 18, 15, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 0% 30%, rgba(55, 18, 15, 0.25) 0%, transparent 40%);
+  background-attachment: fixed;
+  color: #F5E8DD;
+  font-family: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Typography helper classes matching Sakshaat AI */
-.font-display {
-  font-family: 'Newsreader', Georgia, serif;
-}
-
-.font-text {
-  font-family: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
-}
-
-.font-mono {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-}
-
-/* Minimal sleek scrollbars */
+/* Custom Scrollbars in Luxury Wine Dark */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #FFF5F0;
+  background: #110504;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #E8CBBE;
+  background: #3E1D19;
   border-radius: 9999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #FF7A48;
+  background: #52251E;
 }
 
-/* Sakshaat AI button & badge styling utilities */
-.btn-primary {
-  background: linear-gradient(180deg, #FF9A70 0%, #FF7A48 100%);
-  color: #FFFFFF;
-  font-weight: 500;
+/* Button & Card Utilities */
+.btn-gold {
+  background: linear-gradient(135deg, #F0B87A 0%, #E2A664 100%);
+  color: #140808;
+  font-weight: 700;
   border-radius: 9999px;
+  box-shadow: 0 4px 20px -2px rgba(240, 184, 122, 0.35);
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px -3px rgba(255, 122, 72, 0.4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
-
-.btn-primary:hover {
-  background: linear-gradient(180deg, #FFA982 0%, #F06A38 100%);
-  box-shadow: 0 6px 20px -3px rgba(255, 122, 72, 0.5);
+.btn-gold:hover {
+  background: linear-gradient(135deg, #F5C68F 0%, #EDB373 100%);
+  box-shadow: 0 6px 25px -2px rgba(240, 184, 122, 0.45);
   transform: translateY(-1px);
 }
 
-.btn-secondary {
-  background: #FFFFFF;
-  color: #0A0706;
-  border: 1px solid #F2DDD2;
+.btn-wine-secondary {
+  background: rgba(36, 17, 14, 0.85);
+  border: 1px solid #3E1D19;
+  color: #F5E8DD;
+  font-weight: 600;
   border-radius: 9999px;
-  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.btn-wine-secondary:hover {
+  background: rgba(48, 22, 18, 0.95);
+  border-color: #52251E;
+  color: #FFFFFF;
+}
+
+.wine-card {
+  background: rgba(26, 12, 9, 0.75);
+  border: 1px solid rgba(62, 29, 25, 0.75);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.wine-card-interactive {
+  background: rgba(26, 12, 9, 0.75);
+  border: 1px solid rgba(62, 29, 25, 0.75);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   transition: all 0.2s ease;
 }
-
-.btn-secondary:hover {
-  background: #FFF5F0;
-  border-color: #E8CBBE;
-  color: #A83E14;
+.wine-card-interactive:hover {
+  border-color: #6E2F26;
+  background: rgba(36, 17, 14, 0.85);
+  transform: translateY(-1px);
 }
 
-.badge-chip {
-  background-color: #FFEBE1;
-  color: #A83E14;
-  border: 1px solid #FBD7C7;
+.badge-gold {
+  background: #2D1A10;
+  border: 1px solid #54321C;
+  color: #F0B87A;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.25rem 0.65rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-/* Card aesthetics */
-.clean-card {
-  background-color: #FFFFFF;
-  border: 1px solid #F2DDD2;
-  border-radius: 1.25rem;
-  box-shadow: 0 2px 8px -2px rgba(107, 84, 74, 0.05);
-  transition: all 0.25s ease;
+/* Glowing Orb Animation */
+@keyframes orbPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 25px rgba(240, 184, 122, 0.6), 0 0 50px rgba(240, 184, 122, 0.25);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 35px rgba(240, 184, 122, 0.8), 0 0 70px rgba(240, 184, 122, 0.4);
+  }
 }
-
-.clean-card:hover {
-  border-color: #E8CBBE;
-  box-shadow: 0 10px 25px -8px rgba(255, 122, 72, 0.12);
+.animate-orb-pulse {
+  animation: orbPulse 3s infinite ease-in-out;
 }

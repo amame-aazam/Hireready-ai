@@ -25,41 +25,41 @@ export const AdminPage: React.FC = () => {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-8 text-[#F5E8DD]">
       <BackButton />
 
       {/* 1. Master Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white border border-[#F2DDD2] p-6 sm:p-8 rounded-3xl shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-[#1A0C09]/80 border border-[#3E1D19] p-6 sm:p-8 rounded-3xl shadow-sm backdrop-blur-md">
         <div className="space-y-1.5">
-          <div className="flex items-center gap-2 text-[#A83E14] text-xs font-semibold uppercase tracking-wider">
-            <ShieldAlert className="w-4 h-4 text-[#FF7A48]" /> Executive Admin Console
+          <div className="flex items-center gap-2 text-[#F0B87A] text-xs font-semibold uppercase tracking-wider">
+            <ShieldAlert className="w-4 h-4 text-[#F0B87A]" /> Executive Admin Console
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-normal text-[#0A0706] tracking-tight">
+          <h1 className="text-2xl sm:text-4xl font-serif font-normal text-[#F5E8DD] tracking-tight">
             Recruitment Command Center
           </h1>
-          <p className="text-sm text-[#6B544A] max-w-xl">
+          <p className="text-sm text-[#A88879] max-w-xl">
             Monitor platform health, candidate pipelines, dual-database evaluation dossiers, and manage assessment templates.
           </p>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <span className="px-3.5 py-1.5 rounded-full bg-[#FFEBE1] border border-[#FFD0BC] text-xs text-[#A83E14] font-semibold flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#FF7A48] animate-pulse" />
+          <span className="px-3.5 py-1.5 rounded-full bg-[#2D1A10] border border-[#522E22] text-xs text-[#F0B87A] font-semibold flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#F0B87A] animate-pulse" />
             <span>ROLE: ADMIN</span>
           </span>
           <button
             onClick={() => refetch()}
             disabled={isFetching}
-            className="p-2.5 text-[#8C7268] hover:text-[#0A0706] rounded-full bg-[#FFFAF7] border border-[#F2DDD2] hover:bg-[#FBF1EA] transition"
+            className="p-2.5 text-[#856658] hover:text-[#F5E8DD] rounded-full bg-[#140705] border border-[#3E1D19] hover:bg-[#24110E] transition"
             title="Refresh Admin Data"
           >
-            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin text-[#F0B87A]' : ''}`} />
           </button>
         </div>
       </div>
 
       {/* 2. Admin Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#F2DDD2] pb-px overflow-x-auto scrollbar-none">
+      <div className="flex items-center gap-2 border-b border-[#3E1D19] pb-px overflow-x-auto scrollbar-none">
         {[
           { id: 'stats', label: 'Platform Statistics', icon: BarChart3 },
           { id: 'candidates', label: 'Candidate Management', icon: Users },
@@ -74,8 +74,8 @@ export const AdminPage: React.FC = () => {
               onClick={() => setActiveTab(tab.id as any)}
               className={`pb-3 px-4 flex items-center gap-2 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
                 isSelected
-                  ? 'border-[#0A0706] text-[#0A0706]'
-                  : 'border-transparent text-[#8C7268] hover:text-[#0A0706]'
+                  ? 'border-[#F0B87A] text-[#F0B87A]'
+                  : 'border-transparent text-[#856658] hover:text-[#F5E8DD]'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -90,14 +90,14 @@ export const AdminPage: React.FC = () => {
         {activeTab === 'stats' && (
           isLoading ? (
             <div className="py-20 flex flex-col items-center justify-center space-y-3">
-              <RefreshCw className="w-7 h-7 text-[#FF7A48] animate-spin" />
-              <p className="text-xs text-[#6B544A]">Aggregating platform metrics across PostgreSQL and MongoDB...</p>
+              <RefreshCw className="w-7 h-7 text-[#F0B87A] animate-spin" />
+              <p className="text-xs text-[#A88879]">Aggregating platform metrics across PostgreSQL and MongoDB...</p>
             </div>
           ) : isError || !stats ? (
-            <div className="py-16 text-center space-y-2 bg-white rounded-3xl border border-[#F2DDD2] p-8">
-              <ShieldAlert className="w-8 h-8 text-[#FF7A48] mx-auto" />
-              <p className="text-sm text-[#0A0706] font-semibold">Error Loading Platform Statistics</p>
-              <p className="text-xs text-[#6B544A]">{(error as any)?.message || 'Failed to fetch platform metrics'}</p>
+            <div className="py-16 text-center space-y-2 bg-[#1A0C09]/80 rounded-3xl border border-[#3E1D19] p-8">
+              <ShieldAlert className="w-8 h-8 text-red-400 mx-auto" />
+              <p className="text-sm text-[#F5E8DD] font-semibold">Error Loading Platform Statistics</p>
+              <p className="text-xs text-[#A88879]">{(error as any)?.message || 'Failed to fetch platform metrics'}</p>
             </div>
           ) : (
             <AdminStatsTab stats={stats} />

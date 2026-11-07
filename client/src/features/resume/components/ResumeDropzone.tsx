@@ -62,10 +62,10 @@ export const ResumeDropzone: React.FC<ResumeDropzoneProps> = ({
         onClick={() => fileInputRef.current?.click()}
         className={`p-8 sm:p-12 rounded-3xl border-2 border-dashed cursor-pointer transition text-center space-y-4 ${
           isDragOver
-            ? 'border-[#FF7A48] bg-[#FFEBE1]/30'
+            ? 'border-[#F0B87A] bg-[#2D1A10]'
             : selectedFile
-            ? 'border-[#B7E1CD] bg-[#E6F4EA]/20'
-            : 'border-[#F2DDD2] bg-white hover:border-[#FF7A48]/50 hover:bg-[#FFFAF7]'
+            ? 'border-[#F0B87A] bg-[#1E0E0B]'
+            : 'border-[#3E1D19] bg-[#140705] hover:border-[#F0B87A]/50 hover:bg-[#1A0C09]'
         }`}
       >
         <input
@@ -78,48 +78,53 @@ export const ResumeDropzone: React.FC<ResumeDropzoneProps> = ({
         />
 
         <div className="flex justify-center">
-          {selectedFile ? (
-            <div className="p-4 rounded-2xl bg-[#E6F4EA] text-[#1F7A3A] border border-[#B7E1CD]">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-          ) : (
-            <div className="p-4 rounded-2xl bg-[#FFEBE1] text-[#FF7A48] border border-[#FFD0BC]">
-              <UploadCloud className="w-8 h-8" />
-            </div>
-          )}
+          <div
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center transition ${
+              selectedFile
+                ? 'bg-[#2D1A10] text-[#F0B87A] border border-[#522E22]'
+                : 'bg-[#1A0C09] text-[#A88879] border border-[#3E1D19]'
+            }`}
+          >
+            {selectedFile ? (
+              <FileText className="w-8 h-8 text-[#F0B87A]" />
+            ) : (
+              <UploadCloud className="w-8 h-8 text-[#A88879]" />
+            )}
+          </div>
         </div>
 
         <div className="space-y-1">
-          {selectedFile ? (
-            <>
-              <h3 className="text-sm font-semibold text-[#0A0706] flex items-center justify-center gap-1.5">
-                <FileText className="w-4 h-4 text-[#FF7A48]" />
-                <span>{selectedFile.name}</span>
-              </h3>
-              <p className="text-xs text-[#6B544A]">
-                {(selectedFile.size / 1024).toFixed(1)} KB &bull; Click or drag to replace
-              </p>
-            </>
-          ) : (
-            <>
-              <h3 className="text-base font-serif font-medium text-[#0A0706]">
-                Click or drag resume here to upload
-              </h3>
-              <p className="text-xs text-[#6B544A]">
-                Supports PDF and DOCX up to 5MB. Evaluates ATS keywords, structure, and impact.
-              </p>
-            </>
-          )}
+          <h3 className="text-base font-serif font-medium text-[#F5E8DD]">
+            {selectedFile ? selectedFile.name : 'Upload your resume'}
+          </h3>
+          <p className="text-xs text-[#A88879] max-w-sm mx-auto">
+            {selectedFile
+              ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB · Click to replace`
+              : 'Drag & drop your PDF or DOCX here, or click to browse'}
+          </p>
+        </div>
+
+        <div className="text-[11px] text-[#856658]">
+          PDF or DOCX up to 5MB · Scanned for ATS parsing rubrics
         </div>
       </div>
 
       {errorMsg && (
-        <div className="p-3 rounded-2xl bg-[#FFF4EC] border border-[#F2DDD2] text-xs text-[#A83E14] flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-[#FF7A48]" />
+        <div className="p-3.5 rounded-2xl bg-[#2A100E] border border-red-800/60 text-xs text-red-300 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
           <span>{errorMsg}</span>
+        </div>
+      )}
+
+      {selectedFile && !errorMsg && (
+        <div className="p-3.5 rounded-2xl bg-[#1A0C09] border border-[#3E1D19] flex items-center justify-between text-xs text-[#F0B87A]">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-[#F0B87A]" />
+            <span>Ready for 4-pillar ATS extraction</span>
+          </div>
+          <span className="text-[#856658]">Auto-detected</span>
         </div>
       )}
     </div>
   );
 };
-export default ResumeDropzone;

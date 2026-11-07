@@ -29,15 +29,15 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
   const answeredCount = questions.filter(isAnswered).length;
 
   return (
-    <div className="w-full bg-white border border-[#F2DDD2] rounded-3xl p-5 space-y-4 shadow-sm">
-      <div className="flex items-center justify-between pb-3 border-b border-[#F2DDD2]">
+    <div className="w-full bg-[#1A0C09]/80 border border-[#3E1D19] rounded-3xl p-5 space-y-4 shadow-sm backdrop-blur-md">
+      <div className="flex items-center justify-between pb-3 border-b border-[#3E1D19]">
         <div>
-          <h3 className="text-sm font-semibold text-[#0A0706]">Question Palette</h3>
-          <p className="text-xs text-[#6B544A]">
+          <h3 className="text-sm font-semibold text-[#F5E8DD]">Question Palette</h3>
+          <p className="text-xs text-[#A88879]">
             {answeredCount} of {questions.length} answered
           </p>
         </div>
-        <div className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-[#FFEBE1] text-[#A83E14] border border-[#FFD0BC]">
+        <div className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-[#2D1A10] text-[#F0B87A] border border-[#522E22]">
           {Math.round((answeredCount / questions.length) * 100)}%
         </div>
       </div>
@@ -53,43 +53,39 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
               onClick={() => onSelectQuestion(idx)}
               className={`relative flex flex-col items-center justify-center p-2 rounded-2xl border text-xs font-semibold transition-all ${
                 isCurrent
-                  ? 'bg-[#FFEBE1] border-[#FF7A48] text-[#A83E14] shadow-sm'
+                  ? 'bg-[#2D1A10] border-[#F0B87A] text-[#F0B87A] shadow-[0_0_15px_rgba(240,184,122,0.25)]'
                   : answered
-                  ? 'bg-[#E6F4EA] border-[#B7E1CD] text-[#1F7A3A]'
-                  : 'bg-[#FFFAF7] border-[#F2DDD2] text-[#8C7268] hover:bg-[#FBF1EA]'
+                  ? 'bg-[#152B1E] border-[#255436] text-emerald-300'
+                  : 'bg-[#140705] border-[#3E1D19] text-[#856658] hover:bg-[#24110E] hover:text-[#F5E8DD]'
               }`}
             >
               <div className="flex items-center gap-1">
-                <span>{idx + 1}</span>
                 {q.type === 'CODING' ? (
-                  <Code className="w-3 h-3 text-[#FF7A48]" />
+                  <Code className="w-3 h-3" />
                 ) : (
-                  <HelpCircle className="w-3 h-3 text-sky-600" />
+                  <HelpCircle className="w-3 h-3" />
                 )}
+                <span>Q{idx + 1}</span>
               </div>
-              <span className="text-[9px] uppercase tracking-wider text-[#8C7268] mt-0.5">
-                {answered ? 'Done' : 'Pending'}
-              </span>
             </button>
           );
         })}
       </div>
 
-      <div className="pt-2 border-t border-[#F2DDD2] flex items-center justify-between text-[11px] text-[#8C7268]">
+      <div className="pt-2 border-t border-[#3E1D19] flex items-center justify-between text-[11px] text-[#856658]">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#E6F4EA] border border-[#B7E1CD]" />
+          <span className="w-2 h-2 rounded-full bg-[#2D1A10] border border-[#F0B87A]"></span>
+          <span>Current</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#152B1E] border border-[#255436]"></span>
           <span>Answered</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#FFEBE1] border border-[#FF7A48]" />
-          <span>Active</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#FFFAF7] border border-[#F2DDD2]" />
-          <span>Pending</span>
+          <span className="w-2 h-2 rounded-full bg-[#140705] border border-[#3E1D19]"></span>
+          <span>Unanswered</span>
         </div>
       </div>
     </div>
   );
 };
-export default QuestionPalette;

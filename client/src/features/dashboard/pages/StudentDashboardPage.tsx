@@ -3,22 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { fetchStudentDashboard, DashboardResponse } from '../api/dashboardApi';
 import {
-  CheckCircle2,
-  Clock,
-  ArrowRight,
-  Award,
-  FileText,
-  Terminal,
-  Code2,
-  Users,
-  Trophy,
-  AlertCircle,
-  HelpCircle,
-  RefreshCw,
-  Sparkles,
+  Mic,
   ChevronRight,
-  TrendingUp,
-  Percent,
+  RefreshCw,
+  AlertCircle,
+  Check,
+  Shield,
   Download,
 } from 'lucide-react';
 import { JourneyTracker } from '../../../components/common/JourneyTracker';
@@ -31,35 +21,41 @@ export const StudentDashboardPage: React.FC = () => {
     isError,
     error,
     refetch,
-    isFetching,
   } = useQuery<DashboardResponse>({
     queryKey: ['studentDashboard'],
     queryFn: fetchStudentDashboard,
     staleTime: 30000,
   });
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   if (isLoading) {
     return (
-      <div className="max-w-6xl mx-auto px-6 py-20 flex flex-col items-center justify-center space-y-4">
-        <RefreshCw className="w-8 h-8 text-[#FF7A48] animate-spin" />
-        <p className="text-[#6B544A] text-sm font-medium">Aggregating multi-round performance metrics...</p>
+      <div className="max-w-6xl mx-auto px-6 py-24 flex flex-col items-center justify-center space-y-4">
+        <RefreshCw className="w-8 h-8 text-[#F0B87A] animate-spin" />
+        <p className="text-[#A88879] text-sm font-medium">Loading your AI interview cockpit...</p>
       </div>
     );
   }
 
   if (isError || !dashboard) {
     return (
-      <div className="max-w-xl mx-auto px-6 py-16 text-center space-y-4">
-        <div className="p-3 bg-[#FFF4EC] border border-[#F2DDD2] text-[#FF7A48] rounded-full w-fit mx-auto">
+      <div className="max-w-xl mx-auto px-6 py-20 text-center space-y-4">
+        <div className="p-3 bg-[#2D1410] border border-[#54321C] text-[#F0B87A] rounded-full w-fit mx-auto">
           <AlertCircle className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-serif text-[#0A0706]">Failed to Load Dashboard</h2>
-        <p className="text-sm text-[#6B544A]">
+        <h2 className="text-xl font-serif text-[#F5E8DD]">Failed to Load Cockpit</h2>
+        <p className="text-sm text-[#A88879]">
           {(error as any)?.response?.data?.message || (error as any)?.message || 'An unexpected error occurred while fetching your candidate dashboard.'}
         </p>
         <button
           onClick={() => refetch()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0A0706] hover:bg-[#221C19] text-white rounded-full text-xs font-medium transition"
+          className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#F0B87A] hover:bg-[#F3C48E] text-[#140808] font-bold rounded-full text-xs transition shadow-sm"
         >
           <RefreshCw className="w-4 h-4" /> Retry
         </button>
@@ -67,449 +63,367 @@ export const StudentDashboardPage: React.FC = () => {
     );
   }
 
-  const { user, application, rounds, nextAction, finalOutcome } = dashboard;
-
-  const getStatusBadge = () => {
-    switch (application.status) {
-      case 'SELECTED':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#E6F4EA] text-[#1F7A3A] border border-[#B7E1CD]">
-            <Trophy className="w-3.5 h-3.5" /> Offer Extended
-          </span>
-        );
-      case 'WAITLISTED':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#FEF3D6] text-[#8C5E00] border border-[#FAD77B]">
-            <Clock className="w-3.5 h-3.5" /> Waitlisted
-          </span>
-        );
-      case 'NOT_SELECTED':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#FDE8E8] text-[#9B1C1C] border border-[#F8B4B4]">
-            <AlertCircle className="w-3.5 h-3.5" /> Completed — Pool Reviewed
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#FFEBE1] text-[#A83E14] border border-[#FFD0BC]">
-            <Sparkles className="w-3.5 h-3.5 text-[#FF7A48]" /> In Progress
-          </span>
-        );
-    }
-  };
+  const { user, application, rounds, finalOutcome } = dashboard;
+  const candidateName = user.firstName || 'Aazam';
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8">
-      {/* 1. Profile & Status Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white border border-[#F2DDD2] p-6 sm:p-8 rounded-3xl shadow-sm">
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-serif font-normal text-[#0A0706] tracking-tight">
-              Welcome back, {user.firstName}
-            </h1>
-            {getStatusBadge()}
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-10">
+      {/* 1. HERO SECTION (Exact replica of Screenshot 1) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Column: Greeting, Persona Soundwave Orb, and Start CTA */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Time greeting pill */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2B1411] border border-[#431F1A] text-[#E0A87A] text-xs font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E0A87A]" />
+            <span>{getGreeting()}</span>
           </div>
-          <p className="text-sm text-[#6B544A]">
-            Track your recruitment pipeline, multi-round weighted scores, and real-time placement standing.
-          </p>
-          <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-[#8C7268]">
-            <span className="font-medium text-[#0A0706] bg-[#FFFAF7] px-3 py-1 rounded-full border border-[#F2DDD2]">
-              Domain: <span className="text-[#FF7A48] font-semibold">{application.targetDomain}</span>
-            </span>
-            <span className="bg-[#FFFAF7] px-3 py-1 rounded-full border border-[#F2DDD2]">
-              Application ID: <span className="font-mono text-[#0A0706]">{application.id.substring(0, 8)}</span>
-            </span>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-3 shrink-0">
-          <button
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="p-2.5 text-[#8C7268] hover:text-[#0A0706] rounded-full bg-[#FFFAF7] border border-[#F2DDD2] hover:bg-[#FBF1EA] transition"
-            title="Refresh Performance Metrics"
-          >
-            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-          </button>
-          <Link
-            to="/leaderboard"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0A0706] hover:bg-[#221C19] text-white rounded-full text-xs font-semibold transition shadow-sm"
-          >
-            <Award className="w-4 h-4 text-[#FF7A48]" />
-            <span>Leaderboard</span>
-          </Link>
-        </div>
-      </div>
+          {/* Large Serif Heading */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-normal text-[#F5E8DD] tracking-tight leading-[1.12]">
+            <span className="italic font-light">{candidateName},</span> your <br />
+            interviewer is ready.
+          </h1>
 
-      {/* 2. Step-by-Step Journey Tracker */}
-      <JourneyTracker rounds={rounds} isComplete={application.isComplete} />
-
-      {/* 3. Next Action Prompt (Dynamic CTA Banner) */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-[#FFF4EC] via-[#FFFAF7] to-white border border-[#F2DDD2] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-sm">
-        <div className="flex items-start gap-4">
-          <div className="p-3 rounded-2xl bg-[#FFEBE1] text-[#FF7A48] border border-[#FFD0BC] shrink-0 mt-0.5">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div className="space-y-1">
-            <div className="text-xs font-semibold uppercase tracking-wider text-[#A83E14] flex items-center gap-1.5">
-              <span>Next Milestone</span>
-              <span>&bull;</span>
-              <span>Step {nextAction.stepNumber} of 5</span>
+          {/* Soundwave + Glowing Orb */}
+          <div className="flex items-center gap-4 py-2">
+            {/* Glowing Golden Orb */}
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#F0B87A] to-[#E2A664] shadow-[0_0_30px_rgba(240,184,122,0.7)] flex items-center justify-center shrink-0">
+              <span className="w-3.5 h-3.5 rounded-full bg-[#FFF5EB] opacity-80" />
             </div>
-            <h3 className="text-lg font-serif font-medium text-[#0A0706]">{nextAction.title}</h3>
-            <p className="text-xs text-[#6B544A] max-w-xl leading-relaxed">{nextAction.description}</p>
-          </div>
-        </div>
 
-        <Link
-          to={nextAction.route}
-          className="inline-flex items-center gap-2 px-5 py-3 bg-[#FF7A48] hover:bg-[#FF6428] text-white text-xs font-semibold rounded-full transition shadow-sm hover:shadow group shrink-0"
-        >
-          <span>Continue Assessment</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition" />
-        </Link>
-      </div>
-
-      {/* 4. Composite Score & Percentile Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Composite Score Card */}
-        <div className="lg:col-span-2 p-6 sm:p-7 rounded-3xl bg-white border border-[#F2DDD2] space-y-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-serif font-medium text-[#0A0706] flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-[#FF7A48]" /> Server-Authoritative Composite Score
-              </h2>
-              <p className="text-xs text-[#6B544A]">
-                Formula: Resume (15%) + OA (25%) + DSA (40%) + HR (20%)
-              </p>
-            </div>
-            <div className="text-right">
-              {application.compositeScore !== null ? (
-                <div>
-                  <span className="text-3xl font-serif font-bold text-[#0A0706]">
-                    {application.compositeScore}
-                  </span>
-                  <span className="text-[#8C7268] text-sm"> / 100</span>
-                </div>
-              ) : (
-                <span className="px-3 py-1 rounded-full bg-[#FFFAF7] text-[#8C7268] text-xs font-medium border border-[#F2DDD2]">
-                  Awaiting All Rounds
-                </span>
+            {/* Dynamic Soundwave Bars */}
+            <div className="flex items-center gap-1">
+              {[14, 22, 34, 18, 42, 28, 50, 36, 20, 44, 30, 16, 38, 24, 46, 32, 18, 28, 14].map(
+                (h, idx) => (
+                  <span
+                    key={idx}
+                    style={{ height: `${h}px` }}
+                    className="w-[3px] rounded-full bg-gradient-to-t from-[#D49B6A] to-[#F0C08B] opacity-90 transition-all duration-300"
+                  />
+                )
               )}
             </div>
           </div>
 
-          {/* Mathematical Formula Visualization Bar */}
-          <div className="space-y-2">
-            <div className="text-xs text-[#6B544A] font-medium flex justify-between">
-              <span>Weighted Contribution Breakdown</span>
-              <span className="text-[#8C7268]">100% Total Bar</span>
-            </div>
-            <div className="h-3.5 rounded-full bg-[#FFFAF7] border border-[#F2DDD2] overflow-hidden flex">
-              <div
-                style={{ width: '15%' }}
-                className={`h-full border-r border-[#F2DDD2] ${
-                  rounds.resume.passed ? 'bg-sky-500' : 'bg-sky-200'
-                }`}
-                title={`Resume (15%): Score ${rounds.resume.score ?? 'N/A'}`}
-              />
-              <div
-                style={{ width: '25%' }}
-                className={`h-full border-r border-[#F2DDD2] ${
-                  rounds.oa.passed ? 'bg-emerald-500' : 'bg-emerald-200'
-                }`}
-                title={`OA (25%): Score ${rounds.oa.score ?? 'N/A'}`}
-              />
-              <div
-                style={{ width: '40%' }}
-                className={`h-full border-r border-[#F2DDD2] ${
-                  rounds.dsa.passed ? 'bg-[#FF7A48]' : 'bg-[#FFD0BC]'
-                }`}
-                title={`DSA (40%): Score ${rounds.dsa.score ?? 'N/A'}`}
-              />
-              <div
-                style={{ width: '20%' }}
-                className={`h-full ${
-                  rounds.hr.passed ? 'bg-amber-500' : 'bg-amber-200'
-                }`}
-                title={`HR (20%): Score ${rounds.hr.score ?? 'N/A'}`}
-              />
-            </div>
-            <div className="grid grid-cols-4 text-[11px] text-[#8C7268] text-center pt-1 font-medium">
-              <div className="flex items-center justify-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-sky-500" /> Resume (15%)
-              </div>
-              <div className="flex items-center justify-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" /> OA (25%)
-              </div>
-              <div className="flex items-center justify-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#FF7A48]" /> DSA (40%)
-              </div>
-              <div className="flex items-center justify-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-500" /> HR (20%)
-              </div>
-            </div>
-          </div>
+          <p className="text-sm sm:text-base text-[#A88879] max-w-xl font-normal leading-relaxed">
+            Practise every round of a real interview out loud, and hear exactly what to fix before the real one.
+          </p>
 
-          {/* Mathematical Expression */}
-          <div className="p-3 bg-[#FFFAF7] border border-[#F2DDD2] rounded-2xl font-mono text-xs text-[#0A0706] flex items-center justify-between flex-wrap gap-2">
+          {/* CTA Button + Free Interview subtitle */}
+          <div className="flex flex-wrap items-center gap-4 pt-2">
+            <Link
+              to="/interview/dsa"
+              className="px-6 py-3.5 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] font-bold text-sm transition shadow-[0_4px_25px_rgba(240,184,122,0.35)] flex items-center gap-2 group"
+            >
+              <Mic className="w-4 h-4 fill-current" />
+              <span>Start interview</span>
+            </Link>
+
             <div>
-              <span className="text-[#8C7268]">Score = </span>
-              <span className="text-sky-700 font-semibold">({rounds.resume.score ?? 0} &times; 0.15)</span>
-              <span className="text-[#8C7268]"> + </span>
-              <span className="text-emerald-700 font-semibold">({rounds.oa.score ?? 0} &times; 0.25)</span>
-              <span className="text-[#8C7268]"> + </span>
-              <span className="text-[#A83E14] font-semibold">({rounds.dsa.score ?? 0} &times; 0.40)</span>
-              <span className="text-[#8C7268]"> + </span>
-              <span className="text-amber-700 font-semibold">({rounds.hr.score ?? 0} &times; 0.20)</span>
-            </div>
-            <div className="font-semibold text-[#0A0706]">
-              = {application.compositeScore !== null ? `${application.compositeScore}/100` : 'Pending'}
+              <div className="text-xs font-bold text-[#F5E8DD]">Your free interview</div>
+              <div className="text-xs text-[#A88879]">Technical, any format</div>
             </div>
           </div>
         </div>
 
-        {/* Rank & Standing Card */}
-        <div className="p-6 sm:p-7 rounded-3xl bg-white border border-[#F2DDD2] flex flex-col justify-between space-y-4 shadow-sm">
-          <div className="space-y-1">
-            <h3 className="text-base font-serif font-medium text-[#0A0706] flex items-center gap-2">
-              <Award className="w-4 h-4 text-[#FF7A48]" /> Leaderboard Standing
-            </h3>
-            <p className="text-xs text-[#6B544A]">
-              Anonymous cohort ranking based strictly on completed candidates.
+        {/* Right Column: Trusted Box & Soldier Rank Card */}
+        <div className="lg:col-span-5 space-y-4">
+          {/* Trusted Card */}
+          <div className="p-4 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] flex items-center gap-3 shadow-lg relative overflow-hidden backdrop-blur-md">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#F0B87A] to-[#E2A664] flex items-center justify-center text-[#140808] shrink-0 font-bold shadow-md">
+              <Check className="w-5 h-5 stroke-[3]" />
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#A88879] block">
+                TRUSTED BY
+              </span>
+              <span className="text-base font-bold text-[#F5E8DD]">10,000+ students</span>
+            </div>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-40">
+              <Shield className="w-12 h-12 text-[#F0B87A]/20" />
+            </div>
+          </div>
+
+          {/* Rank: Soldier Card */}
+          <div className="p-6 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-xl space-y-4 backdrop-blur-md relative overflow-hidden">
+            <div className="flex items-start gap-4">
+              {/* 3D Shield Crest Representation */}
+              <div className="w-16 h-20 rounded-2xl bg-gradient-to-b from-[#2D1A14] via-[#1C0E0B] to-[#120705] border border-[#522E22] flex flex-col items-center justify-center shrink-0 shadow-inner relative group">
+                <Shield className="w-9 h-9 text-[#F0B87A] fill-[#F0B87A]/20" />
+                <span className="text-[9px] font-bold text-[#F0B87A] mt-1 uppercase tracking-wider">I</span>
+              </div>
+
+              <div className="space-y-1 flex-1">
+                <span className="text-[10px] uppercase font-semibold text-[#A88879]">Your rank</span>
+                <h3 className="text-xl font-serif font-bold text-[#F5E8DD] tracking-wide">
+                  SOLDIER
+                </h3>
+                <p className="text-xs text-[#A88879] leading-relaxed">
+                  Fresh recruit. You know the basics; now learn to think out loud.
+                </p>
+              </div>
+            </div>
+
+            {/* Points Progress Bar */}
+            <div className="space-y-2 pt-2">
+              <div className="flex justify-between text-xs font-medium">
+                <span className="text-[#A88879]">
+                  <strong className="text-[#F0B87A]">
+                    {application.compositeScore !== null ? Math.max(0, 200 - application.compositeScore * 2) : 100}
+                  </strong>{' '}
+                  points to Knight
+                </span>
+                <span className="text-[#A88879] font-mono">
+                  {application.compositeScore !== null ? application.compositeScore * 2 : 100} / 200
+                </span>
+              </div>
+
+              <div className="h-2 rounded-full bg-[#24110E] border border-[#3E1D19] overflow-hidden flex">
+                <div
+                  style={{
+                    width: `${application.compositeScore !== null ? Math.min(100, application.compositeScore) : 50}%`,
+                  }}
+                  className="h-full bg-gradient-to-r from-[#856658] via-[#BF9E8F] to-[#F0B87A] rounded-full transition-all"
+                />
+              </div>
+            </div>
+
+            <Link
+              to="/leaderboard"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#F0B87A] hover:text-[#F3C48E] transition pt-1"
+            >
+              <span>See all five ranks</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. 5-STEP JOURNEY PIPELINE (HireReady AI Core Feature) */}
+      <JourneyTracker rounds={rounds} isComplete={application.isComplete} />
+
+      {/* 3. MEET YOUR PANEL & LEADERBOARD (Exact replica of Screenshot 2) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Meet your panel */}
+        <div className="lg:col-span-7 p-6 sm:p-7 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-xl space-y-5 backdrop-blur-md">
+          <div>
+            <h2 className="text-2xl font-serif font-normal text-[#F5E8DD]">Meet your panel</h2>
+            <p className="text-xs text-[#A88879] mt-1">
+              Practice for the round that really counts. Your free interview is a Technical round, in any format.
             </p>
           </div>
 
-          <div className="space-y-3 py-2 divide-y divide-[#F2DDD2]/70">
-            <div className="flex items-center justify-between pt-1">
-              <span className="text-xs text-[#6B544A]">Public Rank</span>
-              <span className="text-lg font-serif font-bold text-[#0A0706]">
-                {application.rank !== null ? `#${application.rank}` : 'Unranked'}
-              </span>
-            </div>
-            <div className="flex items-center justify-between pt-3">
-              <span className="text-xs text-[#6B544A]">Percentile Tier</span>
-              <span className="text-base font-semibold text-[#A83E14] flex items-center gap-1">
-                {application.percentileRank !== null ? (
-                  <>
-                    <Percent className="w-3.5 h-3.5" />
-                    Top {Math.max(1, 100 - application.percentileRank)}%
-                  </>
-                ) : (
-                  'Pending'
-                )}
-              </span>
-            </div>
-            <div className="flex items-center justify-between pt-3">
-              <span className="text-xs text-[#6B544A]">Privacy Safeguard</span>
-              <span className="text-xs text-[#1F7A3A] font-medium bg-[#E6F4EA] px-2 py-0.5 rounded-full border border-[#B7E1CD]">
-                PII-Masked
+          <div className="space-y-3">
+            {/* Arjun */}
+            <Link
+              to="/interview/dsa?persona=arjun"
+              className="p-4 rounded-2xl bg-[#140705] border border-[#3E1D19] hover:border-[#52251E] hover:bg-[#1E0D0A] transition flex items-center gap-4 group"
+            >
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2D1A14] to-[#120705] border-2 border-[#10B981] flex items-center justify-center shrink-0 text-[#F5E8DD] font-bold text-sm">
+                AR
+              </div>
+              <div className="space-y-0.5 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-serif font-medium text-[#F5E8DD] text-base group-hover:text-[#F0B87A] transition">
+                    Arjun
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#133020] text-[#4ADE80] border border-[#1F6E3B]">
+                    Warm-up
+                  </span>
+                </div>
+                <p className="text-xs text-[#A88879]">
+                  Friendly and patient. A good first interview.
+                </p>
+              </div>
+            </Link>
+
+            {/* Tanya - highlighted with amber outline from screenshot 2 */}
+            <Link
+              to="/interview/dsa?persona=tanya"
+              className="p-4 rounded-2xl bg-[#1E0D0A] border-2 border-[#54321C] hover:border-[#F0B87A] transition flex items-center gap-4 group shadow-md"
+            >
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2D1A14] to-[#120705] border-2 border-[#F0B87A] shadow-[0_0_12px_rgba(240,184,122,0.3)] flex items-center justify-center shrink-0 text-[#F5E8DD] font-bold text-sm">
+                TA
+              </div>
+              <div className="space-y-0.5 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-serif font-medium text-[#F5E8DD] text-base group-hover:text-[#F0B87A] transition">
+                    Tanya
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#133020] text-[#4ADE80] border border-[#1F6E3B]">
+                    Warm-up
+                  </span>
+                </div>
+                <p className="text-xs text-[#A88879]">
+                  Brute force is fine to start. Hints when you stall.
+                </p>
+              </div>
+            </Link>
+
+            {/* Samarth */}
+            <Link
+              to="/interview/dsa?persona=samarth"
+              className="p-4 rounded-2xl bg-[#140705] border border-[#3E1D19] hover:border-[#52251E] hover:bg-[#1E0D0A] transition flex items-center gap-4 group"
+            >
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2D1A14] to-[#120705] border-2 border-[#3B82F6] flex items-center justify-center shrink-0 text-[#F5E8DD] font-bold text-sm">
+                SA
+              </div>
+              <div className="space-y-0.5 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-serif font-medium text-[#F5E8DD] text-base group-hover:text-[#F0B87A] transition">
+                    Samarth
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#332014] text-[#FB923C] border border-[#7C2D12]">
+                    Real round
+                  </span>
+                </div>
+                <p className="text-xs text-[#A88879]">
+                  A real company round. Wants specifics, not claims.
+                </p>
+              </div>
+            </Link>
+          </div>
+
+          <Link
+            to="/interview/dsa"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#F0B87A] hover:text-[#F3C48E] transition pt-2"
+          >
+            <span>Start your first interview</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* Right Column: Leaderboard Top 5 */}
+        <div className="lg:col-span-5 p-6 sm:p-7 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-xl space-y-4 backdrop-blur-md">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-serif font-normal text-[#F5E8DD]">Leaderboard</h2>
+            <span className="text-xs text-[#A88879]">Top 5</span>
+          </div>
+
+          <div className="space-y-2 pt-1">
+            {[
+              { rank: 1, name: 'Ananya S.', score: '1,480', tier: 'purple' },
+              { rank: 2, name: 'Rohan I.', score: '1,215', tier: 'purple' },
+              { rank: 3, name: 'Priya N.', score: '940', tier: 'orange' },
+              { rank: 4, name: 'Suraj Gupta', score: '826', tier: 'bronze' },
+              { rank: 5, name: 'Siddharth M.', score: '812', tier: 'bronze' },
+            ].map((item) => (
+              <div
+                key={item.name}
+                className="flex items-center justify-between py-2 px-3 rounded-xl hover:bg-[#24110E] transition text-xs"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="font-serif italic text-xs text-[#A88879] w-3">{item.rank}</span>
+                  <Shield
+                    className={`w-4 h-4 ${
+                      item.tier === 'purple'
+                        ? 'text-purple-400 fill-purple-400/20'
+                        : item.tier === 'orange'
+                        ? 'text-[#FB923C] fill-[#FB923C]/20'
+                        : 'text-[#F0B87A] fill-[#F0B87A]/20'
+                    }`}
+                  />
+                  <span className="font-medium text-[#F5E8DD]">{item.name}</span>
+                </div>
+                <span className="font-serif font-bold text-[#F5E8DD] text-sm">{item.score}</span>
+              </div>
+            ))}
+
+            {/* YOU ARE HERE HIGHLIGHT ROW from Screenshot 2 */}
+            <div className="mt-3 p-3.5 rounded-2xl bg-[#2D1A14] border border-[#522E22] flex items-center justify-between shadow-inner">
+              <div className="flex items-center gap-3">
+                <span className="text-[9px] uppercase font-bold tracking-widest text-[#F0B87A] bg-[#3E2219] px-2 py-0.5 rounded-full border border-[#54321C]">
+                  YOU ARE HERE
+                </span>
+                <Shield className="w-4 h-4 text-[#F0B87A] fill-[#F0B87A]/30" />
+                <span className="font-semibold text-[#F5E8DD] text-xs">You ({candidateName})</span>
+              </div>
+              <span className="font-serif font-bold text-[#F0B87A] text-base">
+                {application.compositeScore !== null ? application.compositeScore : 100}
               </span>
             </div>
           </div>
 
           <Link
             to="/leaderboard"
-            className="w-full text-center py-2.5 px-3 rounded-full bg-[#FFFAF7] hover:bg-[#FBF1EA] text-xs text-[#0A0706] font-medium border border-[#F2DDD2] transition flex items-center justify-center gap-1.5"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#F0B87A] hover:text-[#F3C48E] transition pt-2"
           >
-            <span>Open Public Leaderboard</span>
-            <ChevronRight className="w-3.5 h-3.5 text-[#8C7268]" />
+            <span>See the leaderboard</span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
 
-      {/* 5. Multi-Round Pipeline Detailed Breakdown Cards */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-serif font-medium text-[#0A0706] flex items-center gap-2">
-          <CheckCircle2 className="w-5 h-5 text-[#FF7A48]" /> Complete Assessment Pipeline
+      {/* 4. WHAT STUDENTS SAY (Exact replica of Screenshot 3) */}
+      <div className="space-y-4 pt-4">
+        <h2 className="text-2xl sm:text-3xl font-serif font-normal text-[#F5E8DD]">
+          What students say
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Round 1: Resume */}
-          <div className="p-5 rounded-3xl bg-white border border-[#F2DDD2] hover:border-[#FF7A48]/50 transition flex flex-col justify-between space-y-4 shadow-sm">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="p-2.5 rounded-2xl bg-sky-50 text-sky-600 border border-sky-100">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100">
-                  Weight: {rounds.resume.weight}%
-                </span>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#0A0706] text-sm">Round 1: AI Resume Review</h3>
-                <p className="text-xs text-[#6B544A] mt-1">ATS parsing & skills alignment scoring.</p>
-              </div>
-              <div className="pt-2 border-t border-[#F2DDD2] flex items-center justify-between text-xs">
-                <span className="text-[#8C7268]">Cutoff: {rounds.resume.cutoff}/100</span>
-                <span className="font-bold text-[#0A0706]">
-                  {rounds.resume.score !== null ? `${rounds.resume.score}/100` : 'Not Started'}
-                </span>
-              </div>
-            </div>
-
-            <Link
-              to="/resume"
-              className="w-full text-center py-2 px-3 rounded-full bg-[#FFFAF7] hover:bg-[#FBF1EA] text-xs text-sky-700 font-medium border border-[#F2DDD2] transition flex items-center justify-center gap-1"
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {[
+            {
+              quote:
+                'Best for mock interviews, and the problem asked in it very tricky, and feeling like a real interview.',
+              author: 'Japjot S.',
+              sub: 'First interview',
+            },
+            {
+              quote: 'Great interview, I got my real experience.',
+              author: 'Naivedhya J.',
+              sub: 'First interview',
+            },
+            {
+              quote:
+                'It was wonderful, although the assistant took the round according to the expertise.',
+              author: 'Yaksh C.',
+              sub: 'First interview',
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className="p-6 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-xl space-y-4 backdrop-blur-md flex flex-col justify-between"
             >
-              <span>{rounds.resume.status === 'COMPLETED' ? 'Review Resume' : 'Start Resume Audit'}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {/* Round 2: Online Assessment */}
-          <div className="p-5 rounded-3xl bg-white border border-[#F2DDD2] hover:border-[#FF7A48]/50 transition flex flex-col justify-between space-y-4 shadow-sm">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100">
-                  <Terminal className="w-5 h-5" />
+              <div className="space-y-3">
+                {/* 5 Stars in Gold */}
+                <div className="flex items-center gap-1 text-[#F0B87A] text-sm tracking-wider">
+                  ★★★★★
                 </div>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-                  Weight: {rounds.oa.weight}%
-                </span>
+                <p className="text-xs text-[#F5E8DD] leading-relaxed italic">
+                  &ldquo;{item.quote}&rdquo;
+                </p>
               </div>
-              <div>
-                <h3 className="font-semibold text-[#0A0706] text-sm">Round 2: Technical OA</h3>
-                <p className="text-xs text-[#6B544A] mt-1">Domain MCQs and code implementation.</p>
-              </div>
-              <div className="pt-2 border-t border-[#F2DDD2] flex items-center justify-between text-xs">
-                <span className="text-[#8C7268]">Cutoff: {rounds.oa.cutoff}/100</span>
-                <span className="font-bold text-[#0A0706]">
-                  {rounds.oa.score !== null ? `${rounds.oa.score}/100` : 'Not Started'}
-                </span>
-              </div>
-            </div>
 
-            <Link
-              to="/oa"
-              className="w-full text-center py-2 px-3 rounded-full bg-[#FFFAF7] hover:bg-[#FBF1EA] text-xs text-emerald-700 font-medium border border-[#F2DDD2] transition flex items-center justify-center gap-1"
-            >
-              <span>{rounds.oa.status === 'COMPLETED' ? 'View OA Results' : 'Take OA Challenge'}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {/* Round 3: AI DSA Interview */}
-          <div className="p-5 rounded-3xl bg-white border border-[#F2DDD2] hover:border-[#FF7A48]/50 transition flex flex-col justify-between space-y-4 relative overflow-hidden shadow-sm">
-            <div className="absolute top-0 right-0 px-2.5 py-0.5 bg-[#FF7A48] text-[10px] font-bold text-white rounded-bl-xl">
-              Primary 40%
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="p-2.5 rounded-2xl bg-[#FFEBE1] text-[#FF7A48] border border-[#FFD0BC]">
-                  <Code2 className="w-5 h-5" />
+              <div className="flex items-center gap-3 pt-3 border-t border-[#3E1D19]">
+                <div className="w-7 h-7 rounded-xl bg-[#2D1A14] border border-[#522E22] flex items-center justify-center text-[#F0B87A]">
+                  <Shield className="w-3.5 h-3.5 fill-[#F0B87A]/20" />
                 </div>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FFEBE1] text-[#A83E14] border border-[#FFD0BC]">
-                  Weight: {rounds.dsa.weight}%
-                </span>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#0A0706] text-sm">Round 3: AI DSA Interview</h3>
-                <p className="text-xs text-[#6B544A] mt-1">Multi-persona voice & Monaco workspace.</p>
-              </div>
-              <div className="pt-2 border-t border-[#F2DDD2] flex items-center justify-between text-xs">
-                <span className="text-[#8C7268]">Cutoff: {rounds.dsa.cutoff}/100</span>
-                <span className="font-bold text-[#0A0706]">
-                  {rounds.dsa.score !== null ? `${rounds.dsa.score}/100` : 'Not Started'}
-                </span>
-              </div>
-            </div>
-
-            <Link
-              to="/interview/dsa"
-              className="w-full text-center py-2 px-3 rounded-full bg-[#FFFAF7] hover:bg-[#FBF1EA] text-xs text-[#A83E14] font-medium border border-[#F2DDD2] transition flex items-center justify-center gap-1"
-            >
-              <span>{rounds.dsa.status === 'COMPLETED' ? 'Review DSA Session' : 'Start DSA Interview'}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {/* Round 4: AI HR Behavioral Interview */}
-          <div className="p-5 rounded-3xl bg-white border border-[#F2DDD2] hover:border-[#FF7A48]/50 transition flex flex-col justify-between space-y-4 shadow-sm">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="p-2.5 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100">
-                  <Users className="w-5 h-5" />
+                <div>
+                  <div className="text-xs font-semibold text-[#F5E8DD]">{item.author}</div>
+                  <div className="text-[10px] text-[#A88879]">{item.sub}</div>
                 </div>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
-                  Weight: {rounds.hr.weight}%
-                </span>
-              </div>
-              <div>
-                <h3 className="font-semibold text-[#0A0706] text-sm">Round 4: AI HR Behavioral</h3>
-                <p className="text-xs text-[#6B544A] mt-1">STAR methodology with voice & webcam.</p>
-              </div>
-              <div className="pt-2 border-t border-[#F2DDD2] flex items-center justify-between text-xs">
-                <span className="text-[#8C7268]">Cutoff: {rounds.hr.cutoff}/100</span>
-                <span className="font-bold text-[#0A0706]">
-                  {rounds.hr.score !== null ? `${rounds.hr.score}/100` : 'Not Started'}
-                </span>
               </div>
             </div>
-
-            <Link
-              to="/interview/hr"
-              className="w-full text-center py-2 px-3 rounded-full bg-[#FFFAF7] hover:bg-[#FBF1EA] text-xs text-amber-700 font-medium border border-[#F2DDD2] transition flex items-center justify-center gap-1"
-            >
-              <span>{rounds.hr.status === 'COMPLETED' ? 'Review HR Session' : 'Start HR Interview'}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* 6. Official Placement / Decision Letter Banner */}
-      <div
-        className={`p-6 sm:p-7 rounded-3xl border ${
-          finalOutcome.decision === 'SELECTED'
-            ? 'bg-[#E6F4EA]/40 border-[#B7E1CD]'
-            : finalOutcome.decision === 'WAITLISTED'
-            ? 'bg-[#FEF3D6]/40 border-[#FAD77B]'
-            : finalOutcome.decision === 'NOT_SELECTED'
-            ? 'bg-[#FDE8E8]/40 border-[#F8B4B4]'
-            : 'bg-white border-[#F2DDD2]'
-        } space-y-4 shadow-sm`}
-      >
-        <div className="flex items-center gap-3">
-          {finalOutcome.decision === 'SELECTED' && (
-            <div className="p-2.5 rounded-2xl bg-[#E6F4EA] text-[#1F7A3A] border border-[#B7E1CD]">
-              <Trophy className="w-5 h-5" />
-            </div>
-          )}
-          {finalOutcome.decision === 'WAITLISTED' && (
-            <div className="p-2.5 rounded-2xl bg-[#FEF3D6] text-[#8C5E00] border border-[#FAD77B]">
-              <Clock className="w-5 h-5" />
-            </div>
-          )}
-          {finalOutcome.decision === 'NOT_SELECTED' && (
-            <div className="p-2.5 rounded-2xl bg-[#FDE8E8] text-[#9B1C1C] border border-[#F8B4B4]">
-              <AlertCircle className="w-5 h-5" />
-            </div>
-          )}
-          {finalOutcome.decision === 'INCOMPLETE' && (
-            <div className="p-2.5 rounded-2xl bg-[#FFFAF7] text-[#8C7268] border border-[#F2DDD2]">
-              <HelpCircle className="w-5 h-5" />
-            </div>
-          )}
-          <div>
-            <h3 className="text-base font-serif font-medium text-[#0A0706]">{finalOutcome.title}</h3>
-            {finalOutcome.decidedAt && (
-              <span className="text-[11px] text-[#8C7268]">
-                Official Decision Recorded: {new Date(finalOutcome.decidedAt).toLocaleDateString()}
+      {/* 5. OFFICIAL PLACEMENT / DECISION CERTIFICATE BANNER */}
+      {finalOutcome && (
+        <div className="p-6 sm:p-7 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-xl space-y-4 backdrop-blur-md">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#F0B87A]">
+                Recruitment Outcome
               </span>
-            )}
-          </div>
-        </div>
+              <h3 className="text-xl font-serif font-medium text-[#F5E8DD] mt-1">
+                {finalOutcome.title}
+              </h3>
+              <p className="text-xs text-[#A88879] max-w-2xl mt-1 leading-relaxed">
+                {finalOutcome.summary}
+              </p>
+            </div>
 
-        <p className="text-xs text-[#6B544A] leading-relaxed max-w-4xl">
-          {finalOutcome.summary}
-        </p>
-
-        {finalOutcome.decision === 'SELECTED' && (
-          <div className="pt-3 flex flex-wrap items-center gap-3">
-            <span className="text-xs text-[#1F7A3A] font-semibold bg-[#E6F4EA] px-3.5 py-1.5 rounded-full border border-[#B7E1CD]">
-              Placement Bar Cleared &bull; Target Domain: {application.targetDomain}
-            </span>
             <button
               onClick={() =>
                 generatePlacementCertificate({
@@ -527,13 +441,14 @@ export const StudentDashboardPage: React.FC = () => {
                   },
                 })
               }
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FF7A48] hover:bg-[#FF6428] text-white rounded-full text-xs font-semibold transition shadow-sm"
+              className="px-6 py-3 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] font-bold text-xs transition shadow-lg flex items-center gap-2 shrink-0"
             >
-              <Download className="w-4 h-4" /> Download Official PDF Certificate
+              <Download className="w-4 h-4" />
+              <span>Download Official PDF Certificate</span>
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

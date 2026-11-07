@@ -76,7 +76,7 @@ export const JourneyTracker: React.FC<JourneyTrackerProps> = ({
       id: 'dsa',
       num: '03',
       label: 'AI DSA Technical',
-      sublabel: 'Persona & Code Round',
+      sublabel: 'Approach-First Dialogue',
       icon: Code2,
       route: '/interview/dsa',
       isCompleted: dsaDone,
@@ -87,7 +87,7 @@ export const JourneyTracker: React.FC<JourneyTrackerProps> = ({
       id: 'hr',
       num: '04',
       label: 'AI HR Behavioral',
-      sublabel: 'STAR Method & Video',
+      sublabel: 'STAR Method & Camera',
       icon: Users,
       route: '/interview/hr',
       isCompleted: hrDone,
@@ -97,8 +97,8 @@ export const JourneyTracker: React.FC<JourneyTrackerProps> = ({
     {
       id: 'outcome',
       num: '05',
-      label: 'Result & Certificate',
-      sublabel: 'Verified Credential',
+      label: 'Final Evaluation',
+      sublabel: 'Placement Certificate',
       icon: Award,
       route: '/dashboard',
       isCompleted: outcomeDone,
@@ -108,101 +108,95 @@ export const JourneyTracker: React.FC<JourneyTrackerProps> = ({
   ];
 
   return (
-    <div className={`p-4 sm:p-5 rounded-2xl bg-white border border-[#F2DDD2] shadow-sm ${className}`}>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-[#F2DDD2]">
+    <div
+      aria-label="5-Step Student Journey Tracker"
+      className={`p-5 sm:p-6 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-xl backdrop-blur-md ${className}`}
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-[#3E1D19]">
         <div>
-          <h3 className="text-xs font-semibold text-[#0A0706] uppercase tracking-wider flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#FF7A48] animate-pulse" />
-            <span className="font-sans font-bold">5-Step Recruitment Journey</span>
-          </h3>
-          <p className="text-xs text-[#6B544A] mt-0.5">
-            Complete each evaluation stage to earn your cohort standing and verified completion credential.
-          </p>
-        </div>
-        <div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFEBE1] text-[#A83E14] border border-[#FBD7C7] text-xs font-medium font-mono">
-            <span>Step {activeStep} of 5</span>
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[#F0B87A]">
+            Candidate Roadmap
           </span>
+          <h2 className="text-base font-serif font-medium text-[#F5E8DD]">
+            5-Stage Placement Pipeline
+          </h2>
+        </div>
+        <div className="text-xs text-[#A88879]">
+          Step <span className="text-[#F0B87A] font-bold">{activeStep}</span> of 5 &bull;{' '}
+          {outcomeDone ? 'Ready for Hiring Review' : 'In Progress'}
         </div>
       </div>
 
-      {/* 5-Step Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      {/* Stepper Pipeline */}
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 pt-4 relative">
         {steps.map((step) => {
           const Icon = step.icon;
-          const isClickable = step.isCompleted || step.isActive;
 
-          const card = (
-            <div
-              className={`p-3.5 rounded-xl border transition-all duration-200 flex flex-col justify-between h-full space-y-2 relative ${
+          return (
+            <Link
+              key={step.id}
+              to={step.route}
+              className={`p-3.5 rounded-2xl border transition flex flex-col justify-between space-y-2 relative group ${
                 step.isActive
-                  ? 'bg-[#FFF5F0] border-[#FF7A48] shadow-sm ring-1 ring-[#FF7A48]'
+                  ? 'bg-[#2D1A10] border-[#F0B87A] text-[#F5E8DD] shadow-[0_0_20px_rgba(240,184,122,0.25)]'
                   : step.isCompleted
-                  ? 'bg-white border-[#B7E4C7] hover:border-[#52B788]'
-                  : 'bg-[#FFFAF7] border-[#F2DDD2] opacity-80'
+                  ? 'bg-[#13281B] border-[#1F6E3B] text-[#F5E8DD] hover:border-[#2EA055]'
+                  : 'bg-[#140705] border-[#3E1D19] text-[#856658] hover:border-[#52251E] hover:text-[#A88879]'
               }`}
             >
-              {/* Top Row: Icon & Status */}
               <div className="flex items-center justify-between">
-                <div
-                  className={`p-2 rounded-lg border ${
+                <span
+                  className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-full border ${
                     step.isActive
-                      ? 'bg-[#FF7A48] text-white border-[#F05A24]'
+                      ? 'bg-[#3A2216] border-[#F0B87A] text-[#F0B87A]'
                       : step.isCompleted
-                      ? 'bg-[#E6F4EA] text-[#1F7A3A] border-[#CEEAD6]'
-                      : 'bg-white text-[#8C7268] border-[#F2DDD2]'
+                      ? 'bg-[#1E3F2B] border-[#2EA055] text-[#4ADE80]'
+                      : 'bg-[#1C0E0B] border-[#3E1D19] text-[#856658]'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  {step.num}
+                </span>
+
+                <div className="flex items-center gap-1">
+                  {step.isCompleted ? (
+                    <CheckCircle2 className="w-4 h-4 text-[#4ADE80]" />
+                  ) : step.isActive ? (
+                    <span className="w-2 h-2 rounded-full bg-[#F0B87A] animate-pulse" />
+                  ) : (
+                    <Lock className="w-3.5 h-3.5 text-[#5C4338]" />
+                  )}
                 </div>
-
-                {step.isCompleted ? (
-                  <CheckCircle2 className="w-4 h-4 text-[#1F7A3A] shrink-0" />
-                ) : step.isActive ? (
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A83E14] bg-[#FFEBE1] px-2 py-0.5 rounded-full border border-[#FBD7C7]">
-                    Current
-                  </span>
-                ) : (
-                  <Lock className="w-3.5 h-3.5 text-[#8C7268] shrink-0" />
-                )}
               </div>
 
-              {/* Title & Sublabel */}
               <div>
-                <div className="text-xs font-bold text-[#0A0706] line-clamp-1">{step.label}</div>
-                <div className="text-[11px] text-[#6B544A] line-clamp-1">{step.sublabel}</div>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <Icon
+                    className={`w-3.5 h-3.5 ${
+                      step.isActive
+                        ? 'text-[#F0B87A]'
+                        : step.isCompleted
+                        ? 'text-[#4ADE80]'
+                        : 'text-[#856658]'
+                    }`}
+                  />
+                  <span className="text-xs font-semibold text-[#F5E8DD] truncate">
+                    {step.label}
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#A88879] truncate mt-0.5">{step.sublabel}</p>
               </div>
 
-              {/* Bottom Row */}
-              <div className="pt-2 border-t border-[#F2DDD2] flex items-center justify-between text-[11px]">
-                <span className="text-[#8C7268] font-mono">{step.num}</span>
-                {step.score !== null && step.score !== undefined ? (
-                  <span className="font-bold text-[#1F7A3A]">{step.score}/100</span>
-                ) : step.isActive ? (
-                  <span className="text-[#FF7A48] font-medium">In Progress</span>
-                ) : step.isCompleted ? (
-                  <span className="text-[#1F7A3A] font-medium">Completed</span>
-                ) : (
-                  <span className="text-[#8C7268]">Locked</span>
-                )}
-              </div>
-            </div>
-          );
-
-          return isClickable ? (
-            <Link key={step.id} to={step.route} className="block group transition-transform hover:-translate-y-0.5">
-              {card}
+              {step.score !== null && step.score !== undefined && (
+                <div className="pt-1.5 border-t border-[#3E1D19] text-[10px] flex items-center justify-between">
+                  <span className="text-[#856658]">Score</span>
+                  <span className="font-bold text-[#F0B87A]">{step.score}/100</span>
+                </div>
+              )}
             </Link>
-          ) : (
-            <div key={step.id} className="cursor-not-allowed">
-              {card}
-            </div>
           );
         })}
       </div>
     </div>
   );
 };
-
 export default JourneyTracker;

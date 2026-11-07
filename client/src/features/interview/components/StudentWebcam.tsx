@@ -86,10 +86,10 @@ export const StudentWebcam: React.FC<StudentWebcamProps> = ({
 
   return (
     <div
-      className={`relative w-full h-full rounded-2xl overflow-hidden bg-[#FFFAF7] border transition-all duration-300 flex flex-col items-center justify-center ${
+      className={`relative w-full h-full rounded-2xl overflow-hidden bg-[#140705] border transition-all duration-300 flex flex-col items-center justify-center ${
         isListening
-          ? 'border-[#FF7A48] ring-2 ring-[#FF7A48]/30 shadow-md'
-          : 'border-[#F2DDD2]'
+          ? 'border-[#F0B87A] ring-2 ring-[#F0B87A]/30 shadow-[0_0_20px_rgba(240,184,122,0.25)]'
+          : 'border-[#3E1D19]'
       }`}
     >
       {/* Live Video Feed */}
@@ -104,12 +104,12 @@ export const StudentWebcam: React.FC<StudentWebcamProps> = ({
       ) : (
         /* Camera Off Placeholder */
         <div className="flex flex-col items-center justify-center space-y-2 p-4 text-center">
-          <div className="w-14 h-14 rounded-full bg-white border border-[#F2DDD2] flex items-center justify-center text-[#8C7268] shadow-xs">
-            <User className="w-7 h-7 text-[#FF7A48]" />
+          <div className="w-14 h-14 rounded-full bg-[#1A0C09] border border-[#3E1D19] flex items-center justify-center text-[#856658]">
+            <User className="w-7 h-7 text-[#F0B87A]" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-[#0A0706]">{candidateName}</p>
-            <p className="text-[10px] text-[#8C7268]">
+            <p className="text-xs font-serif font-medium text-[#F5E8DD]">{candidateName}</p>
+            <p className="text-[10px] text-[#856658]">
               {permissionError || 'Camera Off'}
             </p>
           </div>
@@ -118,19 +118,19 @@ export const StudentWebcam: React.FC<StudentWebcamProps> = ({
 
       {/* Top Overlay: Candidate Name & Live Recording Status */}
       <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
-        <span className="px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-[#F2DDD2] text-[10px] font-semibold text-[#0A0706] shadow-xs">
+        <span className="px-2.5 py-0.5 rounded-full bg-[#1A0C09]/90 backdrop-blur-sm border border-[#3E1D19] text-[10px] font-semibold text-[#F5E8DD]">
           {candidateName}
         </span>
 
         {/* Audio Recording Indicator */}
         {isListening ? (
-          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF7A48] text-white text-[10px] font-bold shadow-xs animate-pulse">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] text-[#140808] text-[10px] font-bold shadow-xs animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#140808] animate-ping" />
             <span>Speaking...</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-[#F2DDD2] text-[9px] text-[#6B544A]">
-            <Mic className="w-2.5 h-2.5 text-emerald-600" />
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1A0C09]/90 backdrop-blur-sm border border-[#3E1D19] text-[9px] text-[#A88879]">
+            <Mic className="w-2.5 h-2.5 text-emerald-400" />
             <span>Mic Ready</span>
           </div>
         )}
@@ -142,7 +142,7 @@ export const StudentWebcam: React.FC<StudentWebcamProps> = ({
           {[40, 75, 100, 60, 90, 45, 80].map((height, i) => (
             <span
               key={i}
-              className="w-1 bg-[#FF7A48] rounded-full animate-pulse shadow-sm"
+              className="w-1 bg-[#F0B87A] rounded-full animate-pulse shadow-sm"
               style={{
                 height: `${height * 0.28}px`,
                 animationDelay: `${i * 120}ms`,
@@ -160,8 +160,8 @@ export const StudentWebcam: React.FC<StudentWebcamProps> = ({
           onClick={toggleVideo}
           className={`p-1.5 rounded-lg border backdrop-blur-sm text-xs transition ${
             isVideoEnabled
-              ? 'bg-white/90 border-[#F2DDD2] text-[#6B544A] hover:text-[#0A0706] hover:bg-[#FFF5F0]'
-              : 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100'
+              ? 'bg-[#1A0C09]/90 border-[#3E1D19] text-[#A88879] hover:text-[#F5E8DD] hover:bg-[#24110E]'
+              : 'bg-[#2E100D] border-red-800 text-red-300 hover:bg-[#3D1410]'
           }`}
           title={isVideoEnabled ? 'Turn Off Camera' : 'Turn On Camera'}
         >

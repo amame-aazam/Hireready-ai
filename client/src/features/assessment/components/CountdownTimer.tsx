@@ -16,16 +16,16 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
     <div
       className={`flex items-center gap-2 px-3 py-1.5 rounded-full border font-mono text-xs font-semibold transition-colors duration-200 ${
         isDanger
-          ? 'bg-[#FDE8E8] border-[#F8B4B4] text-[#9B1C1C] animate-pulse'
+          ? 'bg-[#2E100D] border-red-800 text-red-300 animate-pulse'
           : isWarning
-          ? 'bg-[#FEF3D6] border-[#FAD77B] text-[#8C5E00]'
-          : 'bg-[#FFFAF7] border-[#F2DDD2] text-[#0A0706]'
+          ? 'bg-[#2D1A10] border-[#F0B87A] text-[#F0B87A]'
+          : 'bg-[#140705] border-[#3E1D19] text-[#F0B87A]'
       }`}
     >
       {isDanger ? (
-        <AlertTriangle className="w-3.5 h-3.5 text-[#9B1C1C] animate-bounce" />
+        <AlertTriangle className="w-3.5 h-3.5 text-red-400 animate-bounce" />
       ) : (
-        <Clock className={`w-3.5 h-3.5 ${isWarning ? 'text-[#8C5E00]' : 'text-[#8C7268]'}`} />
+        <Clock className="w-3.5 h-3.5 text-[#F0B87A]" />
       )}
       <span>{formattedTime}</span>
     </div>

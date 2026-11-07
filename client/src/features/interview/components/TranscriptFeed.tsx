@@ -21,10 +21,10 @@ export const TranscriptFeed: React.FC<TranscriptFeedProps> = ({
   }, [turns]);
 
   return (
-    <div className="h-full flex-1 p-3 overflow-y-auto space-y-2.5 bg-[#FFFAF7] rounded-xl border border-[#F2DDD2] min-h-0">
+    <div className="h-full flex-1 p-3 overflow-y-auto space-y-2.5 bg-[#140705] rounded-2xl border border-[#3E1D19] min-h-0 text-[#F5E8DD]">
       {turns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-full text-[#8C7268] text-xs py-6 space-y-1.5">
-          <Bot className="w-6 h-6 text-[#FF7A48]" />
+        <div className="flex flex-col items-center justify-center h-full text-[#856658] text-xs py-6 space-y-1.5">
+          <Bot className="w-6 h-6 text-[#F0B87A]" />
           <p className="text-[11px]">{aiName} will introduce your challenge momentarily.</p>
         </div>
       ) : (
@@ -37,38 +37,41 @@ export const TranscriptFeed: React.FC<TranscriptFeedProps> = ({
               className={`flex items-start gap-2 ${isAi ? 'justify-start' : 'justify-end'}`}
             >
               {isAi && (
-                <div className="w-6 h-6 rounded-full bg-[#FFEBE1] border border-[#FBD7C7] flex items-center justify-center shrink-0 mt-0.5">
-                  <Bot className="w-3.5 h-3.5 text-[#FF7A48]" />
+                <div className="w-6 h-6 rounded-full bg-[#2D1A10] border border-[#522E22] flex items-center justify-center shrink-0 mt-0.5">
+                  <Bot className="w-3.5 h-3.5 text-[#F0B87A]" />
                 </div>
               )}
 
               <div
                 className={`max-w-[88%] rounded-2xl p-3 space-y-1 text-xs leading-relaxed transition-all ${
                   isAi
-                    ? 'bg-white border border-[#F2DDD2] text-[#0A0706] rounded-tl-xs shadow-xs'
-                    : 'bg-[#FFEBE1] border border-[#FBD7C7] text-[#0A0706] rounded-tr-xs shadow-xs'
+                    ? 'bg-[#1A0C09] border border-[#3E1D19] text-[#F5E8DD] rounded-tl-xs shadow-xs'
+                    : 'bg-[#2D1A10] border border-[#522E22] text-[#F5E8DD] rounded-tr-xs shadow-xs'
                 }`}
               >
                 <div className="flex items-center justify-between gap-3 pb-0.5">
                   <span
                     className={`font-semibold text-[11px] ${
-                      isAi ? 'text-[#A83E14]' : 'text-[#6B544A]'
+                      isAi ? 'text-[#F0B87A]' : 'text-[#D4B8A8]'
                     }`}
                   >
                     {isAi ? `${aiName}` : 'You'}
                   </span>
-                  <div className="flex items-center gap-1.5 text-[10px] text-[#8C7268]">
-                    <span>
-                      {new Date(turn.timestamp).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
+                  <div className="flex items-center gap-1.5 text-[10px] text-[#856658]">
+                    {turn.timestamp && (
+                      <span>
+                        {new Date(turn.timestamp).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    )}
                     {isAi && onReplaySpeech && (
                       <button
+                        type="button"
                         onClick={() => onReplaySpeech(turn.content)}
-                        className="hover:text-[#FF7A48] transition-colors p-0.5"
-                        title="Replay dialogue audio"
+                        className="hover:text-[#F0B87A] transition"
+                        title="Replay Spoken Audio"
                       >
                         <Volume2 className="w-3 h-3" />
                       </button>
@@ -76,25 +79,26 @@ export const TranscriptFeed: React.FC<TranscriptFeedProps> = ({
                   </div>
                 </div>
 
-                <div className="whitespace-pre-wrap font-sans text-xs text-[#0A0706]">{turn.content}</div>
+                <p className="whitespace-pre-wrap">{turn.content}</p>
 
-                {((turn as any).codeSnapshot || turn.codeSnippet) && (
-                  <div className="mt-2 p-2 rounded-lg bg-[#FFFAF7] border border-[#F2DDD2] font-mono text-[11px] text-[#6B544A]">
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-[#A83E14] mb-1">
+                {turn.codeSnapshot && (
+                  <div className="mt-2 pt-2 border-t border-[#3E1D19]">
+                    <div className="flex items-center gap-1 text-[10px] text-[#856658] mb-1">
                       <Code className="w-3 h-3" />
-                      <span>Code Snapshot</span>
+                      <span>Submitted code snippet:</span>
                     </div>
-                    <pre className="overflow-x-auto text-[10px] leading-tight text-[#0A0706]">
-                      {String((turn as any).codeSnapshot?.code || (turn as any).codeSnapshot || turn.codeSnippet).slice(0, 300)}
-                      {String((turn as any).codeSnapshot?.code || (turn as any).codeSnapshot || turn.codeSnippet).length > 300 && '...'}
+                    <pre className="p-2 rounded-xl bg-[#0D0403] border border-[#3E1D19] text-[11px] font-mono text-[#F0B87A] overflow-x-auto">
+                      {typeof turn.codeSnapshot === 'string'
+                        ? turn.codeSnapshot
+                        : turn.codeSnapshot?.code}
                     </pre>
                   </div>
                 )}
               </div>
 
               {!isAi && (
-                <div className="w-6 h-6 rounded-full bg-[#E8CBBE] border border-[#F2DDD2] flex items-center justify-center shrink-0 mt-0.5">
-                  <User className="w-3.5 h-3.5 text-[#6B544A]" />
+                <div className="w-6 h-6 rounded-full bg-[#24110E] border border-[#3E1D19] flex items-center justify-center shrink-0 mt-0.5">
+                  <User className="w-3.5 h-3.5 text-[#A88879]" />
                 </div>
               )}
             </div>
@@ -105,4 +109,3 @@ export const TranscriptFeed: React.FC<TranscriptFeedProps> = ({
     </div>
   );
 };
-export default TranscriptFeed;

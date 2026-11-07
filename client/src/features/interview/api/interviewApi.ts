@@ -118,6 +118,7 @@ export interface StartInterviewResponse {
   currentCode?: string;
   isEditorUnlocked: boolean;
   isResumed: boolean;
+  starProgress?: StarProgress;
 }
 
 export interface TurnResponse {
@@ -126,6 +127,9 @@ export interface TurnResponse {
   stage?: InterviewStage;
   isEditorUnlocked?: boolean;
   isTerminalTurn: boolean;
+  isFinished?: boolean;
+  sessionComplete?: boolean;
+  report?: EvaluationReportData;
   suggestedFollowUp?: string;
   starProgress?: StarProgress;
   isQuestionComplete?: boolean;

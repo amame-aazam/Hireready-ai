@@ -68,6 +68,7 @@ export interface TestCaseResult {
   memoryKb: number;
   stdout?: string;
   stderr?: string;
+  error?: string;
 }
 
 export interface RunCodeResponse {

@@ -56,105 +56,83 @@ export const VoiceControls: React.FC<VoiceControlsProps> = ({
   };
 
   return (
-    <div className="bg-white border border-[#F2DDD2] rounded-2xl p-3 space-y-2.5 shrink-0 shadow-xs">
+    <div className="bg-[#1A0C09]/95 border border-[#3E1D19] rounded-2xl p-3 space-y-2.5 shrink-0 shadow-sm text-[#F5E8DD]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {isSupported && (
             <button
               type="button"
-              onClick={() => {
-                if (isListening) {
-                  onStopListening();
-                } else {
-                  setIsTypingMode(false);
-                  onStartListening();
-                }
-              }}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              onClick={isListening ? onStopListening : onStartListening}
+              className={`p-2 rounded-xl flex items-center gap-1.5 text-xs font-semibold transition-all ${
                 isListening
-                  ? 'bg-rose-500 text-white animate-pulse shadow-sm'
-                  : 'bg-[#FF7A48] hover:bg-[#F05A24] text-white shadow-xs'
+                  ? 'bg-red-950 border border-red-700 text-red-300 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.4)]'
+                  : 'bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] font-bold shadow-[0_0_15px_rgba(240,184,122,0.3)]'
               }`}
             >
               {isListening ? (
                 <>
-                  <MicOff className="w-3.5 h-3.5" />
-                  <span>Stop Speaking</span>
+                  <MicOff className="w-4 h-4" />
+                  <span>Listening... (Click to Mute)</span>
                 </>
               ) : (
                 <>
-                  <Mic className="w-3.5 h-3.5" />
+                  <Mic className="w-4 h-4" />
                   <span>Push to Speak</span>
                 </>
               )}
             </button>
           )}
 
-          {isSupported && (
-            <button
-              type="button"
-              onClick={() => {
-                if (isListening) onStopListening();
-                setIsTypingMode(!isTypingMode);
-              }}
-              className="text-[#6B544A] hover:text-[#0A0706] text-xs font-medium flex items-center gap-1 px-2 py-1 rounded-full hover:bg-[#FFF5F0]"
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span>{isTypingMode ? 'Use Voice' : 'Type Response'}</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setIsTypingMode(!isTypingMode)}
+            className="p-2 rounded-xl bg-[#140705] border border-[#3E1D19] text-[#A88879] hover:text-[#F5E8DD] hover:bg-[#24110E] transition"
+            title={isTypingMode ? 'Switch to Voice Mode' : 'Switch to Keyboard Input'}
+          >
+            <MessageSquare className="w-4 h-4" />
+          </button>
         </div>
 
-        {isListening && (
-          <span className="flex items-center gap-1.5 text-xs text-rose-600 font-medium animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-rose-500" />
-            <span>Recording your voice...</span>
-          </span>
-        )}
+        <div className="text-[11px] text-[#856658]">
+          {isListening ? 'Speak your thoughts out loud' : isTypingMode ? 'Type & press Enter' : 'Mic paused'}
+        </div>
       </div>
 
-      {/* Input / Transcript Area */}
-      <div className="relative">
-        {isTypingMode ? (
+      {isTypingMode ? (
+        <div className="relative">
           <textarea
             value={manualText}
             onChange={(e) => setManualText(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your response here (Press Enter to send)..."
+            placeholder="Type your response to the interviewer..."
             rows={2}
-            className="w-full bg-[#FFFAF7] border border-[#F2DDD2] focus:border-[#FF7A48] focus:ring-1 focus:ring-[#FF7A48] rounded-xl p-2.5 text-xs text-[#0A0706] placeholder-[#8C7268] resize-none outline-hidden"
+            className="w-full p-2.5 pr-10 rounded-xl bg-[#140705] border border-[#3E1D19] text-xs text-[#F5E8DD] placeholder-[#856658] focus:outline-none focus:border-[#F0B87A] resize-none transition"
           />
-        ) : (
-          <div className="w-full min-h-[44px] bg-[#FFFAF7] border border-[#F2DDD2] rounded-xl p-2.5 text-xs text-[#0A0706] flex items-center">
-            {displayText ? (
-              <span className="text-[#0A0706]">{displayText}</span>
-            ) : (
-              <span className="text-[#8C7268] italic">
-                {isListening ? 'Speak now... your answer is being transcribed in real-time.' : 'Click "Push to Speak" or type your response.'}
-              </span>
-            )}
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={!canSend}
+            className="absolute right-2.5 bottom-3 p-1.5 rounded-lg bg-[#2D1A10] text-[#F0B87A] border border-[#522E22] hover:bg-[#F0B87A] hover:text-[#140808] transition disabled:opacity-30"
+          >
+            {isSendingTurn ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+      ) : (
+        displayText && (
+          <div className="p-2.5 rounded-xl bg-[#140705] border border-[#3E1D19] flex items-center justify-between gap-2 text-xs">
+            <span className="text-[#D4B8A8] italic truncate">{displayText}</span>
+            <button
+              type="button"
+              onClick={handleSend}
+              disabled={!canSend}
+              className="px-3 py-1 rounded-lg bg-gradient-to-r from-[#F0B87A] to-[#E2A664] text-[#140808] font-bold text-xs shrink-0 flex items-center gap-1 shadow-xs disabled:opacity-30"
+            >
+              {isSendingTurn ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+              <span>Send</span>
+            </button>
           </div>
-        )}
-
-        <button
-          type="button"
-          onClick={handleSend}
-          disabled={!canSend}
-          className={`absolute right-2 bottom-2 p-1.5 rounded-lg transition-all ${
-            canSend
-              ? 'bg-[#FF7A48] text-white hover:bg-[#F05A24] shadow-xs cursor-pointer'
-              : 'bg-[#F2DDD2] text-[#8C7268] cursor-not-allowed'
-          }`}
-          title="Send turn"
-        >
-          {isSendingTurn ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <Send className="w-3.5 h-3.5" />
-          )}
-        </button>
-      </div>
+        )
+      )}
     </div>
   );
 };
-export default VoiceControls;

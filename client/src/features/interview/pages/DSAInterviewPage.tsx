@@ -101,121 +101,131 @@ export const DSAInterviewPage: React.FC = () => {
       setIsLoading(true);
       setError(null);
 
-      let data;
-      if (routeSessionId) {
-        data = await interviewApi.getSession(routeSessionId);
-        if (data.report) {
-          setEvaluationReport(data.report);
-        }
-      } else {
-        data = await interviewApi.startOrResume('DSA');
-      }
+      const data = routeSessionId
+        ? await interviewApi.getSession(routeSessionId)
+        : await interviewApi.startOrResume('DSA');
 
       setSession(data.session);
-      setTranscript(data.transcript || []);
+      setTranscript(data.transcript);
       setProblem(data.currentQuestion);
-      setCurrentQuestionIndex(data.currentQuestion?.index ?? data.session.currentQuestionIndex ?? 0);
+      setQuestionsOverview(data.questionsOverview || []);
+      setCurrentQuestionIndex(data.currentQuestion.index ?? 0);
       setIsEditorUnlocked(data.isEditorUnlocked);
 
-      if (data.questionsOverview && data.questionsOverview.length > 0) {
-        setQuestionsOverview(data.questionsOverview);
-      }
-
+      // Initialize code from starter template
       const initialCode =
-        data.currentCode || getStarterCodeForLanguage(data.currentQuestion, 'javascript');
+        (data as any).starterCode || getStarterCodeForLanguage(data.currentQuestion, language);
       setCode(initialCode);
 
       setHasConfirmedSetup(true);
 
-      // If newly started and has opening turn, speak it aloud
-      if (data.openingTurn && !hasSpokenOpeningRef.current) {
-        hasSpokenOpeningRef.current = true;
-        setTimeout(() => {
-          speak(data.openingTurn!.content);
-        }, 600);
+      // Spoken greeting from interviewer
+      if (data.transcript.length > 0 && !hasSpokenOpeningRef.current) {
+        const lastTurn = data.transcript[data.transcript.length - 1];
+        if (lastTurn.role === 'ai') {
+          hasSpokenOpeningRef.current = true;
+          setTimeout(() => speak(lastTurn.content), 600);
+        }
       }
     } catch (err: any) {
-      console.error('Failed to initialize DSA interview session:', err);
-      setError(err.response?.data?.message || 'Failed to start interview session.');
+      console.error('Failed to start interview:', err);
+      setError(err.response?.data?.message || 'Failed to initialize AI interview.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Resume existing session if route param provided
   useEffect(() => {
-    if (routeSessionId) {
+    if (routeSessionId && !session) {
       startInterviewSession();
     }
   }, [routeSessionId]);
 
-  // Handle candidate sending a turn (voice or text)
-  const handleSendTurn = async (utterance: string) => {
-    if (!session || !utterance.trim() || isSendingTurn) return;
+  // Handle switching programming language
+  const handleLanguageChange = (newLang: string) => {
+    setLanguage(newLang);
+    const starter = getStarterCodeForLanguage(problem, newLang);
+    setCode(starter);
+  };
+
+  // Reset current code to template
+  const handleResetCode = () => {
+    const starter = getStarterCodeForLanguage(problem, language);
+    setCode(starter);
+  };
+
+  // Send candidate speech or text turn
+  const handleSendTurn = async (candidateText: string) => {
+    if (!session || !candidateText.trim() || isSendingTurn) return;
 
     try {
       setIsSendingTurn(true);
       setError(null);
       cancelSpeech();
 
-      // Optimistically append candidate turn
+      // Optimistic append candidate turn
       const candidateTurn: InterviewTurn = {
         role: 'candidate',
-        content: utterance,
+        content: candidateText.trim(),
         timestamp: new Date().toISOString(),
-        codeSnippet: isEditorUnlocked ? code : undefined,
-        codeSnapshot: isEditorUnlocked ? code : undefined,
       };
       setTranscript((prev) => [...prev, candidateTurn]);
+      resetTranscript();
 
-      const response = await interviewApi.sendTurn(session.id, utterance, isEditorUnlocked ? code : undefined);
+      // Call AI Interview turn API
+      const response = await interviewApi.sendTurn(session.id, candidateText.trim(), code);
 
-      const replyContent = response.aiReply || response.replyText;
-
-      // Append AI response turn
+      // Append AI response
       const aiTurn: InterviewTurn = {
         role: 'ai',
-        content: replyContent,
+        content: response.replyText || response.aiReply || '',
         timestamp: new Date().toISOString(),
       };
       setTranscript((prev) => [...prev, aiTurn]);
 
-      // State Machine check: Unlock Monaco editor if AI approves approach
-      if (response.isEditorUnlocked) {
-        setIsEditorUnlocked(true);
+      // Speak AI response
+      speak(aiTurn.content);
+
+      // Check if candidate passed approach validation and unlocked code editor
+      if (response.isEditorUnlocked !== undefined) {
+        setIsEditorUnlocked(response.isEditorUnlocked);
       }
 
-      // Voice synthesis response aloud
-      speak(replyContent);
+      // Check if interview concluded
+      if ((response.isFinished || response.sessionComplete) && response.report) {
+        setEvaluationReport(response.report);
+      }
     } catch (err: any) {
       console.error('Failed to process interview turn:', err);
-      setError(err.response?.data?.message || 'Failed to send response.');
+      setError(err.response?.data?.message || 'Failed to receive interviewer response.');
     } finally {
       setIsSendingTurn(false);
     }
   };
 
-  // Run Code against Judge0 Sandbox
+  // Run code against sandbox test cases
   const handleRunCode = async () => {
-    if (!session || isRunningCode || !isEditorUnlocked) return;
+    if (!session || !problem || isRunningCode) return;
 
     try {
       setIsRunningCode(true);
-      setTestResults(undefined);
       setError(null);
 
-      const result = await interviewApi.runCode(session.id, code, language);
+      const execResult = await interviewApi.runCode(
+        session.id,
+        code,
+        language
+      );
+      setTestResults(execResult.results || execResult.testResults);
 
-      const resList = result.testResults || result.results || [];
-      setTestResults(resList);
+      // Also notify AI interviewer of execution attempt
+      const passedCount = (execResult.results || execResult.testResults || []).filter((r: any) => r.passed).length;
+      const totalCount = (execResult.results || execResult.testResults || []).length;
+      const executionSummary = `I executed my solution. Result: ${passedCount}/${totalCount} visible test cases passed.`;
 
-      const total = result.totalTestCases ?? result.totalCount ?? resList.length;
-      const passedCount = result.passedTestCases ?? result.passedCount ?? resList.filter((r) => r.passed).length;
-
-      const passMessage = result.allPassed || result.passed
-        ? `Great! All ${total} test cases passed.`
-        : `${passedCount} out of ${total} test cases passed.`;
-
-      speak(passMessage);
+      // Inform AI quietly without full turn reload
+      await interviewApi.sendTurn(session.id, executionSummary, code);
     } catch (err: any) {
       console.error('Failed to run code:', err);
       setError(err.response?.data?.message || 'Code execution failed.');
@@ -224,18 +234,7 @@ export const DSAInterviewPage: React.FC = () => {
     }
   };
 
-  // Reset Code to starter snippet
-  const handleResetCode = () => {
-    setCode(getStarterCodeForLanguage(problem, language));
-  };
-
-  // Change Language
-  const handleLanguageChange = (newLang: string) => {
-    setLanguage(newLang);
-    setCode(getStarterCodeForLanguage(problem, newLang));
-  };
-
-  // Advance to next question
+  // Advance to next question in sequence
   const handleAdvanceQuestion = async () => {
     if (!session || isAdvancing) return;
 
@@ -304,33 +303,37 @@ export const DSAInterviewPage: React.FC = () => {
     }
   };
 
-  // PRE-INTERVIEW SETUP STAGE (Sakshaat AI Design)
+  // PRE-INTERVIEW SETUP STAGE
   if (!hasConfirmedSetup) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 text-[#F5E8DD]">
         {/* Top Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#F2DDD2]">
+        <div className="flex items-center justify-between pb-4 border-b border-[#3E1D19]">
           <div className="flex items-center gap-3">
             <BackButton label="Home" fallbackRoute="/dashboard" />
             <div>
-              <h1 className="text-2xl font-bold text-[#0A0706] tracking-tight">Set up your Technical DSA Interview</h1>
-              <p className="text-xs text-[#6B544A] mt-0.5">
+              <h1 className="text-2xl font-serif font-normal text-[#F5E8DD] tracking-tight">
+                Set up your Technical DSA Interview
+              </h1>
+              <p className="text-xs text-[#A88879] mt-0.5">
                 Each persona simulates a realistic hiring style. Pick the interviewer and format that matches your prep goal.
               </p>
             </div>
           </div>
-          <span className="badge-chip">Step 3 of 5</span>
+          <span className="px-3 py-1 rounded-full bg-[#2D1A10] border border-[#522E22] text-[#F0B87A] text-xs font-semibold">
+            Step 3 of 5
+          </span>
         </div>
 
         {/* Step Indicator */}
-        <div className="p-3 rounded-2xl bg-white border border-[#F2DDD2] flex items-center justify-between text-xs text-[#6B544A]">
+        <div className="p-3.5 rounded-2xl bg-[#1A0C09]/80 border border-[#3E1D19] flex items-center justify-between text-xs text-[#A88879] backdrop-blur-md">
           <div className="flex items-center gap-2 font-medium">
-            <span className="w-5 h-5 rounded-full bg-[#FF7A48] text-white flex items-center justify-center font-bold text-[11px]">
+            <span className="w-5 h-5 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] text-[#140808] flex items-center justify-center font-bold text-[11px]">
               1
             </span>
-            <span>Choose your Interviewer & Problem Tier</span>
+            <span className="text-[#F5E8DD]">Choose your Interviewer & Problem Tier</span>
           </div>
-          <span className="text-[#8C7268] font-mono text-[11px]">Target: {targetCompany}</span>
+          <span className="text-[#F0B87A] font-mono text-[11px]">Target: {targetCompany}</span>
         </div>
 
         {/* Persona Selector Grid */}
@@ -342,9 +345,9 @@ export const DSAInterviewPage: React.FC = () => {
         {/* Format & Target Company Controls */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Format / Duration */}
-          <div className="p-4 rounded-2xl bg-white border border-[#F2DDD2] space-y-2.5">
-            <label className="text-xs font-bold text-[#0A0706] uppercase tracking-wider flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-[#FF7A48]" />
+          <div className="p-4 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] space-y-2.5 backdrop-blur-md">
+            <label className="text-xs font-bold text-[#F0B87A] uppercase tracking-wider flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#F0B87A]" />
               <span>Interview Duration</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -355,23 +358,23 @@ export const DSAInterviewPage: React.FC = () => {
                   onClick={() => setFormatMinutes(mins)}
                   className={`py-2 px-3 rounded-xl border text-xs font-semibold transition ${
                     formatMinutes === mins
-                      ? 'bg-[#FFEBE1] border-[#FF7A48] text-[#A83E14]'
-                      : 'bg-[#FFFAF7] border-[#F2DDD2] text-[#6B544A] hover:bg-white'
+                      ? 'bg-[#2D1A10] border-[#F0B87A] text-[#F0B87A]'
+                      : 'bg-[#140705] border-[#3E1D19] text-[#A88879] hover:text-[#F5E8DD] hover:bg-[#24110E]'
                   }`}
                 >
                   {mins} Minutes
                 </button>
               ))}
             </div>
-            <p className="text-[11px] text-[#8C7268]">
+            <p className="text-[11px] text-[#856658]">
               Includes approach validation, live code implementation, and complexity Q&A.
             </p>
           </div>
 
           {/* Target Company */}
-          <div className="p-4 rounded-2xl bg-white border border-[#F2DDD2] space-y-2.5">
-            <label className="text-xs font-bold text-[#0A0706] uppercase tracking-wider flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5 text-[#FF7A48]" />
+          <div className="p-4 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] space-y-2.5 backdrop-blur-md">
+            <label className="text-xs font-bold text-[#F0B87A] uppercase tracking-wider flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-[#F0B87A]" />
               <span>Target Company Loop</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -382,33 +385,33 @@ export const DSAInterviewPage: React.FC = () => {
                   onClick={() => setTargetCompany(comp)}
                   className={`py-2 px-3 rounded-xl border text-xs font-semibold transition ${
                     targetCompany === comp
-                      ? 'bg-[#FFEBE1] border-[#FF7A48] text-[#A83E14]'
-                      : 'bg-[#FFFAF7] border-[#F2DDD2] text-[#6B544A] hover:bg-white'
+                      ? 'bg-[#2D1A10] border-[#F0B87A] text-[#F0B87A]'
+                      : 'bg-[#140705] border-[#3E1D19] text-[#A88879] hover:text-[#F5E8DD] hover:bg-[#24110E]'
                   }`}
                 >
                   {comp}
                 </button>
               ))}
             </div>
-            <p className="text-[11px] text-[#8C7268]">
+            <p className="text-[11px] text-[#856658]">
               Calibrates standard problem archetypes asked in recent recruitment loops.
             </p>
           </div>
         </div>
 
         {/* Bottom CTA Button */}
-        <div className="flex items-center justify-between pt-4 border-t border-[#F2DDD2]">
-          <div className="text-xs text-[#6B544A]">
-            Selected: <strong className="text-[#0A0706]">{selectedPersona.name}</strong> ({selectedPersona.tier} • {formatMinutes}m)
+        <div className="flex items-center justify-between pt-4 border-t border-[#3E1D19]">
+          <div className="text-xs text-[#A88879]">
+            Selected: <strong className="text-[#F5E8DD]">{selectedPersona.name}</strong> ({selectedPersona.tier} • {formatMinutes}m)
           </div>
 
           <button
             type="button"
             onClick={startInterviewSession}
             disabled={isLoading}
-            className="btn-primary px-8 py-3 text-sm font-bold flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            className="px-8 py-3 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] text-sm font-bold shadow-[0_0_20px_rgba(240,184,122,0.3)] flex items-center gap-2 cursor-pointer disabled:opacity-50 transition"
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin text-[#140808]" /> : null}
             <span>Start Technical Round with {selectedPersona.name}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
@@ -420,10 +423,10 @@ export const DSAInterviewPage: React.FC = () => {
   // Loading State
   if (isLoading) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="w-8 h-8 text-[#FF7A48] animate-spin" />
-        <h2 className="text-base font-bold text-[#0A0706]">Connecting to {selectedPersona.name}...</h2>
-        <p className="text-xs text-[#6B544A]">Initializing voice recognition and algorithmic test sandbox.</p>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-4 text-[#F5E8DD]">
+        <Loader2 className="w-8 h-8 text-[#F0B87A] animate-spin" />
+        <h2 className="text-base font-serif font-medium text-[#F5E8DD]">Connecting to {selectedPersona.name}...</h2>
+        <p className="text-xs text-[#A88879]">Initializing voice recognition and algorithmic test sandbox.</p>
       </div>
     );
   }
@@ -431,13 +434,13 @@ export const DSAInterviewPage: React.FC = () => {
   // Error State
   if (error && !session) {
     return (
-      <div className="max-w-md mx-auto my-16 p-6 rounded-3xl bg-white border border-[#F2DDD2] text-center space-y-4 shadow-sm">
-        <AlertTriangle className="w-8 h-8 text-rose-500 mx-auto" />
-        <h2 className="text-base font-bold text-[#0A0706]">Interview Session Error</h2>
-        <p className="text-xs text-[#6B544A]">{error}</p>
+      <div className="max-w-md mx-auto my-16 p-6 rounded-3xl bg-[#1A0C09]/90 border border-[#3E1D19] text-center space-y-4 shadow-sm text-[#F5E8DD]">
+        <AlertTriangle className="w-8 h-8 text-red-400 mx-auto" />
+        <h2 className="text-base font-serif font-medium text-[#F5E8DD]">Interview Session Error</h2>
+        <p className="text-xs text-[#A88879]">{error}</p>
         <button
           onClick={() => setHasConfirmedSetup(false)}
-          className="btn-primary px-5 py-2 text-xs font-semibold"
+          className="px-5 py-2 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] text-[#140808] text-xs font-bold"
         >
           Return to Setup
         </button>
@@ -449,30 +452,23 @@ export const DSAInterviewPage: React.FC = () => {
     currentQuestionIndex >= (questionsOverview.length > 0 ? questionsOverview.length - 1 : 2);
 
   return (
-    <div className="min-h-[calc(100vh-65px)] flex flex-col space-y-2.5 px-3 sm:px-6 py-2.5 bg-[#FFFAF7]">
+    <div className="min-h-[calc(100vh-65px)] flex flex-col space-y-2.5 px-3 sm:px-6 py-2.5 text-[#F5E8DD]">
       {/* Top Bar: Title + Question Stepper + Mute + End Interview */}
-      <div className="flex items-center justify-between p-3 bg-white border border-[#F2DDD2] rounded-2xl shrink-0 shadow-xs">
+      <div className="flex items-center justify-between p-3 bg-[#1A0C09]/90 border border-[#3E1D19] rounded-2xl shrink-0 shadow-sm backdrop-blur-md">
         <div className="flex items-center gap-2.5">
           <BackButton label="Exit" fallbackRoute="/dashboard" />
-          <div className="p-2 rounded-xl bg-[#FFEBE1] border border-[#FFD7C5] text-[#FF7A48]">
+          <div className="p-2 rounded-xl bg-[#2D1A10] border border-[#522E22] text-[#F0B87A]">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-[#0A0706] leading-tight flex items-center gap-2">
+            <h1 className="text-sm font-serif font-medium text-[#F5E8DD] leading-tight flex items-center gap-2">
               <span>Technical DSA Interview</span>
-              <span
-                className="px-2 py-0.5 rounded-full text-[10px] font-semibold border"
-                style={{
-                  backgroundColor: selectedPersona.accentBg,
-                  borderColor: selectedPersona.accentBorder,
-                  color: selectedPersona.accentColor,
-                }}
-              >
-                {selectedPersona.name} ({selectedPersona.tier})
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-[#2D1A10] border-[#522E22] text-[#F0B87A]">
+                {selectedPersona.name} ({selectedPersona.difficultyTier})
               </span>
             </h1>
-            <p className="text-[11px] text-[#6B544A]">
-              Target: <strong className="text-[#0A0706]">{targetCompany}</strong> • Speak aloud to validate your logic
+            <p className="text-[11px] text-[#A88879]">
+              Target: <strong className="text-[#F5E8DD]">{targetCompany}</strong> • Speak aloud to validate your logic
             </p>
           </div>
         </div>
@@ -489,12 +485,12 @@ export const DSAInterviewPage: React.FC = () => {
             onClick={toggleMute}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition ${
               isMuted
-                ? 'bg-rose-50 border-rose-200 text-rose-600'
-                : 'bg-white border-[#F2DDD2] text-[#6B544A] hover:bg-[#FFF5F0]'
+                ? 'bg-[#2E100D] border-red-800 text-red-300'
+                : 'bg-[#140705] border-[#3E1D19] text-[#A88879] hover:text-[#F5E8DD]'
             }`}
             title={isMuted ? 'Unmute AI Voice' : 'Mute AI Voice'}
           >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-400" /> : <Volume2 className="w-3.5 h-3.5" />}
             <span className="hidden sm:inline">{isMuted ? 'Muted' : 'Voice On'}</span>
           </button>
 
@@ -502,7 +498,7 @@ export const DSAInterviewPage: React.FC = () => {
             type="button"
             onClick={handleFinishInterview}
             disabled={isFinishing}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#2E100D] border border-red-800 text-red-300 hover:bg-[#3D1410] text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
           >
             {isFinishing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
             <span>End Interview</span>
@@ -512,7 +508,7 @@ export const DSAInterviewPage: React.FC = () => {
 
       {/* Resizable Split Workspace */}
       <Group orientation="horizontal" className="flex-1 min-h-[660px] rounded-2xl overflow-hidden">
-        {/* Left Panel: AI Interviewer (Avatar Top Half + Dialogue Bottom Half) */}
+        {/* Left Panel: AI Interviewer */}
         <Panel id="interviewer" defaultSize="38%" minSize="28%" maxSize="50%" className="flex flex-col gap-2.5 pr-1">
           {/* Top Half: Persona Avatar */}
           <div className="h-[46%] min-h-[260px] flex flex-col">
@@ -521,12 +517,12 @@ export const DSAInterviewPage: React.FC = () => {
               isListening={isListening}
               interviewerName={selectedPersona.name}
               personaKey={selectedPersona.key}
-              subtitle={`${selectedPersona.role} (${selectedPersona.tier})`}
+              subtitle={`${selectedPersona.role} (${selectedPersona.difficultyTier})`}
             />
           </div>
 
           {/* Bottom Half: Dialogue Transcript & Voice Controls */}
-          <div className="h-[54%] min-h-[290px] flex flex-col gap-2 bg-white border border-[#F2DDD2] rounded-2xl p-2.5 overflow-hidden shadow-xs">
+          <div className="h-[54%] min-h-[290px] flex flex-col gap-2 bg-[#1A0C09]/90 border border-[#3E1D19] rounded-2xl p-2.5 overflow-hidden shadow-sm backdrop-blur-md">
             <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
               <TranscriptFeed
                 turns={transcript}
@@ -551,46 +547,46 @@ export const DSAInterviewPage: React.FC = () => {
 
         {/* Draggable Divider */}
         <Separator className="w-2 px-0.5 flex items-center justify-center cursor-col-resize group outline-hidden select-none">
-          <div className="w-1 h-14 rounded-full bg-[#E8CBBE] group-hover:bg-[#FF7A48] group-hover:w-1.5 group-hover:h-20 transition-all shadow-xs" />
+          <div className="w-1 h-14 rounded-full bg-[#3E1D19] group-hover:bg-[#F0B87A] group-hover:w-1.5 group-hover:h-20 transition-all shadow-xs" />
         </Separator>
 
         {/* Right Panel: Problem Statement + Monaco Code Editor */}
         <Panel id="workspace" defaultSize="62%" minSize="50%" maxSize="72%" className="flex flex-col space-y-2.5 pl-1">
           {/* Problem Prompt Card */}
-          <div className="p-3.5 bg-white border border-[#F2DDD2] rounded-2xl space-y-1.5 shrink-0 shadow-xs">
+          <div className="p-3.5 bg-[#1A0C09]/90 border border-[#3E1D19] rounded-2xl space-y-1.5 shrink-0 shadow-sm backdrop-blur-md">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                     problem?.difficulty === 'EASY'
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                      : 'bg-amber-50 text-amber-700 border border-amber-200'
+                      ? 'bg-[#152B1E] text-emerald-300 border border-[#255436]'
+                      : 'bg-[#2D1A10] text-[#F0B87A] border border-[#522E22]'
                   }`}
                 >
                   {problem?.difficulty || 'DSA'}
                 </span>
-                <h3 className="text-xs sm:text-sm font-bold text-[#0A0706] tracking-tight">
+                <h3 className="text-xs sm:text-sm font-serif font-medium text-[#F5E8DD] tracking-tight">
                   Question {currentQuestionIndex + 1} of 3: {problem?.title}
                 </h3>
               </div>
-              <div className="flex items-center gap-2 text-xs font-mono text-[#FF7A48]">
+              <div className="flex items-center gap-2 text-xs font-mono text-[#F0B87A]">
                 <span>Time Target: {problem?.timeComplexityTarget || 'O(N)'}</span>
                 {problem?.spaceComplexityTarget && <span>• Space: {problem.spaceComplexityTarget}</span>}
               </div>
             </div>
-            <p className="text-xs text-[#6B544A] leading-relaxed font-sans line-clamp-3">
+            <p className="text-xs text-[#A88879] leading-relaxed font-sans line-clamp-3">
               {problem?.prompt}
             </p>
           </div>
 
           {/* Monaco Editor Header & Controls Bar */}
-          <div className="flex items-center justify-between p-2.5 bg-white border border-[#F2DDD2] rounded-2xl shrink-0 shadow-xs">
+          <div className="flex items-center justify-between p-2.5 bg-[#1A0C09]/90 border border-[#3E1D19] rounded-2xl shrink-0 shadow-sm backdrop-blur-md">
             <div className="flex items-center gap-2">
-              <label className="text-xs text-[#6B544A] font-medium">Language:</label>
+              <label className="text-xs text-[#A88879] font-medium">Language:</label>
               <select
                 value={language}
                 onChange={(e) => handleLanguageChange(e.target.value)}
-                className="bg-[#FFFAF7] border border-[#F2DDD2] text-[#0A0706] text-xs rounded-lg px-2.5 py-1 focus:outline-hidden focus:border-[#FF7A48]"
+                className="bg-[#140705] border border-[#3E1D19] text-[#F5E8DD] text-xs rounded-lg px-2.5 py-1 focus:outline-none focus:border-[#F0B87A]"
               >
                 <option value="javascript">JavaScript (Node.js)</option>
                 <option value="python">Python 3</option>
@@ -604,7 +600,7 @@ export const DSAInterviewPage: React.FC = () => {
                 type="button"
                 onClick={handleResetCode}
                 disabled={!isEditorUnlocked}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs text-[#6B544A] hover:text-[#0A0706] hover:bg-[#FFF5F0] rounded-full transition disabled:opacity-40"
+                className="flex items-center gap-1 px-2.5 py-1 text-xs text-[#A88879] hover:text-[#F5E8DD] hover:bg-[#24110E] rounded-full transition disabled:opacity-40"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset</span>
@@ -617,8 +613,8 @@ export const DSAInterviewPage: React.FC = () => {
                 disabled={isRunningCode || !isEditorUnlocked}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition ${
                   isEditorUnlocked
-                    ? 'bg-[#FF7A48] hover:bg-[#F05A24] text-white shadow-xs'
-                    : 'bg-[#FFFAF7] text-[#8C7268] cursor-not-allowed border border-[#F2DDD2]'
+                    ? 'bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] font-bold shadow-[0_0_15px_rgba(240,184,122,0.3)]'
+                    : 'bg-[#140705] text-[#856658] cursor-not-allowed border border-[#3E1D19]'
                 }`}
                 title={isEditorUnlocked ? 'Run tests against sandbox' : `Editor locked: Explain approach to ${selectedPersona.name} first`}
               >
@@ -638,7 +634,7 @@ export const DSAInterviewPage: React.FC = () => {
                   type="button"
                   onClick={handleAdvanceQuestion}
                   disabled={isAdvancing}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs transition disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition disabled:opacity-50"
                   title={isLastQuestion ? 'Submit final solution & generate report' : 'Submit solution and advance to next challenge'}
                 >
                   {isAdvancing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowRight className="w-3.5 h-3.5" />}
@@ -649,7 +645,7 @@ export const DSAInterviewPage: React.FC = () => {
           </div>
 
           {/* Monaco Code Editor with Approach-First Lock Overlay */}
-          <div className="flex-1 min-h-[240px] rounded-2xl overflow-hidden border border-[#F2DDD2] relative shadow-xs">
+          <div className="flex-1 min-h-[240px] rounded-2xl overflow-hidden border border-[#3E1D19] relative shadow-sm">
             <CodeEditor
               language={language}
               theme="vs-dark"

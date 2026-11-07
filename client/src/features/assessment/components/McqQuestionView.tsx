@@ -22,37 +22,37 @@ export const McqQuestionView: React.FC<McqQuestionViewProps> = ({
   const alphabet = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   return (
-    <div className="h-full flex flex-col justify-between p-6 sm:p-7 bg-white border border-[#F2DDD2] rounded-3xl space-y-6 shadow-sm overflow-y-auto">
+    <div className="h-full flex flex-col justify-between p-6 sm:p-7 bg-[#1A0C09]/80 border border-[#3E1D19] rounded-3xl space-y-6 shadow-sm overflow-y-auto backdrop-blur-md text-[#F5E8DD]">
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#F2DDD2]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#3E1D19]">
           <div className="flex items-center gap-2">
-            <span className="px-3 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-100 text-xs font-semibold">
+            <span className="px-3 py-0.5 rounded-full bg-[#2D1A10] text-[#F0B87A] border border-[#522E22] text-xs font-semibold">
               Multiple Choice
             </span>
-            <span className="text-xs text-[#6B544A]">
+            <span className="text-xs text-[#A88879]">
               Question {questionNumber} of {totalQuestions}
             </span>
           </div>
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#FFFAF7] border border-[#F2DDD2] text-[#0A0706]">
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#140705] border border-[#3E1D19] text-[#F0B87A]">
             {question.points} Points
           </span>
         </div>
 
         {/* Question Title & Prompt */}
         <div className="space-y-2">
-          <h2 className="text-lg font-serif font-medium text-[#0A0706] flex items-center gap-2">
-            <HelpCircle className="w-5 h-5 text-sky-600 shrink-0" />
+          <h2 className="text-lg font-serif font-medium text-[#F5E8DD] flex items-center gap-2">
+            <HelpCircle className="w-5 h-5 text-[#F0B87A] shrink-0" />
             {question.title}
           </h2>
-          <div className="p-5 rounded-2xl bg-[#FFFAF7] border border-[#F2DDD2] text-sm text-[#0A0706] leading-relaxed font-sans whitespace-pre-wrap">
+          <div className="p-5 rounded-2xl bg-[#140705] border border-[#3E1D19] text-sm text-[#F5E8DD] leading-relaxed font-sans whitespace-pre-wrap">
             {question.prompt}
           </div>
         </div>
 
         {/* Options */}
         <div className="space-y-3 pt-2">
-          <h4 className="text-xs font-semibold text-[#8C7268] uppercase tracking-wider">
+          <h4 className="text-xs font-semibold text-[#856658] uppercase tracking-wider">
             Select the best answer:
           </h4>
           <div className="space-y-2.5">
@@ -63,25 +63,23 @@ export const McqQuestionView: React.FC<McqQuestionViewProps> = ({
                   key={idx}
                   type="button"
                   onClick={() => onSelectOption(idx)}
-                  className={`w-full flex items-center gap-3.5 p-4 rounded-2xl border text-left transition ${
+                  className={`w-full p-4 rounded-2xl border text-left transition flex items-center gap-3.5 text-xs sm:text-sm font-sans ${
                     isSelected
-                      ? 'bg-[#FFEBE1] border-[#FF7A48] text-[#0A0706] shadow-sm'
-                      : 'bg-[#FFFAF7] border-[#F2DDD2] hover:bg-[#FBF1EA] text-[#0A0706]'
+                      ? 'bg-[#2D1A10] border-[#F0B87A] text-[#F5E8DD] shadow-[0_0_15px_rgba(240,184,122,0.2)]'
+                      : 'bg-[#140705] border-[#3E1D19] text-[#A88879] hover:bg-[#24110E] hover:border-[#52251D] hover:text-[#F5E8DD]'
                   }`}
                 >
                   <span
-                    className={`w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition ${
+                    className={`w-7 h-7 rounded-xl flex items-center justify-center font-semibold text-xs shrink-0 transition ${
                       isSelected
-                        ? 'bg-[#FF7A48] text-white shadow-sm'
-                        : 'bg-white border border-[#F2DDD2] text-[#6B544A]'
+                        ? 'bg-gradient-to-r from-[#F0B87A] to-[#E2A664] text-[#140808]'
+                        : 'bg-[#1A0C09] border border-[#3E1D19] text-[#856658]'
                     }`}
                   >
-                    {alphabet[idx]}
+                    {alphabet[idx] || idx + 1}
                   </span>
-                  <span className="text-sm font-medium leading-relaxed flex-1">{optionText}</span>
-                  {isSelected && (
-                    <CheckCircle2 className="w-4 h-4 text-[#FF7A48] shrink-0" />
-                  )}
+                  <span className="flex-1 leading-relaxed">{optionText}</span>
+                  {isSelected && <CheckCircle2 className="w-4 h-4 text-[#F0B87A] shrink-0" />}
                 </button>
               );
             })}
@@ -90,17 +88,16 @@ export const McqQuestionView: React.FC<McqQuestionViewProps> = ({
       </div>
 
       {selectedOption !== undefined && (
-        <div className="pt-2 flex justify-end">
+        <div className="pt-4 border-t border-[#3E1D19] flex justify-end">
           <button
             type="button"
             onClick={onClearOption}
-            className="text-xs text-[#8C7268] hover:text-[#A83E14] font-medium transition"
+            className="text-xs text-[#856658] hover:text-[#F0B87A] transition"
           >
-            Clear Selected Option
+            Clear Selection
           </button>
         </div>
       )}
     </div>
   );
 };
-export default McqQuestionView;

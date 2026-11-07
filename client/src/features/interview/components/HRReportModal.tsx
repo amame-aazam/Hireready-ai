@@ -21,22 +21,22 @@ export const HRReportModal: React.FC<HRReportModalProps> = ({ report }) => {
       case 'STRONG_HIRE':
         return {
           label: 'Strong Hire',
-          bg: 'bg-[#E6F4EA] border-[#B7E4C7] text-[#1F7A3A]',
+          bg: 'bg-[#152B1E] border-[#255436] text-emerald-300',
         };
       case 'HIRE':
         return {
           label: 'Hire',
-          bg: 'bg-[#ECFEFF] border-[#A5F3FC] text-[#0E7490]',
+          bg: 'bg-[#2D1A10] border-[#522E22] text-[#F0B87A]',
         };
       case 'NEUTRAL':
         return {
           label: 'Neutral / Follow-up',
-          bg: 'bg-[#FEF3C7] border-[#FDE68A] text-[#B45309]',
+          bg: 'bg-[#2D1A10] border-[#522E22] text-[#F0B87A]',
         };
       default:
         return {
           label: 'Needs Improvement',
-          bg: 'bg-[#FEE2E2] border-[#FECDD3] text-[#B91C1C]',
+          bg: 'bg-[#2E100D] border-red-800 text-red-300',
         };
     }
   };
@@ -52,7 +52,7 @@ export const HRReportModal: React.FC<HRReportModalProps> = ({ report }) => {
       feedback:
         star?.situationFeedback ||
         'Clearly outlined the context, business environment, and technical stakes.',
-      color: 'border-[#BFDBFE] bg-[#EFF6FF] text-[#1E3FA6]',
+      color: 'border-[#3E1D19] bg-[#140705] text-[#F5E8DD]',
     },
     {
       pillar: 'Task',
@@ -61,7 +61,7 @@ export const HRReportModal: React.FC<HRReportModalProps> = ({ report }) => {
       feedback:
         star?.taskFeedback ||
         'Articulated the explicit responsibility and expectations with clarity.',
-      color: 'border-[#DDD6FE] bg-[#F5F3FF] text-[#5B21B6]',
+      color: 'border-[#3E1D19] bg-[#140705] text-[#F5E8DD]',
     },
     {
       pillar: 'Action',
@@ -70,7 +70,7 @@ export const HRReportModal: React.FC<HRReportModalProps> = ({ report }) => {
       feedback:
         star?.actionFeedback ||
         'Detail-oriented initiatives emphasizing individual execution and leadership.',
-      color: 'border-[#FDE68A] bg-[#FFFBEB] text-[#92400E]',
+      color: 'border-[#522E22] bg-[#2D1A10] text-[#F0B87A]',
     },
     {
       pillar: 'Result',
@@ -79,32 +79,32 @@ export const HRReportModal: React.FC<HRReportModalProps> = ({ report }) => {
       feedback:
         star?.resultFeedback ||
         'Quantified business impact, performance metrics, and post-project learning.',
-      color: 'border-[#B7E4C7] bg-[#E6F4EA] text-[#1F7A3A]',
+      color: 'border-[#255436] bg-[#152B1E] text-emerald-300',
     },
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0A0706]/40 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white border border-[#F2DDD2] rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-xl relative my-8 text-[#0A0706]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D0403]/80 backdrop-blur-md overflow-y-auto text-[#F5E8DD]">
+      <div className="bg-[#1A0C09] border border-[#3E1D19] rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
         {/* Top Status Gradient Strip */}
-        <div className="absolute top-0 left-0 right-0 h-2 rounded-t-3xl bg-gradient-to-r from-emerald-500 via-[#FF7A48] to-[#FF976B]" />
+        <div className="absolute top-0 left-0 right-0 h-1.5 rounded-t-3xl bg-gradient-to-r from-emerald-500 via-[#F0B87A] to-[#E2A664]" />
 
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#F2DDD2]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#3E1D19]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#FFEBE1] border border-[#FFD7C5] flex items-center justify-center text-[#FF7A48]">
+            <div className="w-10 h-10 rounded-2xl bg-[#2D1A10] border border-[#522E22] flex items-center justify-center text-[#F0B87A]">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold tracking-tight">AI HR Behavioral Evaluation Report</h2>
-              <p className="text-xs text-[#6B544A]">STAR Methodology & Communication Assessment</p>
+              <h2 className="text-xl font-serif font-medium tracking-tight text-[#F5E8DD]">AI HR Behavioral Evaluation Report</h2>
+              <p className="text-xs text-[#A88879]">STAR Methodology & Communication Assessment</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <span className="text-3xl font-black font-mono text-[#0A0706]">{report.overallScore}</span>
-              <span className="text-xs text-[#8C7268]"> / 100</span>
+              <span className="text-3xl font-serif font-bold text-[#F0B87A]">{report.overallScore}</span>
+              <span className="text-xs text-[#856658]"> / 100</span>
             </div>
             <span className={`px-3 py-1 rounded-full text-xs font-bold border ${recInfo.bg}`}>
               {recInfo.label}
@@ -114,7 +114,7 @@ export const HRReportModal: React.FC<HRReportModalProps> = ({ report }) => {
 
         {/* STAR 4-Pillar Detailed Cards */}
         <div>
-          <h3 className="text-xs font-bold text-[#0A0706] uppercase tracking-wider mb-2.5">
+          <h3 className="text-xs font-bold text-[#F0B87A] uppercase tracking-wider mb-2.5">
             STAR Storytelling Breakdown
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -122,14 +122,14 @@ export const HRReportModal: React.FC<HRReportModalProps> = ({ report }) => {
               <div key={c.pillar} className={`p-3.5 rounded-2xl border ${c.color} space-y-1.5`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-md bg-white border border-current font-bold text-xs flex items-center justify-center">
+                    <span className="w-5 h-5 rounded-md bg-[#1E0E0B] border border-[#3E1D19] font-bold text-xs flex items-center justify-center">
                       {c.letter}
                     </span>
-                    <span className="font-bold text-xs">{c.pillar}</span>
+                    <span className="font-serif font-medium text-xs">{c.pillar}</span>
                   </div>
-                  <span className="font-mono font-bold text-xs">{c.score}/100</span>
+                  <span className="font-mono font-bold text-xs text-[#F0B87A]">{c.score}/100</span>
                 </div>
-                <p className="text-xs text-[#0A0706] leading-relaxed opacity-90">{c.feedback}</p>
+                <p className="text-xs text-[#A88879] leading-relaxed">{c.feedback}</p>
               </div>
             ))}
           </div>
@@ -137,40 +137,40 @@ export const HRReportModal: React.FC<HRReportModalProps> = ({ report }) => {
 
         {/* Behavioral Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="p-3 rounded-2xl bg-[#FFFAF7] border border-[#F2DDD2] text-center space-y-1">
-            <div className="text-xs text-[#6B544A]">Communication</div>
-            <div className="text-lg font-bold font-mono text-[#0A0706]">{report.communicationScore}/100</div>
+          <div className="p-3 rounded-2xl bg-[#140705] border border-[#3E1D19] text-center space-y-1">
+            <div className="text-xs text-[#A88879]">Communication</div>
+            <div className="text-lg font-serif font-bold text-[#F5E8DD]">{report.communicationScore}/100</div>
           </div>
-          <div className="p-3 rounded-2xl bg-[#FFFAF7] border border-[#F2DDD2] text-center space-y-1">
-            <div className="text-xs text-[#6B544A]">Professional Clarity</div>
-            <div className="text-lg font-bold font-mono text-[#0A0706]">{(report as any).codeQuality ?? report.technicalScore ?? 85}/100</div>
+          <div className="p-3 rounded-2xl bg-[#140705] border border-[#3E1D19] text-center space-y-1">
+            <div className="text-xs text-[#A88879]">Professional Clarity</div>
+            <div className="text-lg font-serif font-bold text-[#F5E8DD]">{(report as any).codeQuality ?? report.technicalScore ?? 85}/100</div>
           </div>
-          <div className="p-3 rounded-2xl bg-[#FFFAF7] border border-[#F2DDD2] text-center space-y-1 col-span-2 sm:col-span-1">
-            <div className="text-xs text-[#6B544A]">Recommendation</div>
-            <div className="text-sm font-bold text-[#FF7A48] mt-1">{report.recommendation?.replace('_', ' ') || 'REVIEW'}</div>
+          <div className="p-3 rounded-2xl bg-[#140705] border border-[#3E1D19] text-center space-y-1 col-span-2 sm:col-span-1">
+            <div className="text-xs text-[#A88879]">Recommendation</div>
+            <div className="text-sm font-serif font-medium text-[#F0B87A] mt-1">{report.recommendation?.replace('_', ' ') || 'REVIEW'}</div>
           </div>
         </div>
 
         {/* Strengths & Actionable Areas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-4 rounded-2xl bg-[#E6F4EA]/40 border border-[#CEEAD6] space-y-2">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#1F7A3A] flex items-center gap-1.5">
+          <div className="p-4 rounded-2xl bg-[#152B1E]/60 border border-[#255436] space-y-2">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
               <span>Demonstrated Strengths</span>
             </h4>
-            <ul className="text-xs text-[#0A0706] space-y-1 list-disc list-inside">
+            <ul className="text-xs text-[#D4B8A8] space-y-1 list-disc list-inside">
               {((report as any).strengths || report.detailedFeedback?.strengths || []).slice(0, 3).map((s: string, idx: number) => (
                 <li key={idx} className="leading-relaxed">{s}</li>
               ))}
             </ul>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#FFF5F0] border border-[#F2DDD2] space-y-2">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#A83E14] flex items-center gap-1.5">
+          <div className="p-4 rounded-2xl bg-[#2D1A10]/60 border border-[#522E22] space-y-2">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#F0B87A] flex items-center gap-1.5">
               <AlertCircle className="w-4 h-4" />
               <span>Primary Fixes Needed</span>
             </h4>
-            <ul className="text-xs text-[#0A0706] space-y-1 list-disc list-inside">
+            <ul className="text-xs text-[#D4B8A8] space-y-1 list-disc list-inside">
               {((report as any).areasOfImprovement || report.detailedFeedback?.weaknesses || []).slice(0, 3).map((a: string, idx: number) => (
                 <li key={idx} className="leading-relaxed">{a}</li>
               ))}
@@ -179,25 +179,25 @@ export const HRReportModal: React.FC<HRReportModalProps> = ({ report }) => {
         </div>
 
         {/* Summary Assessment */}
-        <div className="p-4 rounded-2xl bg-[#FFFAF7] border border-[#F2DDD2] space-y-1.5">
-          <h4 className="text-xs font-bold text-[#0A0706] uppercase tracking-wider">Talent Partner Summary</h4>
-          <p className="text-xs text-[#6B544A] leading-relaxed italic">
+        <div className="p-4 rounded-2xl bg-[#140705] border border-[#3E1D19] space-y-1.5">
+          <h4 className="text-xs font-bold text-[#F0B87A] uppercase tracking-wider">Talent Partner Summary</h4>
+          <p className="text-xs text-[#A88879] leading-relaxed italic">
             "{(report as any).summaryFeedback || report.detailedFeedback?.communicationAnalysis || 'Candidate demonstrated consistent STAR responses across interview questions.'}"
           </p>
         </div>
 
         {/* Bottom Navigation */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-[#F2DDD2]">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-[#3E1D19]">
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-full text-xs font-medium text-[#6B544A] bg-white border border-[#F2DDD2] hover:bg-[#FFF5F0] hover:text-[#0A0706] transition text-center cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-full text-xs font-medium text-[#A88879] bg-[#140705] border border-[#3E1D19] hover:bg-[#24110E] hover:text-[#F5E8DD] transition text-center cursor-pointer"
           >
             Back to Dashboard
           </button>
 
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full sm:w-auto btn-primary px-6 py-2.5 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] text-xs font-bold shadow-[0_0_20px_rgba(240,184,122,0.3)] flex items-center justify-center gap-2 cursor-pointer transition"
           >
             <span>Proceed to Step 5: Final Result & Certificate</span>
             <ArrowRight className="w-4 h-4" />

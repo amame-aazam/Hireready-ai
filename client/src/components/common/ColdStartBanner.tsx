@@ -53,23 +53,24 @@ export const ColdStartBanner: React.FC<ColdStartBannerProps> = ({
   return (
     <aside
       aria-label="Server status notice"
-      className="bg-[#FFF4EC] border-b border-[#F2DDD2] px-4 py-2 text-xs text-[#A83E14] flex items-center justify-between"
+      className="bg-[#24110E] border-b border-[#3E1D19] px-4 py-2 text-xs text-[#F0B87A] flex items-center justify-between z-50 relative"
     >
       <div className="flex items-center gap-2">
         {isWakingUp ? (
-          <Loader2 className="w-4 h-4 animate-spin text-[#FF7A48]" />
+          <Loader2 className="w-4 h-4 animate-spin text-[#F0B87A]" />
         ) : (
-          <AlertCircle className="w-4 h-4 text-[#FF7A48]" />
+          <AlertCircle className="w-4 h-4 text-[#F0B87A]" />
         )}
         <span>
           <strong>Backend Notice:</strong> Connecting to cloud server. Free instances spin down after inactivity and may take 30-45 seconds to wake up.
         </span>
       </div>
       {isOnline === true && (
-        <span className="flex items-center gap-1 text-[#1F7A3A] font-medium">
+        <span className="flex items-center gap-1 text-[#4ADE80] font-medium">
           <CheckCircle2 className="w-3.5 h-3.5" /> Ready
         </span>
       )}
     </aside>
   );
 };
+export default ColdStartBanner;
