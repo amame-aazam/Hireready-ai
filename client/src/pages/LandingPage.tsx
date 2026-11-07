@@ -507,48 +507,7 @@ public:
         </div>
       </section>
 
-      {/* =========================================================================
-          4. "ONE ROUND, THREE PARTS, ALL OUT LOUD" (Screenshot 5 / Reference)
-          ========================================================================= */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10" id="how-it-works">
-        <div className="space-y-3">
-          <div className="text-xs uppercase tracking-widest font-bold text-[var(--theme-accent,#FF9E79)]">
-            How a round works
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-serif text-[#F5E8DD] tracking-tight">
-            One round, three parts, all out loud.
-          </h2>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-8 rounded-3xl bg-[#1A0B09]/85 border border-[#3E1D19] hover:border-[#5E271D] hover:bg-[#24100C] transition-all space-y-4">
-            <div className="text-4xl font-serif italic text-[var(--theme-accent,#FF9E79)]">01</div>
-            <h3 className="text-xl font-serif font-medium text-[#F5E8DD]">Introduction</h3>
-            <p className="text-sm text-[#A88879] leading-relaxed">
-              A few minutes on you. It has read your resume, so it asks about the projects you
-              actually built, the tools you used, and why you made specific technical decisions.
-            </p>
-          </div>
-
-          <div className="p-8 rounded-3xl bg-[#1A0B09]/85 border border-[#3E1D19] hover:border-[#5E271D] hover:bg-[#24100C] transition-all space-y-4">
-            <div className="text-4xl font-serif italic text-[var(--theme-accent,#FF9E79)]">02</div>
-            <h3 className="text-xl font-serif font-medium text-[#F5E8DD]">Live coding</h3>
-            <p className="text-sm text-[#A88879] leading-relaxed">
-              A DSA problem on a shared editor, in C++, Java, Python or JavaScript. It gives hints
-              when you stall, never the answer, and challenges your time complexity.
-            </p>
-          </div>
-
-          <div className="p-8 rounded-3xl bg-[#1A0B09]/85 border border-[#3E1D19] hover:border-[#5E271D] hover:bg-[#24100C] transition-all space-y-4">
-            <div className="text-4xl font-serif italic text-[var(--theme-accent,#FF9E79)]">03</div>
-            <h3 className="text-xl font-serif font-medium text-[#F5E8DD]">Feedback</h3>
-            <p className="text-sm text-[#A88879] leading-relaxed">
-              Spoken the moment you finish, built on what happened in the call, ending with the one
-              thing to fix first, along with a comprehensive scorecard breakdown.
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* =========================================================================
           5. BOTTOM PRE-FOOTER CTA SECTION (Exact match to Screenshot 3)

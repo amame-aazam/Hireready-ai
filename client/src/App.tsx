@@ -42,9 +42,9 @@ const HeaderNav: React.FC = () => {
         { path: '/leaderboard', label: 'Leaderboard' },
       ]
     : [
-        { path: '/#how-it-works', label: 'How it works' },
-        { path: '/#panel', label: 'Why it feels real' },
+        { path: '/#panel', label: 'AI Panel' },
         { path: '/#pipeline', label: 'Placement Pipeline' },
+        { path: '/leaderboard', label: 'Leaderboard' },
       ];
 
   return (
