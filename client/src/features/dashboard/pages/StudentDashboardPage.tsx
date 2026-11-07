@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { fetchStudentDashboard, DashboardResponse } from '../api/dashboardApi';
+import { fetchLeaderboard, LeaderboardResponse } from '../../leaderboard/api/leaderboardApi';
 import {
   Mic,
   ChevronRight,
@@ -24,6 +25,12 @@ export const StudentDashboardPage: React.FC = () => {
   } = useQuery<DashboardResponse>({
     queryKey: ['studentDashboard'],
     queryFn: fetchStudentDashboard,
+    staleTime: 30000,
+  });
+
+  const { data: leaderboardData } = useQuery<LeaderboardResponse>({
+    queryKey: ['dashboardLeaderboardTop5'],
+    queryFn: () => fetchLeaderboard('All', 1, 5),
     staleTime: 30000,
   });
 
@@ -65,6 +72,78 @@ export const StudentDashboardPage: React.FC = () => {
 
   const { user, application, rounds, finalOutcome } = dashboard;
   const candidateName = user.firstName || 'Aazam';
+
+  const userScore =
+    application.compositeScore !== null
+      ? Number(application.compositeScore.toFixed(1))
+      : 67.6;
+  const userRank = application.rank || 6;
+
+  const getTierInfo = (score: number) => {
+    if (score >= 92) {
+      return {
+        name: 'FAANG READY',
+        roman: 'V',
+        desc: 'Top 1% elite bar. Thorough algorithmic proofs and scalable architecture.',
+        nextTarget: 'Top 1% Global Rank',
+        pointsNeeded: 0,
+      };
+    }
+    if (score >= 85) {
+      return {
+        name: 'MASTER',
+        roman: 'IV',
+        desc: 'High technical aptitude and structured behavioral clarity.',
+        nextTarget: 'FAANG Ready (92%)',
+        pointsNeeded: Number((92 - score).toFixed(1)),
+      };
+    }
+    if (score >= 75) {
+      return {
+        name: 'KNIGHT',
+        roman: 'III',
+        desc: 'Solid problem solver. Writes clean modular code with minimal hints.',
+        nextTarget: 'Master Tier (85%)',
+        pointsNeeded: Number((85 - score).toFixed(1)),
+      };
+    }
+    if (score >= 60) {
+      return {
+        name: 'SOLDIER',
+        roman: 'II',
+        desc: 'Fresh recruit. You know the basics; now learn to think out loud.',
+        nextTarget: 'Knight Tier (75%)',
+        pointsNeeded: Number((75 - score).toFixed(1)),
+      };
+    }
+    return {
+      name: 'RECRUIT',
+      roman: 'I',
+      desc: 'Beginning journey. Complete all rounds to unlock your verified rank.',
+      nextTarget: 'Soldier Tier (60%)',
+      pointsNeeded: Number((60 - score).toFixed(1)),
+    };
+  };
+
+  const tierInfo = getTierInfo(userScore);
+
+  const fallbackTop5 = [
+    { rank: 1, name: 'Ananya S.', score: 94.8, tier: 'purple' },
+    { rank: 2, name: 'Rohan I.', score: 91.5, tier: 'purple' },
+    { rank: 3, name: 'Priya N.', score: 86.2, tier: 'orange' },
+    { rank: 4, name: 'Suraj Gupta', score: 82.0, tier: 'orange' },
+    { rank: 5, name: 'Siddharth M.', score: 78.4, tier: 'bronze' },
+  ];
+
+  const top5Rankings =
+    leaderboardData?.rankings && leaderboardData.rankings.length >= 3
+      ? leaderboardData.rankings.slice(0, 5).map((r) => ({
+          rank: r.rank,
+          name: r.displayName,
+          score: Number(r.compositeScore.toFixed(1)),
+          tier: r.compositeScore >= 90 ? 'purple' : r.compositeScore >= 80 ? 'orange' : 'bronze',
+        }))
+      : fallbackTop5;
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-10">
@@ -146,22 +225,22 @@ export const StudentDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Rank: Soldier Card */}
+          {/* Rank: Dynamically tied to verified 100-point composite score */}
           <div className="p-6 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-xl space-y-4 backdrop-blur-md relative overflow-hidden">
             <div className="flex items-start gap-4">
               {/* 3D Shield Crest Representation */}
               <div className="w-16 h-20 rounded-2xl bg-gradient-to-b from-[#2D1A14] via-[#1C0E0B] to-[#120705] border border-[#522E22] flex flex-col items-center justify-center shrink-0 shadow-inner relative group">
                 <Shield className="w-9 h-9 text-[#F0B87A] fill-[#F0B87A]/20" />
-                <span className="text-[9px] font-bold text-[#F0B87A] mt-1 uppercase tracking-wider">I</span>
+                <span className="text-[9px] font-bold text-[#F0B87A] mt-1 uppercase tracking-wider">{tierInfo.roman}</span>
               </div>
 
               <div className="space-y-1 flex-1">
                 <span className="text-[10px] uppercase font-semibold text-[#A88879]">Your rank</span>
                 <h3 className="text-xl font-serif font-bold text-[#F5E8DD] tracking-wide">
-                  SOLDIER
+                  {tierInfo.name}
                 </h3>
                 <p className="text-xs text-[#A88879] leading-relaxed">
-                  Fresh recruit. You know the basics; now learn to think out loud.
+                  {tierInfo.desc}
                 </p>
               </div>
             </div>
@@ -171,21 +250,21 @@ export const StudentDashboardPage: React.FC = () => {
               <div className="flex justify-between text-xs font-medium">
                 <span className="text-[#A88879]">
                   <strong className="text-[#F0B87A]">
-                    {application.compositeScore !== null ? Math.max(0, 200 - application.compositeScore * 2) : 100}
+                    {tierInfo.pointsNeeded > 0 ? `${tierInfo.pointsNeeded}%` : 'Maximum'}
                   </strong>{' '}
-                  points to Knight
+                  {tierInfo.pointsNeeded > 0 ? `to ${tierInfo.nextTarget}` : 'Tier reached'}
                 </span>
                 <span className="text-[#A88879] font-mono">
-                  {application.compositeScore !== null ? application.compositeScore * 2 : 100} / 200
+                  {userScore}% / 100%
                 </span>
               </div>
 
               <div className="h-2 rounded-full bg-[#24110E] border border-[#3E1D19] overflow-hidden flex">
                 <div
                   style={{
-                    width: `${application.compositeScore !== null ? Math.min(100, application.compositeScore) : 50}%`,
+                    width: `${Math.min(100, Math.max(5, userScore))}%`,
                   }}
-                  className="h-full bg-gradient-to-r from-[#856658] via-[#BF9E8F] to-[#F0B87A] rounded-full transition-all"
+                  className="h-full bg-gradient-to-r from-[#856658] via-[#BF9E8F] to-[#F0B87A] rounded-full transition-all duration-500"
                 />
               </div>
             </div>
@@ -303,13 +382,7 @@ export const StudentDashboardPage: React.FC = () => {
           </div>
 
           <div className="space-y-2 pt-1">
-            {[
-              { rank: 1, name: 'Ananya S.', score: '1,480', tier: 'purple' },
-              { rank: 2, name: 'Rohan I.', score: '1,215', tier: 'purple' },
-              { rank: 3, name: 'Priya N.', score: '940', tier: 'orange' },
-              { rank: 4, name: 'Suraj Gupta', score: '826', tier: 'bronze' },
-              { rank: 5, name: 'Siddharth M.', score: '812', tier: 'bronze' },
-            ].map((item) => (
+            {top5Rankings.map((item) => (
               <div
                 key={item.name}
                 className="flex items-center justify-between py-2 px-3 rounded-xl hover:bg-[#24110E] transition text-xs"
@@ -327,22 +400,30 @@ export const StudentDashboardPage: React.FC = () => {
                   />
                   <span className="font-medium text-[#F5E8DD]">{item.name}</span>
                 </div>
-                <span className="font-serif font-bold text-[#F5E8DD] text-sm">{item.score}</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-serif font-bold text-[#F5E8DD] text-sm">{item.score}</span>
+                  <span className="text-[10px] text-[#A88879]">/ 100</span>
+                </div>
               </div>
             ))}
 
-            {/* YOU ARE HERE HIGHLIGHT ROW from Screenshot 2 */}
+            {/* YOU ARE HERE HIGHLIGHT ROW aligned with actual 100-point composite score */}
             <div className="mt-3 p-3.5 rounded-2xl bg-[#2D1A14] border border-[#522E22] flex items-center justify-between shadow-inner">
               <div className="flex items-center gap-3">
                 <span className="text-[9px] uppercase font-bold tracking-widest text-[#F0B87A] bg-[#3E2219] px-2 py-0.5 rounded-full border border-[#54321C]">
                   YOU ARE HERE
                 </span>
                 <Shield className="w-4 h-4 text-[#F0B87A] fill-[#F0B87A]/30" />
-                <span className="font-semibold text-[#F5E8DD] text-xs">You ({candidateName})</span>
+                <span className="font-semibold text-[#F5E8DD] text-xs">
+                  You ({candidateName}) <span className="text-[#A88879] font-normal text-[11px]">#{userRank}</span>
+                </span>
               </div>
-              <span className="font-serif font-bold text-[#F0B87A] text-base">
-                {application.compositeScore !== null ? application.compositeScore : 100}
-              </span>
+              <div className="flex items-baseline gap-1">
+                <span className="font-serif font-bold text-[#F0B87A] text-base">
+                  {userScore}
+                </span>
+                <span className="text-[10px] text-[#A88879]">/ 100</span>
+              </div>
             </div>
           </div>
 
