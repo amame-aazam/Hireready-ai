@@ -45,6 +45,7 @@ export const DSAInterviewPage: React.FC = () => {
   const [targetCompany, setTargetCompany] = useState<string>('Google');
   const [formatMinutes, setFormatMinutes] = useState<number>(45);
   const [hasConfirmedSetup, setHasConfirmedSetup] = useState<boolean>(!!routeSessionId);
+  const [mobileTab, setMobileTab] = useState<'panel' | 'editor'>('panel');
 
   const [session, setSession] = useState<InterviewSessionData | null>(null);
   const [transcript, setTranscript] = useState<InterviewTurn[]>([]);
@@ -506,8 +507,41 @@ export const DSAInterviewPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Resizable Split Workspace */}
-      <Group orientation="horizontal" className="flex-1 min-h-[660px] rounded-2xl overflow-hidden">
+      {/* Mobile Tab Switcher (< lg) */}
+      <div className="flex lg:hidden items-center p-1 rounded-2xl bg-[#1A0C09] border border-[#3E1D19] gap-1 mb-2">
+        <button
+          type="button"
+          onClick={() => setMobileTab('panel')}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition ${
+            mobileTab === 'panel'
+              ? 'bg-[#331713] text-[var(--theme-accent,#FF9E79)] border border-[#52251D] shadow-sm'
+              : 'text-[#A88879] hover:text-[#F5E8DD]'
+          }`}
+        >
+          <span className="w-2 h-2 rounded-full bg-[var(--theme-accent,#FF9E79)] animate-pulse" />
+          <span>AI Panel &amp; Voice</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMobileTab('editor')}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition ${
+            mobileTab === 'editor'
+              ? 'bg-[#331713] text-[var(--theme-accent,#FF9E79)] border border-[#52251D] shadow-sm'
+              : 'text-[#A88879] hover:text-[#F5E8DD]'
+          }`}
+        >
+          <span>Code Editor &amp; Tests</span>
+          {isEditorUnlocked ? (
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          ) : (
+            <Lock className="w-3 h-3 text-[#A88879]" />
+          )}
+        </button>
+      </div>
+
+      {/* Desktop Split Resizable Workspace (>= lg) */}
+      <Group orientation="horizontal" className="hidden lg:flex flex-1 min-h-[660px] rounded-2xl overflow-hidden">
         {/* Left Panel: AI Interviewer */}
         <Panel id="interviewer" defaultSize="38%" minSize="28%" maxSize="50%" className="flex flex-col gap-2.5 pr-1">
           {/* Top Half: Persona Avatar */}
@@ -685,6 +719,154 @@ export const DSAInterviewPage: React.FC = () => {
           )}
         </Panel>
       </Group>
+
+      {/* Mobile Workspace (< lg): Full Width Tabbed Views */}
+      <div className="flex lg:hidden flex-col gap-2.5 min-h-[550px] flex-1">
+        {mobileTab === 'panel' ? (
+          <div className="flex flex-col gap-2.5 flex-1">
+            <div className="h-[260px] flex flex-col">
+              <AIAvatar
+                isSpeaking={isSpeaking}
+                isListening={isListening}
+                interviewerName={selectedPersona.name}
+                personaKey={selectedPersona.key}
+                subtitle={`${selectedPersona.role} (${selectedPersona.difficultyTier})`}
+              />
+            </div>
+
+            <div className="flex-1 min-h-[290px] flex flex-col gap-2 bg-[#1A0C09]/90 border border-[#3E1D19] rounded-2xl p-2.5 overflow-hidden shadow-sm backdrop-blur-md">
+              <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+                <TranscriptFeed
+                  turns={transcript}
+                  onReplaySpeech={speak}
+                  isAiSpeaking={isSpeaking}
+                  aiName={selectedPersona.name}
+                />
+              </div>
+              <VoiceControls
+                isListening={isListening}
+                transcript={sttTranscript}
+                interimTranscript={interimTranscript}
+                onStartListening={startListening}
+                onStopListening={stopListening}
+                onSendTurn={handleSendTurn}
+                onClearTranscript={resetTranscript}
+                isSendingTurn={isSendingTurn}
+                isSupported={isSttSupported}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col space-y-2.5 flex-1">
+            {/* Problem Prompt Card */}
+            <div className="p-3 bg-[#1A0C09]/90 border border-[#3E1D19] rounded-2xl space-y-1.5 shrink-0 shadow-sm backdrop-blur-md">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                      problem?.difficulty === 'EASY'
+                        ? 'bg-[#152B1E] text-emerald-300 border border-[#255436]'
+                        : 'bg-[#2D1A10] text-[#F0B87A] border border-[#522E22]'
+                    }`}
+                  >
+                    {problem?.difficulty || 'DSA'}
+                  </span>
+                  <h3 className="text-xs font-serif font-medium text-[#F5E8DD] tracking-tight">
+                    Q{currentQuestionIndex + 1}: {problem?.title}
+                  </h3>
+                </div>
+                <div className="text-[11px] font-mono text-[#F0B87A]">
+                  Target: {problem?.timeComplexityTarget || 'O(N)'}
+                </div>
+              </div>
+              <p className="text-xs text-[#A88879] leading-relaxed font-sans line-clamp-3">
+                {problem?.prompt}
+              </p>
+            </div>
+
+            {/* Monaco Editor Header & Controls Bar */}
+            <div className="flex items-center justify-between p-2 bg-[#1A0C09]/90 border border-[#3E1D19] rounded-2xl shrink-0 shadow-sm backdrop-blur-md">
+              <select
+                value={language}
+                onChange={(e) => handleLanguageChange(e.target.value)}
+                className="bg-[#140705] border border-[#3E1D19] text-[#F5E8DD] text-xs rounded-lg px-2 py-1 outline-none"
+              >
+                <option value="javascript">JS</option>
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
+              </select>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleRunCode}
+                  disabled={isRunningCode || !isEditorUnlocked}
+                  className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition ${
+                    isEditorUnlocked
+                      ? 'bg-gradient-to-r from-[#F0B87A] to-[#E2A664] text-[#140808] font-bold'
+                      : 'bg-[#140705] text-[#856658] cursor-not-allowed border border-[#3E1D19]'
+                  }`}
+                >
+                  {isRunningCode ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3 fill-current" />}
+                  <span>{isEditorUnlocked ? 'Run' : 'Locked'}</span>
+                </button>
+
+                {isEditorUnlocked && (
+                  <button
+                    type="button"
+                    onClick={handleAdvanceQuestion}
+                    disabled={isAdvancing}
+                    className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition disabled:opacity-50"
+                  >
+                    {isAdvancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <ArrowRight className="w-3 h-3" />}
+                    <span>{isLastQuestion ? 'Submit' : 'Next'}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Monaco Code Editor with Approach-First Lock Overlay */}
+            <div className="h-[280px] rounded-2xl overflow-hidden border border-[#3E1D19] relative shadow-sm">
+              <CodeEditor
+                language={language}
+                theme="vs-dark"
+                value={code}
+                onChange={(val) => setCode(val || '')}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 12,
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                  tabSize: 2,
+                  wordWrap: 'on',
+                  readOnly: !isEditorUnlocked,
+                }}
+              />
+
+              {!isEditorUnlocked && (
+                <EditorLockOverlay
+                  questionTitle={problem?.title}
+                  timeComplexityTarget={problem?.timeComplexityTarget}
+                  interviewerName={selectedPersona.name}
+                />
+              )}
+            </div>
+
+            {/* Test Cases Drawer */}
+            {problem?.visibleTestCases && (
+              <div className="shrink-0 max-h-[170px] overflow-y-auto">
+                <TestCasesDrawer
+                  testCases={problem.visibleTestCases}
+                  results={testResults}
+                  isRunning={isRunningCode}
+                  onRunTestCases={handleRunCode}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Post-Interview Evaluation Report Modal */}
       {evaluationReport && <InterviewReportModal report={evaluationReport} />}

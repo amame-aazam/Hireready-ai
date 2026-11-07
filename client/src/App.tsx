@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Link, useLocation, useNavigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
@@ -15,12 +15,21 @@ import {
   ShieldAlert,
   LogOut,
   User as UserIcon,
+  Menu,
+  X,
+  ChevronRight,
 } from 'lucide-react';
 
 const HeaderNav: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     await logout();
@@ -42,14 +51,14 @@ const HeaderNav: React.FC = () => {
       ];
 
   return (
-    <header className="sticky top-0 z-50 px-4 pt-3 pb-2 pointer-events-none">
-      <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 rounded-full bg-[#180A08]/90 border border-[#3E1D19] backdrop-blur-md shadow-2xl flex items-center justify-between pointer-events-auto">
+    <header className="sticky top-0 z-50 px-3 sm:px-4 pt-3 pb-2 pointer-events-none">
+      <div className="max-w-6xl mx-auto h-16 px-3 sm:px-6 rounded-full bg-[#180A08]/90 border border-[#3E1D19] backdrop-blur-md shadow-2xl flex items-center justify-between pointer-events-auto relative">
         {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition">
+        <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition shrink-0">
           <BrandLogo size="md" />
         </Link>
 
-        {/* Center Navigation Links */}
+        {/* Desktop Center Navigation Links */}
         <nav className="hidden md:flex items-center gap-1.5 text-sm font-medium">
           {navLinks.map((item) => {
             const isActive =
@@ -87,22 +96,22 @@ const HeaderNav: React.FC = () => {
           )}
         </nav>
 
-        {/* Right Actions from reference */}
-        <div className="flex items-center gap-2.5">
+        {/* Right Actions: Theme Switcher, Auth & Mobile Menu Toggle */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
           {isAuthenticated && (
             <>
-              {/* Help button */}
+              {/* Help button (Desktop) */}
               <button
                 type="button"
-                className="hidden sm:flex items-center gap-1 text-sm text-[#A88879] hover:text-[#F5E8DD] transition p-1.5"
+                className="hidden lg:flex items-center gap-1 text-sm text-[#A88879] hover:text-[#F5E8DD] transition p-1.5"
                 title="Help & FAQ"
               >
                 <HelpCircle className="w-4 h-4 text-[#A88879]" />
-                <span className="hidden lg:inline">Help</span>
+                <span>Help</span>
               </button>
 
               {/* Bell with counter */}
-              <div className="relative">
+              <div className="relative hidden sm:block">
                 <button
                   type="button"
                   className="w-9 h-9 rounded-full bg-[#24110E] border border-[#3E1D19] flex items-center justify-center text-[#A88879] hover:text-[#F5E8DD] transition"
@@ -129,17 +138,17 @@ const HeaderNav: React.FC = () => {
 
           {/* User profile / Auth button */}
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-2 pl-2 border-l border-[#3E1D19]">
+            <div className="flex items-center gap-1.5 pl-1.5 sm:pl-2 border-l border-[#3E1D19]">
               <Link
                 to="/dashboard"
-                className="flex items-center gap-1.5 text-sm font-semibold text-[#F5E8DD] bg-[#24110E] px-3.5 py-1.5 rounded-full border border-[#3E1D19] hover:border-[#52251E] transition"
+                className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#F5E8DD] bg-[#24110E] px-2.5 sm:px-3.5 py-1.5 rounded-full border border-[#3E1D19] hover:border-[#52251E] transition"
               >
                 <UserIcon className="w-3.5 h-3.5 text-[var(--theme-accent,#FF9E79)]" />
-                <span className="max-w-[100px] truncate">{user.firstName}</span>
+                <span className="max-w-[70px] sm:max-w-[100px] truncate">{user.firstName}</span>
               </Link>
               <button
                 onClick={handleLogout}
-                className="p-1.5 rounded-full text-[#A88879] hover:text-[var(--theme-accent,#FF9E79)] hover:bg-[#24110E] transition"
+                className="p-1.5 rounded-full text-[#A88879] hover:text-[var(--theme-accent,#FF9E79)] hover:bg-[#24110E] transition hidden sm:inline-flex"
                 title="Log Out"
               >
                 <LogOut className="w-4 h-4" />
@@ -148,13 +157,91 @@ const HeaderNav: React.FC = () => {
           ) : (
             <Link
               to="/auth/login"
-              className="px-5 py-2 rounded-full bg-gradient-to-r from-[var(--theme-accent,#FF9E79)] to-[var(--theme-accent-dark,#E87A50)] hover:from-[var(--theme-accent-hover,#FFAE8F)] hover:to-[var(--theme-accent,#FF9E79)] text-[#140808] font-bold text-sm transition shadow-sm"
+              className="px-3.5 sm:px-5 py-2 rounded-full bg-gradient-to-r from-[var(--theme-accent,#FF9E79)] to-[var(--theme-accent-dark,#E87A50)] hover:from-[var(--theme-accent-hover,#FFAE8F)] hover:to-[var(--theme-accent,#FF9E79)] text-[#140808] font-bold text-xs sm:text-sm transition shadow-sm shrink-0"
             >
               Sign in
             </Link>
           )}
+
+          {/* Mobile Hamburger Menu Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden w-9 h-9 rounded-full bg-[#24110E] border border-[#3E1D19] flex items-center justify-center text-[#A88879] hover:text-[#F5E8DD] transition shrink-0"
+            aria-label="Toggle navigation menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5 text-[var(--theme-accent,#FF9E79)]" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Navigation Dropdown Menu Drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden mt-2 max-w-6xl mx-auto rounded-3xl bg-[#160806]/98 border border-[#3E1D19] backdrop-blur-2xl shadow-2xl p-3 sm:p-4 pointer-events-auto animate-in fade-in zoom-in-95 duration-150">
+          <div className="space-y-1">
+            {navLinks.map((item) => {
+              const isActive =
+                item.path === '/'
+                  ? location.pathname === '/'
+                  : location.pathname.startsWith(item.path);
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center justify-between px-4 py-2.5 rounded-2xl text-base transition ${
+                    isActive
+                      ? 'bg-[#331713] text-[#F5E8DD] font-semibold border border-[#52251D]'
+                      : 'text-[#A88879] hover:text-[#F5E8DD] hover:bg-[#24110E]'
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  <ChevronRight className="w-4 h-4 text-[#856658]" />
+                </Link>
+              );
+            })}
+
+            {isAuthenticated && user?.role === 'ADMIN' && (
+              <Link
+                to="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between px-4 py-2.5 rounded-2xl text-base font-semibold text-[var(--theme-accent,#FF9E79)] bg-[#331713]/60 border border-[#52251D] hover:bg-[#331713] transition"
+              >
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4" />
+                  <span>Admin Console</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[var(--theme-accent,#FF9E79)]" />
+              </Link>
+            )}
+
+            {/* Mobile Actions in Drawer */}
+            <div className="pt-3 mt-2 border-t border-[#3E1D19] flex items-center justify-between text-xs text-[#A88879]">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--theme-accent-bg,#2D140C)] border border-[var(--theme-accent-border,#5E2717)] text-[var(--theme-accent,#FF9E79)] font-semibold">
+                <span className="w-2 h-2 rounded-full bg-[var(--theme-accent,#FF9E79)] animate-pulse" />
+                <span>1 free interview ready</span>
+              </div>
+              {isAuthenticated && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#24110E] hover:text-red-400 transition"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign out</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
@@ -164,14 +251,12 @@ export const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <BrowserRouter>
-          <div className="min-h-screen flex flex-col bg-[var(--theme-bg-canvas,#0C0403)] text-[#F5E8DD] relative">
-            {/* Background Engineering Perspective Grid & Ambient Glow (Matching Reference Screenshot) */}
+          <div className="min-h-screen flex flex-col bg-[var(--theme-bg-canvas,#0C0403)] text-[#F5E8DD] relative overflow-x-hidden max-w-full">
+            {/* Background Engineering Perspective Grid & Ambient Glow */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-              {/* Perspective Graph Grid */}
               <div className="absolute inset-0 bg-engineering-grid pointer-events-none opacity-90" />
-              {/* Top Hero Ambient Radial Glow */}
               <div
-                className="absolute -top-32 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] rounded-full pointer-events-none blur-3xl opacity-50"
+                className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] sm:w-[1000px] h-[350px] sm:h-[550px] rounded-full pointer-events-none blur-3xl opacity-50"
                 style={{ background: 'var(--theme-glow-radial)' }}
               />
             </div>
@@ -180,16 +265,18 @@ export const App: React.FC = () => {
             <div className="relative z-10 flex flex-col min-h-screen">
               <ColdStartBanner />
               <HeaderNav />
-              <main className="flex-1">
+              <main className="flex-1 w-full max-w-full overflow-x-hidden">
                 <AppRoutes />
               </main>
               <footer className="border-t border-[#3E1D19]/80 py-8 text-center text-sm text-[#A88879] bg-[var(--theme-bg-canvas,#0C0403)]/90 mt-12 backdrop-blur-md">
-                <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
                     <BrandLogo size="sm" />
-                    <span className="text-[#856658]">&mdash; AI Placement &amp; Interview Cockpit</span>
+                    <span className="text-[#856658] text-xs sm:text-sm">
+                      &mdash; AI Placement &amp; Interview Cockpit
+                    </span>
                   </div>
-                  <div className="flex items-center gap-4 text-[#856658] text-xs sm:text-sm">
+                  <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[#856658] text-xs sm:text-sm">
                     <span>Dual-DB (PostgreSQL &bull; MongoDB)</span>
                     <span>&bull;</span>
                     <Link to="/leaderboard" className="hover:text-[#F5E8DD] transition">Leaderboard</Link>

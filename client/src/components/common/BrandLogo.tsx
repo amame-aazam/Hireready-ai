@@ -14,15 +14,15 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   className = '',
 }) => {
   const iconDimensions = {
-    sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-    lg: 'w-14 h-14',
+    sm: 'w-7 h-7 sm:w-8 sm:h-8',
+    md: 'w-8 h-8 sm:w-10 sm:h-10',
+    lg: 'w-11 h-11 sm:w-14 sm:h-14',
   }[size];
 
   const textClass = {
-    sm: 'text-lg',
-    md: 'text-2xl',
-    lg: 'text-3xl sm:text-4xl',
+    sm: 'text-base sm:text-lg',
+    md: 'text-lg sm:text-2xl',
+    lg: 'text-2xl sm:text-3xl md:text-4xl',
   }[size];
 
   return (

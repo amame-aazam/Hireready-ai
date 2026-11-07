@@ -79,26 +79,28 @@ export const StudentDashboardPage: React.FC = () => {
           </div>
 
           {/* Large Serif Heading */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-normal text-[#F5E8DD] tracking-tight leading-[1.12]">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-normal text-[#F5E8DD] tracking-tight leading-[1.12] break-words">
             <span className="italic font-light">{candidateName},</span> your <br />
             interviewer is ready.
           </h1>
 
           {/* Soundwave + Glowing Orb */}
-          <div className="flex items-center gap-4 py-2">
+          <div className="flex items-center gap-3 sm:gap-4 py-2 overflow-hidden max-w-full">
             {/* Glowing Golden Orb */}
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#F0B87A] to-[#E2A664] shadow-[0_0_30px_rgba(240,184,122,0.7)] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-[#F0B87A] to-[#E2A664] shadow-[0_0_30px_rgba(240,184,122,0.7)] flex items-center justify-center shrink-0">
               <span className="w-3.5 h-3.5 rounded-full bg-[#FFF5EB] opacity-80" />
             </div>
 
             {/* Dynamic Soundwave Bars */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 overflow-hidden">
               {[14, 22, 34, 18, 42, 28, 50, 36, 20, 44, 30, 16, 38, 24, 46, 32, 18, 28, 14].map(
                 (h, idx) => (
                   <span
                     key={idx}
                     style={{ height: `${h}px` }}
-                    className="w-[3px] rounded-full bg-gradient-to-t from-[#D49B6A] to-[#F0C08B] opacity-90 transition-all duration-300"
+                    className={`w-[3px] rounded-full bg-gradient-to-t from-[#D49B6A] to-[#F0C08B] opacity-90 transition-all duration-300 ${
+                      idx > 11 ? 'hidden sm:inline-block' : 'inline-block'
+                    }`}
                   />
                 )
               )}

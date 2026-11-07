@@ -159,11 +159,11 @@ public:
               <span>Spoken interviews · Live DSA coding · Honest feedback</span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-normal text-[#F5E8DD] tracking-tight leading-[1.12]">
+            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-serif font-normal text-[#F5E8DD] tracking-tight leading-[1.12] break-words">
               Face your <br />
               interview{' '}
               <span className="inline-flex items-center justify-center align-middle mx-1.5">
-                <span className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-[#E87A50] via-[var(--theme-accent,#FF9E79)] to-[#FFF5EA] shadow-[0_0_35px_var(--theme-accent-shadow,rgba(255,158,121,0.8))] inline-block animate-orb-pulse"></span>
+                <span className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-[#E87A50] via-[var(--theme-accent,#FF9E79)] to-[#FFF5EA] shadow-[0_0_35px_var(--theme-accent-shadow,rgba(255,158,121,0.8))] inline-block animate-orb-pulse"></span>
               </span>{' '}
               <br />
               <span className="italic font-normal text-[var(--theme-accent,#FF9E79)]">
@@ -171,7 +171,7 @@ public:
               </span>
             </h1>
 
-            <p className="text-base sm:text-lg text-[#A88879] max-w-xl font-sans leading-relaxed">
+            <p className="text-sm sm:text-base lg:text-lg text-[#A88879] max-w-xl font-sans leading-relaxed">
               Spoken mock interviews with AI interviewers. Solve DSA problems on a shared editor,
               defend every line of your resume, take on behavioral questions, and read exactly what
               to fix.
@@ -182,7 +182,7 @@ public:
               <button
                 type="button"
                 onClick={handleCtaClick}
-                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-white text-zinc-900 font-semibold text-base shadow-[0_4px_24px_rgba(255,255,255,0.2)] hover:bg-zinc-100 hover:shadow-[0_6px_30px_rgba(255,255,255,0.3)] transition transform hover:-translate-y-0.5"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3.5 rounded-full bg-white text-zinc-900 font-semibold text-base shadow-[0_4px_24px_rgba(255,255,255,0.2)] hover:bg-zinc-100 hover:shadow-[0_6px_30px_rgba(255,255,255,0.3)] transition transform hover:-translate-y-0.5"
               >
                 <GoogleGIcon />
                 <span>Continue with Google</span>
@@ -239,11 +239,11 @@ public:
               </div>
 
               {/* Split Content: Video Tiles + Code Editor */}
-              <div className="grid grid-cols-12 gap-3 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
                 {/* Left: Interviewer & Candidate Video Cards */}
-                <div className="col-span-5 space-y-2.5">
+                <div className="col-span-1 sm:col-span-5 flex sm:flex-col gap-2.5">
                   {/* Interviewer Riddhi */}
-                  <div className="relative rounded-2xl overflow-hidden bg-[#1E0E0B] border border-[#3E1D19] aspect-[4/3] flex flex-col justify-between p-2.5">
+                  <div className="relative rounded-2xl overflow-hidden bg-[#1E0E0B] border border-[#3E1D19] aspect-[4/3] flex-1 sm:flex-none flex flex-col justify-between p-2.5 min-h-[140px]">
                     <img
                       src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
                       alt="Riddhi AI Interviewer"
@@ -269,7 +269,7 @@ public:
                   </div>
 
                   {/* Candidate Arpita S. (you) matching Screenshot 2 */}
-                  <div className="rounded-2xl bg-[#1E0E0B]/90 border border-[#3E1D19] p-2.5 flex flex-col items-center justify-center text-center space-y-1.5">
+                  <div className="rounded-2xl bg-[#1E0E0B]/90 border border-[#3E1D19] p-2.5 flex-1 sm:flex-none flex flex-col items-center justify-center text-center space-y-1.5 min-h-[140px]">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#1E293B] to-[#334155] border border-[#64748B]/50 flex items-center justify-center shadow-inner">
                       <Shield className="w-5 h-5 text-[var(--theme-accent,#FF9E79)]" />
                     </div>
@@ -290,9 +290,9 @@ public:
                 </div>
 
                 {/* Right: Code Editor & Live Eye Indicator */}
-                <div className="col-span-7 flex flex-col justify-between bg-[#0C0403] rounded-2xl border border-[#3E1D19] p-3 text-[11px] font-mono leading-tight overflow-hidden relative">
-                  <div className="space-y-0.5 text-[#D4B8A8] overflow-y-auto max-h-[170px] select-none scrollbar-thin">
-                    <pre className="text-[10px] leading-snug font-mono text-[#D4B8A8]">
+                <div className="col-span-1 sm:col-span-7 flex flex-col justify-between bg-[#0C0403] rounded-2xl border border-[#3E1D19] p-3 text-[11px] font-mono leading-tight overflow-hidden relative">
+                  <div className="space-y-0.5 text-[#D4B8A8] overflow-y-auto max-h-[180px] select-none scrollbar-thin">
+                    <pre className="text-[10px] sm:text-[11px] leading-snug font-mono text-[#D4B8A8]">
                       <code>{codeSnippets[selectedLanguage]}</code>
                     </pre>
                   </div>
@@ -557,25 +557,25 @@ public:
         <div className="space-y-6">
           {/* Big Centered Glowing Peach Orb */}
           <div className="flex justify-center">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-tr from-[#E87A50] via-[var(--theme-accent,#FF9E79)] to-[#FFF5EA] shadow-[0_0_80px_var(--theme-accent-shadow,rgba(255,158,121,0.85))] animate-orb-pulse"></div>
+            <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-gradient-to-tr from-[#E87A50] via-[var(--theme-accent,#FF9E79)] to-[#FFF5EA] shadow-[0_0_80px_var(--theme-accent-shadow,rgba(255,158,121,0.85))] animate-orb-pulse"></div>
           </div>
 
           {/* Heading */}
-          <h2 className="text-4xl sm:text-6xl font-serif text-[#F5E8DD] font-normal tracking-tight">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-[#F5E8DD] font-normal tracking-tight break-words">
             Your first interview is on us.
           </h2>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-lg text-[#A88879] max-w-md mx-auto">
+          <p className="text-sm sm:text-base lg:text-lg text-[#A88879] max-w-md mx-auto px-4">
             Sign in, set up in a minute, and start talking.
           </p>
 
           {/* White Google Button */}
-          <div className="pt-2">
+          <div className="pt-2 px-4">
             <button
               type="button"
               onClick={handleCtaClick}
-              className="inline-flex items-center gap-3 px-9 py-4 rounded-full bg-white text-zinc-900 font-semibold text-base shadow-[0_4px_24px_rgba(255,255,255,0.2)] hover:bg-zinc-100 hover:shadow-[0_6px_30px_rgba(255,255,255,0.3)] transition transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 sm:px-9 py-3.5 sm:py-4 rounded-full bg-white text-zinc-900 font-semibold text-base shadow-[0_4px_24px_rgba(255,255,255,0.2)] hover:bg-zinc-100 hover:shadow-[0_6px_30px_rgba(255,255,255,0.3)] transition transform hover:-translate-y-0.5"
             >
               <GoogleGIcon />
               <span>Continue with Google</span>
