@@ -48,13 +48,16 @@ export const ThemeSwitcher: React.FC = () => {
       {/* Floating Theme Switcher Dropdown (Matching Screenshot) */}
       {isOpen && (
         <div className="absolute right-0 mt-3 w-72 sm:w-80 rounded-2xl bg-[#160806]/95 border border-[#3E1D19] backdrop-blur-xl shadow-2xl p-2.5 z-50 text-left animate-in fade-in zoom-in-95 duration-150">
-          <div className="px-3 pt-1 pb-2">
+          <div className="px-3 pt-1 pb-2 flex items-center justify-between">
             <span className="text-xs font-semibold text-[#856658] uppercase tracking-wider">
-              Theme
+              Theme Palette
+            </span>
+            <span className="text-[11px] text-[#A88879]">
+              {options.length} themes
             </span>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1 max-h-[400px] overflow-y-auto pr-1 scrollbar-thin">
             {options.map((theme) => {
               const isActive = currentTheme === theme.id;
               return (
