@@ -9,9 +9,6 @@ import { BrandLogo } from './components/common/BrandLogo';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ThemeSwitcher } from './components/common/ThemeSwitcher';
 import {
-  HelpCircle,
-  Bell,
-  Shield,
   ShieldAlert,
   LogOut,
   User as UserIcon,
@@ -97,51 +94,16 @@ const HeaderNav: React.FC = () => {
         </nav>
 
         {/* Right Actions: Theme Switcher, Auth & Mobile Menu Toggle */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5">
-          {isAuthenticated && (
-            <>
-              {/* Help button (Desktop) */}
-              <button
-                type="button"
-                className="hidden lg:flex items-center gap-1 text-sm text-[#A88879] hover:text-[#F5E8DD] transition p-1.5"
-                title="Help & FAQ"
-              >
-                <HelpCircle className="w-4 h-4 text-[#A88879]" />
-                <span>Help</span>
-              </button>
-
-              {/* Bell with counter */}
-              <div className="relative hidden sm:block">
-                <button
-                  type="button"
-                  className="w-9 h-9 rounded-full bg-[#24110E] border border-[#3E1D19] flex items-center justify-center text-[#A88879] hover:text-[#F5E8DD] transition"
-                  title="Notifications"
-                >
-                  <Bell className="w-4 h-4" />
-                </button>
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--theme-accent,#FF9E79)] text-[#140808] font-bold text-[10px] flex items-center justify-center">
-                  1
-                </span>
-              </div>
-
-              {/* 1 free interview chip from reference */}
-              <div className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--theme-accent-bg,#2D140C)] border border-[var(--theme-accent-border,#5E2717)] text-xs text-[var(--theme-accent,#FF9E79)] font-semibold">
-                <span className="w-2 h-2 rounded-full bg-[var(--theme-accent,#FF9E79)] animate-pulse" />
-                <span>1 free interview</span>
-                <Shield className="w-4 h-4 ml-0.5 fill-[var(--theme-accent,#FF9E79)]/30 text-[var(--theme-accent,#FF9E79)]" />
-              </div>
-            </>
-          )}
-
-          {/* Theme Switcher Button (Palette Icon from Reference Screenshot) */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Theme Switcher Button (Palette Icon) */}
           <ThemeSwitcher />
 
           {/* User profile / Auth button */}
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-1.5 pl-1.5 sm:pl-2 border-l border-[#3E1D19]">
+            <div className="flex items-center gap-1.5 pl-2 border-l border-[#3E1D19]">
               <Link
                 to="/dashboard"
-                className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#F5E8DD] bg-[#24110E] px-2.5 sm:px-3.5 py-1.5 rounded-full border border-[#3E1D19] hover:border-[#52251E] transition"
+                className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#F5E8DD] bg-[#24110E] px-3 sm:px-3.5 py-1.5 rounded-full border border-[#3E1D19] hover:border-[#52251E] transition"
               >
                 <UserIcon className="w-3.5 h-3.5 text-[var(--theme-accent,#FF9E79)]" />
                 <span className="max-w-[70px] sm:max-w-[100px] truncate">{user.firstName}</span>
@@ -221,24 +183,20 @@ const HeaderNav: React.FC = () => {
             )}
 
             {/* Mobile Actions in Drawer */}
-            <div className="pt-3 mt-2 border-t border-[#3E1D19] flex items-center justify-between text-xs text-[#A88879]">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--theme-accent-bg,#2D140C)] border border-[var(--theme-accent-border,#5E2717)] text-[var(--theme-accent,#FF9E79)] font-semibold">
-                <span className="w-2 h-2 rounded-full bg-[var(--theme-accent,#FF9E79)] animate-pulse" />
-                <span>1 free interview ready</span>
-              </div>
-              {isAuthenticated && (
+            {isAuthenticated && (
+              <div className="pt-3 mt-2 border-t border-[#3E1D19] flex items-center justify-end text-xs text-[#A88879]">
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     handleLogout();
                   }}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#24110E] hover:text-red-400 transition"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#24110E] hover:text-red-400 transition"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign out</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}
