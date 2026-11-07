@@ -6,6 +6,8 @@ import { AppRoutes } from './routes';
 import { ColdStartBanner } from './components/common/ColdStartBanner';
 import { useAuth } from './features/auth/hooks/useAuth';
 import { BrandLogo } from './components/common/BrandLogo';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeSwitcher } from './components/common/ThemeSwitcher';
 import {
   HelpCircle,
   Bell,
@@ -69,8 +71,8 @@ const HeaderNav: React.FC = () => {
               to="/admin"
               className={`px-3.5 py-1.5 rounded-full text-sm transition flex items-center gap-1.5 ${
                 location.pathname.startsWith('/admin')
-                  ? 'bg-[#331713] text-[#F0B87A] border border-[#52251D] font-semibold'
-                  : 'text-[#F0B87A] hover:bg-[#24110E]'
+                  ? 'bg-[#331713] text-[var(--theme-accent,#FF9E79)] border border-[#52251D] font-semibold'
+                  : 'text-[var(--theme-accent,#FF9E79)] hover:bg-[#24110E]'
               }`}
             >
               <ShieldAlert className="w-4 h-4" />
@@ -100,17 +102,20 @@ const HeaderNav: React.FC = () => {
             >
               <Bell className="w-4 h-4" />
             </button>
-            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#F0B87A] text-[#140808] font-bold text-[10px] flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--theme-accent,#FF9E79)] text-[#140808] font-bold text-[10px] flex items-center justify-center">
               1
             </span>
           </div>
 
           {/* 1 free interview chip from reference */}
-          <div className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#2D1A10] border border-[#54321C] text-xs text-[#F0B87A] font-semibold">
-            <span className="w-2 h-2 rounded-full bg-[#F0B87A] animate-pulse" />
+          <div className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--theme-accent-bg,#2D140C)] border border-[var(--theme-accent-border,#5E2717)] text-xs text-[var(--theme-accent,#FF9E79)] font-semibold">
+            <span className="w-2 h-2 rounded-full bg-[var(--theme-accent,#FF9E79)] animate-pulse" />
             <span>1 free interview</span>
-            <Shield className="w-4 h-4 ml-0.5 fill-[#F0B87A]/30 text-[#F0B87A]" />
+            <Shield className="w-4 h-4 ml-0.5 fill-[var(--theme-accent,#FF9E79)]/30 text-[var(--theme-accent,#FF9E79)]" />
           </div>
+
+          {/* Theme Switcher Button (Palette Icon from Reference Screenshot) */}
+          <ThemeSwitcher />
 
           {/* User profile / Auth button */}
           {isAuthenticated && user ? (
@@ -119,12 +124,12 @@ const HeaderNav: React.FC = () => {
                 to="/dashboard"
                 className="flex items-center gap-1.5 text-sm font-semibold text-[#F5E8DD] bg-[#24110E] px-3.5 py-1.5 rounded-full border border-[#3E1D19] hover:border-[#52251E] transition"
               >
-                <UserIcon className="w-3.5 h-3.5 text-[#F0B87A]" />
+                <UserIcon className="w-3.5 h-3.5 text-[var(--theme-accent,#FF9E79)]" />
                 <span className="max-w-[100px] truncate">{user.firstName}</span>
               </Link>
               <button
                 onClick={handleLogout}
-                className="p-1.5 rounded-full text-[#A88879] hover:text-[#F0B87A] hover:bg-[#24110E] transition"
+                className="p-1.5 rounded-full text-[#A88879] hover:text-[var(--theme-accent,#FF9E79)] hover:bg-[#24110E] transition"
                 title="Log Out"
               >
                 <LogOut className="w-4 h-4" />
@@ -133,7 +138,7 @@ const HeaderNav: React.FC = () => {
           ) : (
             <Link
               to="/auth/login"
-              className="px-5 py-2 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] font-bold text-sm transition shadow-sm"
+              className="px-5 py-2 rounded-full bg-gradient-to-r from-[var(--theme-accent,#FF9E79)] to-[var(--theme-accent-dark,#E87A50)] hover:from-[var(--theme-accent-hover,#FFAE8F)] hover:to-[var(--theme-accent,#FF9E79)] text-[#140808] font-bold text-sm transition shadow-sm"
             >
               Sign in
             </Link>
@@ -147,32 +152,48 @@ const HeaderNav: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <div className="min-h-screen flex flex-col bg-[#0D0403] text-[#F5E8DD]">
-          <ColdStartBanner />
-          <HeaderNav />
-          <main className="flex-1">
-            <AppRoutes />
-          </main>
-          <footer className="border-t border-[#3E1D19]/80 py-8 text-center text-sm text-[#A88879] bg-[#0D0403]/90 mt-12">
-            <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <BrandLogo size="sm" />
-                <span className="text-[#856658]">&mdash; AI Placement &amp; Interview Cockpit</span>
-              </div>
-              <div className="flex items-center gap-4 text-[#856658] text-xs sm:text-sm">
-                <span>Dual-DB (PostgreSQL &bull; MongoDB)</span>
-                <span>&bull;</span>
-                <Link to="/leaderboard" className="hover:text-[#F5E8DD] transition">Leaderboard</Link>
-                <span>&bull;</span>
-                <Link to="/interview/dsa" className="hover:text-[#F5E8DD] transition">AI Panel</Link>
-                <span>&bull;</span>
-                <Link to="/oa" className="hover:text-[#F5E8DD] transition">OA Sandbox</Link>
-              </div>
+      <ThemeProvider>
+        <BrowserRouter>
+          <div className="min-h-screen flex flex-col bg-[var(--theme-bg-canvas,#0C0403)] text-[#F5E8DD] relative">
+            {/* Background Engineering Perspective Grid & Ambient Glow (Matching Reference Screenshot) */}
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+              {/* Perspective Graph Grid */}
+              <div className="absolute inset-0 bg-engineering-grid pointer-events-none opacity-90" />
+              {/* Top Hero Ambient Radial Glow */}
+              <div
+                className="absolute -top-32 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] rounded-full pointer-events-none blur-3xl opacity-50"
+                style={{ background: 'var(--theme-glow-radial)' }}
+              />
             </div>
-          </footer>
-        </div>
-      </BrowserRouter>
+
+            {/* Main Application Content */}
+            <div className="relative z-10 flex flex-col min-h-screen">
+              <ColdStartBanner />
+              <HeaderNav />
+              <main className="flex-1">
+                <AppRoutes />
+              </main>
+              <footer className="border-t border-[#3E1D19]/80 py-8 text-center text-sm text-[#A88879] bg-[var(--theme-bg-canvas,#0C0403)]/90 mt-12 backdrop-blur-md">
+                <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <BrandLogo size="sm" />
+                    <span className="text-[#856658]">&mdash; AI Placement &amp; Interview Cockpit</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-[#856658] text-xs sm:text-sm">
+                    <span>Dual-DB (PostgreSQL &bull; MongoDB)</span>
+                    <span>&bull;</span>
+                    <Link to="/leaderboard" className="hover:text-[#F5E8DD] transition">Leaderboard</Link>
+                    <span>&bull;</span>
+                    <Link to="/interview/dsa" className="hover:text-[#F5E8DD] transition">AI Panel</Link>
+                    <span>&bull;</span>
+                    <Link to="/oa" className="hover:text-[#F5E8DD] transition">OA Sandbox</Link>
+                  </div>
+                </div>
+              </footer>
+            </div>
+          </div>
+        </BrowserRouter>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
