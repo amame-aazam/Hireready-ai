@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FileText,
@@ -52,41 +52,62 @@ export const LandingPage: React.FC = () => {
     }
   };
 
-  const codeSnippets = {
-    cpp: `class Solution {
-public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        unordered_map<int, int> seen;
-        for (int i = 0; i < nums.size(); i++) {
-            int need = target - nums[i];
-            if (seen.count(need)) return {seen[need], i};
-            seen[nums[i]] = i;
-        }
-        return {};
-    }
-};`,
-    python: `class Solution:
-    def twoSum(self, nums: List[int], target: int) -> List[int]:
-        seen = {}
-        for i, num in enumerate(nums):
-            need = target - num
-            if need in seen:
-                return [seen[need], i]
-            seen[num] = i
-        return []`,
-    java: `class Solution {
-    public int[] twoSum(int[] nums, int target) {
-        Map<Integer, Integer> seen = new HashMap<>();
-        for (int i = 0; i < nums.length; i++) {
-            int need = target - nums[i];
-            if (seen.containsKey(need)) {
-                return new int[] { seen.get(need), i };
-            }
-            seen.put(nums[i], i);
-        }
-        return new int[0];
-    }
-}`,
+    // Live real-time clock updating every second
+  const [liveClock, setLiveClock] = useState(() => {
+    const d = new Date();
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const d = new Date();
+      setLiveClock(d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Formatted code lines with line numbers & Monaco-style syntax coloring
+  const codeLines: Record<'cpp' | 'python' | 'java', { num: number; text: React.ReactNode }[]> = {
+    cpp: [
+      { num: 1, text: <span><span className="text-[#FF9E79] font-medium">class</span> <span className="text-[#FCD34D]">Solution</span> &#123;</span> },
+      { num: 2, text: <span className="text-[#FF9E79] font-medium">public:</span> },
+      { num: 3, text: <span className="pl-3"><span className="text-[#38BDF8]">vector</span>&lt;<span className="text-[#38BDF8]">int</span>&gt; <span className="text-[#FCD34D]">twoSum</span>(<span className="text-[#38BDF8]">vector</span>&lt;<span className="text-[#38BDF8]">int</span>&gt;&amp; nums, <span className="text-[#38BDF8]">int</span> target) &#123;</span> },
+      { num: 4, text: <span className="pl-6"><span className="text-[#38BDF8]">unordered_map</span>&lt;<span className="text-[#38BDF8]">int</span>, <span className="text-[#38BDF8]">int</span>&gt; seen;</span> },
+      { num: 5, text: <span className="pl-6"><span className="text-[#FF9E79] font-medium">for</span> (<span className="text-[#38BDF8]">int</span> i = <span className="text-[#A78BFA]">0</span>; i &lt; nums.size(); i++) &#123;</span> },
+      { num: 6, text: <span className="pl-9"><span className="text-[#38BDF8]">int</span> need = target - nums[i];</span> },
+      { num: 7, text: <span className="pl-9"><span className="text-[#FF9E79] font-medium">if</span> (seen.count(need)) <span className="text-[#FF9E79] font-medium">return</span> &#123;seen[need], i&#125;;</span> },
+      { num: 8, text: <span className="pl-9">seen[nums[i]] = i; <span className="inline-block w-1.5 h-3.5 bg-[#FF9E79] animate-pulse align-middle ml-0.5" /></span> },
+      { num: 9, text: <span className="pl-6">&#125;</span> },
+      { num: 10, text: <span className="pl-6"><span className="text-[#FF9E79] font-medium">return</span> &#123;&#125;;</span> },
+      { num: 11, text: <span className="pl-3">&#125;</span> },
+      { num: 12, text: <span>&#125;;</span> },
+    ],
+    python: [
+      { num: 1, text: <span><span className="text-[#FF9E79] font-medium">class</span> <span className="text-[#FCD34D]">Solution</span>:</span> },
+      { num: 2, text: <span className="pl-3"><span className="text-[#FF9E79] font-medium">def</span> <span className="text-[#FCD34D]">twoSum</span>(self, nums: <span className="text-[#38BDF8]">List</span>[<span className="text-[#38BDF8]">int</span>], target: <span className="text-[#38BDF8]">int</span>):</span> },
+      { num: 3, text: <span className="pl-6">seen = &#123;&#125;</span> },
+      { num: 4, text: <span className="pl-6"><span className="text-[#FF9E79] font-medium">for</span> i, num <span className="text-[#FF9E79] font-medium">in</span> <span className="text-[#38BDF8]">enumerate</span>(nums):</span> },
+      { num: 5, text: <span className="pl-9">need = target - num</span> },
+      { num: 6, text: <span className="pl-9"><span className="text-[#FF9E79] font-medium">if</span> need <span className="text-[#FF9E79] font-medium">in</span> seen:</span> },
+      { num: 7, text: <span className="pl-12"><span className="text-[#FF9E79] font-medium">return</span> [seen[need], i]</span> },
+      { num: 8, text: <span className="pl-9">seen[num] = i <span className="inline-block w-1.5 h-3.5 bg-[#FF9E79] animate-pulse align-middle ml-0.5" /></span> },
+      { num: 9, text: <span className="pl-6"><span className="text-[#FF9E79] font-medium">return</span> []</span> },
+    ],
+    java: [
+      { num: 1, text: <span><span className="text-[#FF9E79] font-medium">class</span> <span className="text-[#FCD34D]">Solution</span> &#123;</span> },
+      { num: 2, text: <span className="pl-3"><span className="text-[#FF9E79] font-medium">public</span> <span className="text-[#38BDF8]">int</span>[] <span className="text-[#FCD34D]">twoSum</span>(<span className="text-[#38BDF8]">int</span>[] nums, <span className="text-[#38BDF8]">int</span> target) &#123;</span> },
+      { num: 3, text: <span className="pl-6"><span className="text-[#38BDF8]">Map</span>&lt;<span className="text-[#38BDF8]">Integer</span>, <span className="text-[#38BDF8]">Integer</span>&gt; seen = <span className="text-[#FF9E79] font-medium">new</span> <span className="text-[#38BDF8]">HashMap</span>&lt;&gt;();</span> },
+      { num: 4, text: <span className="pl-6"><span className="text-[#FF9E79] font-medium">for</span> (<span className="text-[#38BDF8]">int</span> i = <span className="text-[#A78BFA]">0</span>; i &lt; nums.length; i++) &#123;</span> },
+      { num: 5, text: <span className="pl-9"><span className="text-[#38BDF8]">int</span> need = target - nums[i];</span> },
+      { num: 6, text: <span className="pl-9"><span className="text-[#FF9E79] font-medium">if</span> (seen.containsKey(need)) &#123;</span> },
+      { num: 7, text: <span className="pl-12"><span className="text-[#FF9E79] font-medium">return new int</span>[] &#123; seen.get(need), i &#125;;</span> },
+      { num: 8, text: <span className="pl-9">&#125;</span> },
+      { num: 9, text: <span className="pl-9">seen.put(nums[i], i); <span className="inline-block w-1.5 h-3.5 bg-[#FF9E79] animate-pulse align-middle ml-0.5" /></span> },
+      { num: 10, text: <span className="pl-6">&#125;</span> },
+      { num: 11, text: <span className="pl-6"><span className="text-[#FF9E79] font-medium">return new int</span>[<span className="text-[#A78BFA]">0</span>];</span> },
+      { num: 12, text: <span className="pl-3">&#125;</span> },
+      { num: 13, text: <span>&#125;</span> },
+    ],
   };
 
   // Interviewer Panel List matching Screenshot 2
@@ -151,9 +172,9 @@ public:
           1. HERO SECTION (Matching Screenshot 1 & 2)
           ========================================================================= */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           {/* Left Column: Heading, Subtitle & Google Button */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1A0C09] border border-[#3E1D19] text-[var(--theme-accent,#FF9E79)] text-xs font-medium tracking-wide">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--theme-accent,#FF9E79)] animate-pulse"></span>
               <span>Spoken interviews · Live DSA coding · Honest feedback</span>
@@ -194,30 +215,30 @@ public:
             </div>
           </div>
 
-          {/* Right Column: Social Proof Pill & Live Mockup Window */}
-          <div className="lg:col-span-5 space-y-6 flex flex-col items-start lg:items-end">
-            {/* Trusted by 10,000+ Students Pill */}
-            <div className="w-full max-w-md p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-[#24110E] to-[#1A0C09] border border-[#52251D] shadow-[0_0_35px_rgba(82,37,29,0.35)] flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#3B1914] border border-[var(--theme-accent,#FF9E79)]/50 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-6 h-6 text-[var(--theme-accent,#FF9E79)]" />
+          {/* Right Column: Live Mockup Window */}
+          <div className="lg:col-span-6 space-y-5 flex flex-col items-start lg:items-end">
+            {/* Verified Engine Pill */}
+            <div className="w-full max-w-lg p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-[#24110E] to-[#1A0C09] border border-[#52251D] shadow-[0_0_35px_rgba(82,37,29,0.35)] flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-full bg-[#3B1914] border border-[var(--theme-accent,#FF9E79)]/50 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-5 h-5 text-[var(--theme-accent,#FF9E79)]" />
               </div>
               <div>
-                <div className="text-[11px] uppercase tracking-widest text-[var(--theme-accent,#FF9E79)] font-bold">
-                  TRUSTED BY
+                <div className="text-[10px] uppercase tracking-widest text-[var(--theme-accent,#FF9E79)] font-bold">
+                  EVALUATION ENGINE
                 </div>
-                <div className="text-2xl font-serif font-medium text-[#F5E8DD]">
-                  10,000+ students
+                <div className="text-xl font-serif font-medium text-[#F5E8DD]">
+                  Live Technical &amp; AI Coding
                 </div>
               </div>
             </div>
 
             {/* Split Live Mockup Window (Exact match to Screenshot 1 & 2) */}
-            <div className="w-full max-w-md rounded-3xl bg-[#140705]/95 border border-[#3E1D19] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.85)] relative overflow-hidden space-y-3">
+            <div className="w-full max-w-lg rounded-3xl bg-[#140705]/95 border border-[#3E1D19] p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] relative overflow-hidden space-y-3">
               {/* Top Window Bar */}
               <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-[#2C130F]">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-                  <span className="text-red-300 font-semibold">Live · 09:49</span>
+                  <span className="text-red-400 font-mono font-bold tracking-wider text-xs">Live · {liveClock}</span>
                 </div>
                 <div className="text-xs text-[#D4B8A8] font-sans font-medium">Coding round</div>
                 <div className="flex items-center gap-1">
@@ -274,7 +295,7 @@ public:
                       <Shield className="w-5 h-5 text-[var(--theme-accent,#FF9E79)]" />
                     </div>
                     <div className="text-[11px] font-semibold text-[#F5E8DD]">
-                      Arpita S. <span className="text-[#856658] font-normal">(you)</span>
+                      You <span className="text-[#856658] font-normal">(Candidate)</span>
                     </div>
                     {/* Candidate Waveform */}
                     <div className="flex items-center justify-center gap-0.5">
@@ -290,17 +311,25 @@ public:
                 </div>
 
                 {/* Right: Code Editor & Live Eye Indicator */}
-                <div className="col-span-1 sm:col-span-7 flex flex-col justify-between bg-[#0C0403] rounded-2xl border border-[#3E1D19] p-3 text-[11px] font-mono leading-tight overflow-hidden relative">
-                  <div className="space-y-0.5 text-[#D4B8A8] overflow-y-auto max-h-[180px] select-none scrollbar-thin">
-                    <pre className="text-[10px] sm:text-[11px] leading-snug font-mono text-[#D4B8A8]">
-                      <code>{codeSnippets[selectedLanguage]}</code>
-                    </pre>
+                <div className="col-span-1 sm:col-span-7 flex flex-col justify-between bg-[#080302] rounded-2xl border border-[#3E1D19] p-3 text-[11px] font-mono leading-tight overflow-hidden relative">
+                  {/* Clean Editor Lines with Numbers & Syntax Colors */}
+                  <div className="space-y-1 font-mono text-[10.5px] leading-relaxed select-none overflow-x-hidden">
+                    {codeLines[selectedLanguage].map((line) => (
+                      <div key={line.num} className="flex items-baseline gap-2">
+                        <span className="w-4 text-right text-[10px] text-[#542B23] font-mono shrink-0 select-none">
+                          {line.num}
+                        </span>
+                        <span className="text-[#E0D5CC] whitespace-nowrap overflow-x-hidden">
+                          {line.text}
+                        </span>
+                      </div>
+                    ))}
                   </div>
 
-                  {/* Floating Eye Overlay Badge (Exact match to Screenshot 2) */}
-                  <div className="mt-3 px-2.5 py-1.5 rounded-full bg-[#24100C]/90 border border-[var(--theme-accent-border,#5E2717)] text-[10px] text-[var(--theme-accent,#FF9E79)] flex items-center gap-1.5 shadow-md">
+                  {/* Eye Indicator Badge (Clean, non-truncated) */}
+                  <div className="mt-2.5 px-2.5 py-1.5 rounded-full bg-[#1A0B09] border border-[var(--theme-accent-border,#5E2717)] text-[10px] text-[var(--theme-accent,#FF9E79)] flex items-center justify-center gap-1.5 shadow-sm select-none">
                     <Eye className="w-3.5 h-3.5 text-[var(--theme-accent,#FF9E79)] shrink-0" />
-                    <span className="truncate">Your interviewer sees your code as you type</span>
+                    <span className="whitespace-nowrap font-sans font-medium">Interviewer sees code live</span>
                   </div>
                 </div>
               </div>
