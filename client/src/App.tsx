@@ -27,13 +27,19 @@ const HeaderNav: React.FC = () => {
     navigate('/auth/login');
   };
 
-  const navLinks = [
-    { path: isAuthenticated ? '/dashboard' : '/', label: 'Home' },
-    { path: '/interview/dsa', label: 'Interview' },
-    { path: '/leaderboard', label: 'Leaderboard' },
-    { path: '/oa', label: 'Assessment' },
-    { path: '/resume', label: 'Resume' },
-  ];
+  const navLinks = isAuthenticated
+    ? [
+        { path: '/dashboard', label: 'Home' },
+        { path: '/interview/dsa', label: 'Interview' },
+        { path: '/leaderboard', label: 'Leaderboard' },
+        { path: '/oa', label: 'Assessment' },
+        { path: '/resume', label: 'Resume' },
+      ]
+    : [
+        { path: '/#how-it-works', label: 'How it works' },
+        { path: '/#panel', label: 'Why it feels real' },
+        { path: '/#pipeline', label: 'Placement Pipeline' },
+      ];
 
   return (
     <header className="sticky top-0 z-50 px-4 pt-3 pb-2 pointer-events-none">
@@ -83,36 +89,40 @@ const HeaderNav: React.FC = () => {
 
         {/* Right Actions from reference */}
         <div className="flex items-center gap-2.5">
-          {/* Help button */}
-          <button
-            type="button"
-            className="hidden sm:flex items-center gap-1 text-sm text-[#A88879] hover:text-[#F5E8DD] transition p-1.5"
-            title="Help & FAQ"
-          >
-            <HelpCircle className="w-4 h-4 text-[#A88879]" />
-            <span className="hidden lg:inline">Help</span>
-          </button>
+          {isAuthenticated && (
+            <>
+              {/* Help button */}
+              <button
+                type="button"
+                className="hidden sm:flex items-center gap-1 text-sm text-[#A88879] hover:text-[#F5E8DD] transition p-1.5"
+                title="Help & FAQ"
+              >
+                <HelpCircle className="w-4 h-4 text-[#A88879]" />
+                <span className="hidden lg:inline">Help</span>
+              </button>
 
-          {/* Bell with counter */}
-          <div className="relative">
-            <button
-              type="button"
-              className="w-9 h-9 rounded-full bg-[#24110E] border border-[#3E1D19] flex items-center justify-center text-[#A88879] hover:text-[#F5E8DD] transition"
-              title="Notifications"
-            >
-              <Bell className="w-4 h-4" />
-            </button>
-            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--theme-accent,#FF9E79)] text-[#140808] font-bold text-[10px] flex items-center justify-center">
-              1
-            </span>
-          </div>
+              {/* Bell with counter */}
+              <div className="relative">
+                <button
+                  type="button"
+                  className="w-9 h-9 rounded-full bg-[#24110E] border border-[#3E1D19] flex items-center justify-center text-[#A88879] hover:text-[#F5E8DD] transition"
+                  title="Notifications"
+                >
+                  <Bell className="w-4 h-4" />
+                </button>
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--theme-accent,#FF9E79)] text-[#140808] font-bold text-[10px] flex items-center justify-center">
+                  1
+                </span>
+              </div>
 
-          {/* 1 free interview chip from reference */}
-          <div className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--theme-accent-bg,#2D140C)] border border-[var(--theme-accent-border,#5E2717)] text-xs text-[var(--theme-accent,#FF9E79)] font-semibold">
-            <span className="w-2 h-2 rounded-full bg-[var(--theme-accent,#FF9E79)] animate-pulse" />
-            <span>1 free interview</span>
-            <Shield className="w-4 h-4 ml-0.5 fill-[var(--theme-accent,#FF9E79)]/30 text-[var(--theme-accent,#FF9E79)]" />
-          </div>
+              {/* 1 free interview chip from reference */}
+              <div className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--theme-accent-bg,#2D140C)] border border-[var(--theme-accent-border,#5E2717)] text-xs text-[var(--theme-accent,#FF9E79)] font-semibold">
+                <span className="w-2 h-2 rounded-full bg-[var(--theme-accent,#FF9E79)] animate-pulse" />
+                <span>1 free interview</span>
+                <Shield className="w-4 h-4 ml-0.5 fill-[var(--theme-accent,#FF9E79)]/30 text-[var(--theme-accent,#FF9E79)]" />
+              </div>
+            </>
+          )}
 
           {/* Theme Switcher Button (Palette Icon from Reference Screenshot) */}
           <ThemeSwitcher />
