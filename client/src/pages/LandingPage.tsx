@@ -416,20 +416,20 @@ public:
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 pt-2">
           {[
             {
               step: 'Stage 01',
               title: 'AI Resume & ATS Checker',
-              desc: 'Instant keyword matching, formatting audits, and actionable scoring tailored for top engineering placements.',
+              desc: 'ATS score audit, keyword matching and instant formatting fixes.',
               path: '/resume',
               icon: FileText,
-              badge: 'Screening Round',
+              badge: 'Screening',
             },
             {
               step: 'Stage 02',
               title: 'Online Assessment (OA)',
-              desc: 'Full-fledged coding test sandbox with Monaco editor, multi-language compiler, and hidden test cases.',
+              desc: 'Timed coding assessment with compiler and hidden test cases.',
               path: '/oa',
               icon: Terminal,
               badge: 'Timed OA',
@@ -437,7 +437,7 @@ public:
             {
               step: 'Stage 03',
               title: 'Technical DSA Interview',
-              desc: 'Spoken dialogue with calibrated FAANG personas, real-time shared code editor, and algorithmic grilling.',
+              desc: 'Voice dialogue with AI personas on shared live code editor.',
               path: '/interview/dsa',
               icon: Code2,
               badge: 'Live Technical',
@@ -445,7 +445,7 @@ public:
             {
               step: 'Stage 04',
               title: 'AI Resume Defense Round',
-              desc: 'Hard-hitting cross-examination on your actual resume projects, technical architecture choices, and metrics.',
+              desc: 'Deep-dive cross-examination on your actual resume projects.',
               path: '/interview/resume-defense',
               icon: ShieldCheck,
               badge: 'Deep Dive',
@@ -453,7 +453,7 @@ public:
             {
               step: 'Stage 05',
               title: 'AI HR Behavioral Round',
-              desc: 'STAR-method leadership, culture fit, and conflict-handling interview with Kavya and spoken feedback.',
+              desc: 'STAR-method leadership, culture fit questions and spoken feedback.',
               path: '/interview/hr',
               icon: Users,
               badge: 'Culture & HR',
@@ -461,7 +461,7 @@ public:
             {
               step: 'Final Outcome',
               title: 'Leaderboard & Certificate',
-              desc: 'Percentile rankings across all rounds, diagnosis scorecards, and verifiable PDF Placement Readiness Certificate.',
+              desc: 'Verified composite ranking and downloadable PDF credential.',
               path: '/leaderboard',
               icon: Award,
               badge: 'Verification',
@@ -472,34 +472,34 @@ public:
               <Link
                 key={item.title}
                 to={item.path}
-                className="p-6 rounded-3xl bg-[#1A0B09]/85 border border-[#3E1D19] hover:border-[var(--theme-accent-border,#5E2717)] hover:bg-[#24100C] transition shadow-sm flex flex-col justify-between group space-y-4"
+                className="p-5 rounded-2xl bg-[#1A0B09]/85 border border-[#3E1D19] hover:border-[var(--theme-accent-border,#5E2717)] hover:bg-[#220E0A] transition shadow-sm flex flex-col justify-between group space-y-3"
               >
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <div className="p-3 rounded-2xl bg-[var(--theme-accent-bg,#2D140C)] text-[var(--theme-accent,#FF9E79)] border border-[var(--theme-accent-border,#5E2717)]">
-                      <Icon className="w-5 h-5" />
+                    <div className="p-2 rounded-xl bg-[var(--theme-accent-bg,#2D140C)] text-[var(--theme-accent,#FF9E79)] border border-[var(--theme-accent-border,#5E2717)]">
+                      <Icon className="w-4 h-4" />
                     </div>
-                    <span className="text-xs font-semibold text-[var(--theme-accent,#FF9E79)] bg-[var(--theme-accent-bg,#2D140C)] px-3 py-1 rounded-full border border-[var(--theme-accent-border,#5E2717)]">
+                    <span className="text-[11px] font-semibold text-[var(--theme-accent,#FF9E79)] bg-[var(--theme-accent-bg,#2D140C)] px-2.5 py-0.5 rounded-full border border-[var(--theme-accent-border,#5E2717)]">
                       {item.badge}
                     </span>
                   </div>
 
-                  <div className="space-y-1">
-                    <div className="text-xs uppercase tracking-wider font-bold text-[#856658]">
+                  <div className="space-y-0.5">
+                    <div className="text-[10px] uppercase tracking-wider font-bold text-[#856658]">
                       {item.step}
                     </div>
-                    <h3 className="text-xl font-serif font-medium text-[#F5E8DD] group-hover:text-[var(--theme-accent,#FF9E79)] flex items-center justify-between transition">
+                    <h3 className="text-base sm:text-lg font-serif font-medium text-[#F5E8DD] group-hover:text-[var(--theme-accent,#FF9E79)] flex items-center justify-between transition">
                       <span>{item.title}</span>
-                      <ArrowRight className="w-4 h-4 text-[var(--theme-accent,#FF9E79)] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                      <ArrowRight className="w-3.5 h-3.5 text-[var(--theme-accent,#FF9E79)] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                     </h3>
                   </div>
 
-                  <p className="text-sm text-[#A88879] leading-relaxed">{item.desc}</p>
+                  <p className="text-xs text-[#A88879] leading-relaxed">{item.desc}</p>
                 </div>
 
-                <div className="pt-2 text-xs font-semibold text-[var(--theme-accent,#FF9E79)] flex items-center gap-1">
+                <div className="pt-1 text-[11px] font-semibold text-[var(--theme-accent,#FF9E79)] flex items-center gap-1 group-hover:gap-1.5 transition-all">
                   <span>Enter round</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
             );
