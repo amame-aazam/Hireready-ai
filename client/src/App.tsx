@@ -36,10 +36,10 @@ const HeaderNav: React.FC = () => {
   const navLinks = isAuthenticated
     ? [
         { path: '/dashboard', label: 'Home' },
+        { path: '/resume', label: 'Resume' },
+        { path: '/oa', label: 'Assessment' },
         { path: '/interview/dsa', label: 'Interview' },
         { path: '/leaderboard', label: 'Leaderboard' },
-        { path: '/oa', label: 'Assessment' },
-        { path: '/resume', label: 'Resume' },
       ]
     : [
         { path: '/#how-it-works', label: 'How it works' },
@@ -56,7 +56,7 @@ const HeaderNav: React.FC = () => {
         </Link>
 
         {/* Desktop Center Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1.5 text-sm font-medium">
+        <nav className="hidden md:flex items-center gap-1.5 text-sm lg:text-[15px] font-medium">
           {navLinks.map((item) => {
             const isActive =
               item.path === '/'
@@ -67,7 +67,7 @@ const HeaderNav: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-4 py-1.5 rounded-full text-sm transition ${
+                className={`px-4 py-1.5 rounded-full text-sm lg:text-[15px] transition ${
                   isActive
                     ? 'bg-[#331713] text-[#F5E8DD] border border-[#52251D] shadow-inner font-semibold'
                     : 'text-[#A88879] hover:text-[#F5E8DD] hover:bg-[#24110E]'

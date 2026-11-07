@@ -26,7 +26,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   }[size];
 
   return (
-    <div className={`flex items-center gap-2.5 font-bold tracking-tight select-none ${className}`}>
+    <div className={`flex items-center gap-2.5 font-bold tracking-tight select-none whitespace-nowrap shrink-0 ${className}`}>
       {/* SVG Shield & Code Emblem styled with Theme Variables */}
       <div className={`relative shrink-0 flex items-center justify-center ${iconDimensions}`}>
         <svg
@@ -82,11 +82,11 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         </svg>
       </div>
 
-      {/* Wordmark */}
+      {/* Wordmark: Guaranteed single inline line */}
       {showWordmark && (
-        <div className="leading-none">
-          <span className={`font-serif tracking-tight text-[#F5E8DD] font-medium ${textClass}`}>
-            HireReady{' '}
+        <div className="leading-none whitespace-nowrap shrink-0">
+          <span className={`font-serif tracking-tight text-[#F5E8DD] font-medium ${textClass} inline-flex items-baseline gap-1.5`}>
+            <span>HireReady</span>
             <span className="italic font-normal text-[var(--theme-accent,#FF9E79)]">AI</span>
           </span>
           {showSubtitle && (
