@@ -127,23 +127,13 @@ export const StudentDashboardPage: React.FC = () => {
 
   const tierInfo = getTierInfo(userScore);
 
-  const fallbackTop5 = [
-    { rank: 1, name: 'Ananya S.', score: 94.8, tier: 'purple' },
-    { rank: 2, name: 'Rohan I.', score: 91.5, tier: 'purple' },
-    { rank: 3, name: 'Priya N.', score: 86.2, tier: 'orange' },
-    { rank: 4, name: 'Suraj Gupta', score: 82.0, tier: 'orange' },
-    { rank: 5, name: 'Siddharth M.', score: 78.4, tier: 'bronze' },
-  ];
-
-  const top5Rankings =
-    leaderboardData?.rankings && leaderboardData.rankings.length >= 3
-      ? leaderboardData.rankings.slice(0, 5).map((r) => ({
-          rank: r.rank,
-          name: r.displayName,
-          score: Number(r.compositeScore.toFixed(1)),
-          tier: r.compositeScore >= 90 ? 'purple' : r.compositeScore >= 80 ? 'orange' : 'bronze',
-        }))
-      : fallbackTop5;
+  // Purely actual evaluated candidates from database - zero fake data
+  const realRankings = (leaderboardData?.rankings || []).slice(0, 5).map((r) => ({
+    rank: r.rank,
+    name: r.displayName,
+    score: Number(r.compositeScore.toFixed(1)),
+    tier: r.compositeScore >= 90 ? 'purple' : r.compositeScore >= 80 ? 'orange' : 'bronze',
+  }));
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-10">
@@ -209,16 +199,16 @@ export const StudentDashboardPage: React.FC = () => {
 
         {/* Right Column: Trusted Box & Soldier Rank Card */}
         <div className="lg:col-span-5 space-y-4">
-          {/* Trusted Card */}
+          {/* Verified Assessment Engine Card */}
           <div className="p-4 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] flex items-center gap-3 shadow-lg relative overflow-hidden backdrop-blur-md">
             <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#F0B87A] to-[#E2A664] flex items-center justify-center text-[#140808] shrink-0 font-bold shadow-md">
               <Check className="w-5 h-5 stroke-[3]" />
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold tracking-wider text-[#A88879] block">
-                TRUSTED BY
+                EVALUATION ENGINE
               </span>
-              <span className="text-base font-bold text-[#F5E8DD]">10,000+ students</span>
+              <span className="text-base font-bold text-[#F5E8DD]">Live AI Verified</span>
             </div>
             <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-40">
               <Shield className="w-12 h-12 text-[#F0B87A]/20" />
@@ -382,30 +372,39 @@ export const StudentDashboardPage: React.FC = () => {
           </div>
 
           <div className="space-y-2 pt-1">
-            {top5Rankings.map((item) => (
-              <div
-                key={item.name}
-                className="flex items-center justify-between py-2 px-3 rounded-xl hover:bg-[#24110E] transition text-xs"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="font-serif italic text-xs text-[#A88879] w-3">{item.rank}</span>
-                  <Shield
-                    className={`w-4 h-4 ${
-                      item.tier === 'purple'
-                        ? 'text-purple-400 fill-purple-400/20'
-                        : item.tier === 'orange'
-                        ? 'text-[#FB923C] fill-[#FB923C]/20'
-                        : 'text-[#F0B87A] fill-[#F0B87A]/20'
-                    }`}
-                  />
-                  <span className="font-medium text-[#F5E8DD]">{item.name}</span>
+            {realRankings.length > 0 ? (
+              realRankings.map((item) => (
+                <div
+                  key={item.name + item.rank}
+                  className="flex items-center justify-between py-2 px-3 rounded-xl hover:bg-[#24110E] transition text-xs"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-serif italic text-xs text-[#A88879] w-3">{item.rank}</span>
+                    <Shield
+                      className={`w-4 h-4 ${
+                        item.tier === 'purple'
+                          ? 'text-purple-400 fill-purple-400/20'
+                          : item.tier === 'orange'
+                          ? 'text-[#FB923C] fill-[#FB923C]/20'
+                          : 'text-[#F0B87A] fill-[#F0B87A]/20'
+                      }`}
+                    />
+                    <span className="font-medium text-[#F5E8DD]">{item.name}</span>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-serif font-bold text-[#F5E8DD] text-sm">{item.score}</span>
+                    <span className="text-[10px] text-[#A88879]">/ 100</span>
+                  </div>
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="font-serif font-bold text-[#F5E8DD] text-sm">{item.score}</span>
-                  <span className="text-[10px] text-[#A88879]">/ 100</span>
-                </div>
+              ))
+            ) : (
+              <div className="py-6 px-4 text-center rounded-2xl bg-[#140705] border border-[#3E1D19] space-y-1">
+                <p className="text-xs text-[#F5E8DD] font-medium">No other evaluated candidates yet</p>
+                <p className="text-[11px] text-[#A88879]">
+                  Live ranks appear as actual students complete all interview rounds.
+                </p>
               </div>
-            ))}
+            )}
 
             {/* YOU ARE HERE HIGHLIGHT ROW aligned with actual 100-point composite score */}
             <div className="mt-3 p-3.5 rounded-2xl bg-[#2D1A14] border border-[#522E22] flex items-center justify-between shadow-inner">
@@ -437,61 +436,7 @@ export const StudentDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. WHAT STUDENTS SAY (Exact replica of Screenshot 3) */}
-      <div className="space-y-4 pt-4">
-        <h2 className="text-2xl sm:text-3xl font-serif font-normal text-[#F5E8DD]">
-          What students say
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {[
-            {
-              quote:
-                'Best for mock interviews, and the problem asked in it very tricky, and feeling like a real interview.',
-              author: 'Japjot S.',
-              sub: 'First interview',
-            },
-            {
-              quote: 'Great interview, I got my real experience.',
-              author: 'Naivedhya J.',
-              sub: 'First interview',
-            },
-            {
-              quote:
-                'It was wonderful, although the assistant took the round according to the expertise.',
-              author: 'Yaksh C.',
-              sub: 'First interview',
-            },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="p-6 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-xl space-y-4 backdrop-blur-md flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                {/* 5 Stars in Gold */}
-                <div className="flex items-center gap-1 text-[#F0B87A] text-sm tracking-wider">
-                  ★★★★★
-                </div>
-                <p className="text-xs text-[#F5E8DD] leading-relaxed italic">
-                  &ldquo;{item.quote}&rdquo;
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3 pt-3 border-t border-[#3E1D19]">
-                <div className="w-7 h-7 rounded-xl bg-[#2D1A14] border border-[#522E22] flex items-center justify-center text-[#F0B87A]">
-                  <Shield className="w-3.5 h-3.5 fill-[#F0B87A]/20" />
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-[#F5E8DD]">{item.author}</div>
-                  <div className="text-[10px] text-[#A88879]">{item.sub}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 5. OFFICIAL PLACEMENT / DECISION CERTIFICATE BANNER */}
+      {/* 4. OFFICIAL PLACEMENT / DECISION CERTIFICATE BANNER */}
       {finalOutcome && (
         <div className="p-6 sm:p-7 rounded-3xl bg-[#1A0C09]/80 border border-[#3E1D19] shadow-xl space-y-4 backdrop-blur-md">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
