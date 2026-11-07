@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  font-size: 17.5px;
+  scroll-behavior: smooth;
+}
+
 :root {
   --bg-canvas: #0D0403;
   --bg-card: #1A0C09;
