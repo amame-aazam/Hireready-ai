@@ -26,12 +26,13 @@ export const BackButton: React.FC<BackButtonProps> = ({
   return (
     <button
       onClick={handleBack}
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-700/70 hover:border-crimson-500/50 transition-all duration-150 shadow-sm group shrink-0 ${className}`}
+      className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-[#6B544A] hover:text-[#0A0706] bg-white hover:bg-[#FFF5F0] border border-[#F2DDD2] hover:border-[#E8CBBE] transition-all duration-150 shadow-sm group shrink-0 ${className}`}
       title="Return to previous screen"
     >
-      <ArrowLeft className="w-3.5 h-3.5 text-crimson-400 group-hover:-translate-x-0.5 transition-transform duration-150" />
+      <ArrowLeft className="w-3.5 h-3.5 text-[#FF7A48] group-hover:-translate-x-0.5 transition-transform duration-150" />
       <span>{label}</span>
     </button>
   );
 };
+
 export default BackButton;

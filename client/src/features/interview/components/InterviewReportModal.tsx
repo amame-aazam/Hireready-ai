@@ -24,22 +24,22 @@ export const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ repo
       case 'STRONG_HIRE':
         return {
           label: 'Strong Hire',
-          classes: 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300',
+          classes: 'bg-[#E6F4EA] border-[#B7E4C7] text-[#1F7A3A]',
         };
       case 'HIRE':
         return {
           label: 'Hire',
-          classes: 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300',
+          classes: 'bg-[#ECFEFF] border-[#A5F3FC] text-[#0E7490]',
         };
       case 'NEUTRAL':
         return {
           label: 'Neutral / Borderline',
-          classes: 'bg-amber-500/15 border-amber-500/40 text-amber-300',
+          classes: 'bg-[#FEF3C7] border-[#FDE68A] text-[#B45309]',
         };
       default:
         return {
-          label: 'No Hire',
-          classes: 'bg-rose-500/15 border-rose-500/40 text-rose-300',
+          label: 'Needs Improvement',
+          classes: 'bg-[#FEE2E2] border-[#FECDD3] text-[#B91C1C]',
         };
     }
   };
@@ -47,144 +47,113 @@ export const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ repo
   const badge = getRecommendationBadge();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0A0706]/40 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+      <div className="bg-white border border-[#F2DDD2] rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-xl relative my-8 text-[#0A0706]">
         {/* Top Status Gradient Strip */}
         <div
-          className={`absolute top-0 left-0 right-0 h-2 rounded-t-2xl ${
-            isHire ? 'bg-gradient-to-r from-emerald-500 to-indigo-500' : 'bg-gradient-to-r from-rose-500 to-amber-500'
+          className={`absolute top-0 left-0 right-0 h-2 rounded-t-3xl ${
+            isHire ? 'bg-gradient-to-r from-emerald-500 to-[#FF7A48]' : 'bg-gradient-to-r from-rose-500 to-amber-500'
           }`}
         />
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#F2DDD2]">
           <div>
             <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-indigo-400" />
-              <span className="text-xs uppercase font-mono tracking-wider text-slate-400">
-                Evaluation Report
+              <span className="p-2 rounded-xl bg-[#FFEBE1] text-[#FF7A48] border border-[#FFD7C5]">
+                <ShieldCheck className="w-5 h-5" />
               </span>
+              <div>
+                <h2 className="text-xl font-bold tracking-tight">Interview Evaluation Report</h2>
+                <p className="text-xs text-[#6B544A]">Authoritative technical score & behavioral breakdown</p>
+              </div>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-100 mt-1">
-              AI Technical Interview Evaluation
-            </h2>
           </div>
 
-          <div className={`px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider self-start sm:self-center ${badge.classes}`}>
-            {badge.label}
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <span className="text-2xl font-black font-mono text-[#0A0706]">{report.overallScore}</span>
+              <span className="text-xs text-[#8C7268]"> / 100</span>
+            </div>
+            <span className={`px-3 py-1 rounded-full text-xs font-bold border ${badge.classes}`}>
+              {badge.label}
+            </span>
           </div>
         </div>
 
-        {/* Score Ring / Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
-            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">
-              Overall Rating
-            </span>
-            <div className="text-3xl font-black text-indigo-400 mt-1">
-              {report.overallScore}
-              <span className="text-xs font-normal text-slate-500">/100</span>
-            </div>
-            <span className="text-[10px] text-slate-500 block mt-0.5">Weighted Comprehensive</span>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
-            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-medium flex items-center justify-center gap-1">
-              <Code className="w-3.5 h-3.5 text-amber-400" /> Technical Score
-            </span>
-            <div className="text-3xl font-black text-amber-400 mt-1">
-              {report.technicalScore}
-              <span className="text-xs font-normal text-slate-500">/100</span>
-            </div>
-            <span className="text-[10px] text-slate-500 block mt-0.5">Problem & Code Accuracy</span>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
-            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-medium flex items-center justify-center gap-1">
-              <MessageSquare className="w-3.5 h-3.5 text-sky-400" /> Communication
-            </span>
-            <div className="text-3xl font-black text-sky-400 mt-1">
-              {report.communicationScore}
-              <span className="text-xs font-normal text-slate-500">/100</span>
-            </div>
-            <span className="text-[10px] text-slate-500 block mt-0.5">Clarity & Articulation</span>
-          </div>
+        {/* 4 Score Pillars Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { label: 'Technical Score', score: report.technicalScore, icon: Code },
+            { label: 'Complexity', score: report.timeComplexityScore ?? report.technicalScore, icon: TrendingUp },
+            { label: 'Code Quality', score: report.codeQuality ?? 85, icon: Award },
+            { label: 'Communication', score: report.communicationScore, icon: MessageSquare },
+          ].map((item, idx) => {
+            const Icon = item.icon;
+            return (
+              <div key={idx} className="p-3 rounded-2xl bg-[#FFFAF7] border border-[#F2DDD2] text-center space-y-1">
+                <Icon className="w-4 h-4 mx-auto text-[#FF7A48]" />
+                <div className="text-xs text-[#6B544A]">{item.label}</div>
+                <div className="text-lg font-bold font-mono text-[#0A0706]">{item.score}/100</div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Key Observations */}
-        {report.keyObservations && report.keyObservations.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" /> Key Observations:
+        {/* Strengths & Actionable Areas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-4 rounded-2xl bg-[#E6F4EA]/40 border border-[#CEEAD6] space-y-2">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#1F7A3A] flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Demonstrated Strengths</span>
             </h4>
-            <div className="space-y-1.5 text-xs text-slate-300">
-              {report.keyObservations.map((obs, i) => (
-                <div key={i} className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                  <span className="text-indigo-400 font-bold">•</span>
-                  <span>{obs}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Strengths & Weaknesses */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div className="p-3.5 rounded-xl bg-emerald-950/15 border border-emerald-500/20 space-y-2">
-            <h4 className="font-semibold text-emerald-300 flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5" /> Strengths
-            </h4>
-            <ul className="space-y-1 text-slate-300 text-[11px]">
-              {report.detailedFeedback?.strengths?.map((s, idx) => (
-                <li key={idx} className="flex items-start gap-1.5">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>{s}</span>
-                </li>
+            <ul className="text-xs text-[#0A0706] space-y-1 list-disc list-inside">
+              {(report.strengths || report.detailedFeedback?.strengths || []).slice(0, 3).map((s: string, idx: number) => (
+                <li key={idx} className="leading-relaxed">{s}</li>
               ))}
             </ul>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-rose-950/15 border border-rose-500/20 space-y-2">
-            <h4 className="font-semibold text-rose-300 flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5" /> Improvement Areas
+          <div className="p-4 rounded-2xl bg-[#FFF5F0] border border-[#F2DDD2] space-y-2">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#A83E14] flex items-center gap-1.5">
+              <AlertTriangle className="w-4 h-4" />
+              <span>Primary Fixes Needed</span>
             </h4>
-            <ul className="space-y-1 text-slate-300 text-[11px]">
-              {report.detailedFeedback?.weaknesses?.map((w, idx) => (
-                <li key={idx} className="flex items-start gap-1.5">
-                  <span className="text-rose-400 font-bold">•</span>
-                  <span>{w}</span>
-                </li>
+            <ul className="text-xs text-[#0A0706] space-y-1 list-disc list-inside">
+              {(report.areasOfImprovement || report.detailedFeedback?.weaknesses || []).slice(0, 3).map((a: string, idx: number) => (
+                <li key={idx} className="leading-relaxed">{a}</li>
               ))}
             </ul>
           </div>
         </div>
 
-        {/* Qualitative Feedback */}
-        <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-2 leading-relaxed">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-            Qualitative Summary
-          </span>
-          <p className="text-slate-300">{report.detailedFeedback?.technicalAnalysis}</p>
-          <p className="text-slate-400 text-[11px] pt-1">{report.detailedFeedback?.communicationAnalysis}</p>
+        {/* Summary Feedback */}
+        <div className="p-4 rounded-2xl bg-[#FFFAF7] border border-[#F2DDD2] space-y-1.5">
+          <h4 className="text-xs font-bold text-[#0A0706] uppercase tracking-wider">Interviewer Assessment</h4>
+          <p className="text-xs text-[#6B544A] leading-relaxed italic">
+            "{report.summaryFeedback || report.detailedFeedback?.technicalAnalysis || 'Candidate demonstrated structured problem-solving approach.'}"
+          </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
-          <Link
-            to="/interview/hr"
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-lg shadow-indigo-600/20"
-          >
-            <span>Proceed to Round 3: HR Behavioral Round</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+        {/* Footer Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-[#F2DDD2]">
           <Link
             to="/dashboard"
-            className="flex items-center justify-center py-3 px-6 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-full text-xs font-medium text-[#6B544A] bg-white border border-[#F2DDD2] hover:bg-[#FFF5F0] hover:text-[#0A0706] transition text-center"
           >
-            Return to Dashboard
+            Back to Dashboard
+          </Link>
+
+          <Link
+            to="/interview/hr"
+            className="w-full sm:w-auto btn-primary px-6 py-2.5 text-xs font-bold flex items-center justify-center gap-2"
+          >
+            <span>Proceed to Step 4: AI HR Round</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
     </div>
   );
 };
+export default InterviewReportModal;

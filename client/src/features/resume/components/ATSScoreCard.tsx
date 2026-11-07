@@ -16,9 +16,9 @@ export const ATSScoreCard: React.FC<ATSScoreCardProps> = ({
   createdAt,
 }) => {
   const getScoreColor = (val: number) => {
-    if (val >= 80) return 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10';
-    if (val >= 65) return 'text-amber-400 border-amber-500/30 bg-amber-500/10';
-    return 'text-rose-400 border-rose-500/30 bg-rose-500/10';
+    if (val >= 80) return 'text-[#1F7A3A] border-[#B7E1CD] bg-[#E6F4EA]';
+    if (val >= 65) return 'text-[#8C5E00] border-[#FAD77B] bg-[#FEF3D6]';
+    return 'text-[#9B1C1C] border-[#F8B4B4] bg-[#FDE8E8]';
   };
 
   const getBadgeText = (val: number) => {
@@ -28,18 +28,18 @@ export const ATSScoreCard: React.FC<ATSScoreCardProps> = ({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6 space-y-6">
+    <div className="rounded-3xl border border-[#F2DDD2] bg-white p-6 sm:p-8 space-y-6 shadow-sm">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-[#F2DDD2]">
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-400">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#A83E14] bg-[#FFEBE1] px-2.5 py-0.5 rounded-full border border-[#FFD0BC]">
             Target Domain
           </span>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-2xl font-serif font-medium text-[#0A0706] mt-1.5">
             {targetDomain}
           </h2>
         </div>
-        <div className="text-xs text-slate-400">
+        <div className="text-xs text-[#8C7268]">
           Analyzed on {new Date(createdAt).toLocaleDateString()} at{' '}
           {new Date(createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
@@ -48,17 +48,17 @@ export const ATSScoreCard: React.FC<ATSScoreCardProps> = ({
       {/* Main Score Display */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
         {/* Overall Score Circle */}
-        <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+        <div className="flex flex-col items-center justify-center p-6 rounded-3xl bg-[#FFFAF7] border border-[#F2DDD2] space-y-2">
           <div
             className={`w-28 h-28 rounded-full border-4 flex flex-col items-center justify-center ${getScoreColor(
               score
             )}`}
           >
-            <span className="text-4xl font-extrabold tracking-tight text-white">{score}</span>
-            <span className="text-[10px] text-slate-400 uppercase font-semibold">ATS Score</span>
+            <span className="text-4xl font-serif font-bold text-[#0A0706]">{score}</span>
+            <span className="text-[10px] text-[#8C7268] uppercase font-semibold">ATS Score</span>
           </div>
           <span
-            className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${getScoreColor(
+            className={`text-xs font-semibold px-3 py-1 rounded-full border mt-2 ${getScoreColor(
               score
             )}`}
           >
@@ -66,73 +66,75 @@ export const ATSScoreCard: React.FC<ATSScoreCardProps> = ({
           </span>
         </div>
 
-        {/* 4 Pillars Progress Bars */}
-        <div className="md:col-span-2 space-y-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            4-Pillar ATS Evaluation Breakdown
+        {/* 4 Pillars Breakdown Bars */}
+        <div className="md:col-span-2 space-y-3.5">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8C7268]">
+            4-Pillar Evaluation Breakdown
           </h3>
 
-          {/* Pillar 1: Keywords */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-300 flex items-center gap-1.5 font-medium">
-                <Target className="w-3.5 h-3.5 text-indigo-400" /> Keyword &amp; Domain Alignment
-              </span>
-              <span className="font-semibold text-white">{breakdown.keywordScore} / 30</span>
+          <div className="space-y-3">
+            {/* Skills Match */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-medium">
+                <span className="text-[#0A0706] flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-[#FF7A48]" /> Domain Skills Coverage
+                </span>
+                <span className="font-semibold text-[#0A0706]">{breakdown.skillsScore}%</span>
+              </div>
+              <div className="h-2 rounded-full bg-[#FFFAF7] border border-[#F2DDD2] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-[#FF7A48]"
+                  style={{ width: `${breakdown.skillsScore}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-slate-950 rounded-full h-2 border border-slate-800 overflow-hidden">
-              <div
-                className="bg-indigo-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${(breakdown.keywordScore / 30) * 100}%` }}
-              />
-            </div>
-          </div>
 
-          {/* Pillar 2: Action Impact */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-300 flex items-center gap-1.5 font-medium">
-                <Zap className="w-3.5 h-3.5 text-amber-400" /> Action Verbs &amp; Measurable Impact
-              </span>
-              <span className="font-semibold text-white">{breakdown.impactScore} / 30</span>
+            {/* Keyword Density */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-medium">
+                <span className="text-[#0A0706] flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-sky-600" /> ATS Keyword Match
+                </span>
+                <span className="font-semibold text-[#0A0706]">{breakdown.keywordScore}%</span>
+              </div>
+              <div className="h-2 rounded-full bg-[#FFFAF7] border border-[#F2DDD2] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-sky-500"
+                  style={{ width: `${breakdown.keywordScore}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-slate-950 rounded-full h-2 border border-slate-800 overflow-hidden">
-              <div
-                className="bg-amber-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${(breakdown.impactScore / 30) * 100}%` }}
-              />
-            </div>
-          </div>
 
-          {/* Pillar 3: Formatting */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-300 flex items-center gap-1.5 font-medium">
-                <FileCheck className="w-3.5 h-3.5 text-emerald-400" /> ATS Readability &amp; Structure
-              </span>
-              <span className="font-semibold text-white">{breakdown.formattingScore} / 20</span>
+            {/* Formatting & Structure */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-medium">
+                <span className="text-[#0A0706] flex items-center gap-1.5">
+                  <FileCheck className="w-3.5 h-3.5 text-emerald-600" /> Structure &amp; Parsability
+                </span>
+                <span className="font-semibold text-[#0A0706]">{breakdown.formattingScore}%</span>
+              </div>
+              <div className="h-2 rounded-full bg-[#FFFAF7] border border-[#F2DDD2] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-emerald-500"
+                  style={{ width: `${breakdown.formattingScore}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-slate-950 rounded-full h-2 border border-slate-800 overflow-hidden">
-              <div
-                className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${(breakdown.formattingScore / 20) * 100}%` }}
-              />
-            </div>
-          </div>
 
-          {/* Pillar 4: Skills Coverage */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-300 flex items-center gap-1.5 font-medium">
-                <Layers className="w-3.5 h-3.5 text-blue-400" /> Core Technical Skills Coverage
-              </span>
-              <span className="font-semibold text-white">{breakdown.skillsScore} / 20</span>
-            </div>
-            <div className="w-full bg-slate-950 rounded-full h-2 border border-slate-800 overflow-hidden">
-              <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${(breakdown.skillsScore / 20) * 100}%` }}
-              />
+            {/* Quantified Impact */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs font-medium">
+                <span className="text-[#0A0706] flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-purple-600" /> Action Verbs &amp; Quantified Impact
+                </span>
+                <span className="font-semibold text-[#0A0706]">{breakdown.impactScore}%</span>
+              </div>
+              <div className="h-2 rounded-full bg-[#FFFAF7] border border-[#F2DDD2] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-purple-500"
+                  style={{ width: `${breakdown.impactScore}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -140,3 +142,4 @@ export const ATSScoreCard: React.FC<ATSScoreCardProps> = ({
     </div>
   );
 };
+export default ATSScoreCard;

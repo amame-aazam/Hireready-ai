@@ -4,31 +4,33 @@ import { Mic, MicOff, Send, MessageSquare, Loader2 } from 'lucide-react';
 interface VoiceControlsProps {
   isListening: boolean;
   transcript: string;
-  interimTranscript: string;
+  interimTranscript?: string;
   onStartListening: () => void;
   onStopListening: () => void;
-  onSendTurn: (text: string) => Promise<void>;
-  onClearTranscript: () => void;
-  isSendingTurn: boolean;
+  onSendTurn?: (text: string) => Promise<void>;
+  onSubmit?: (text: string) => void | Promise<void>;
+  onClearTranscript?: () => void;
+  isSendingTurn?: boolean;
   isSupported: boolean;
 }
 
 export const VoiceControls: React.FC<VoiceControlsProps> = ({
   isListening,
   transcript,
-  interimTranscript,
+  interimTranscript = '',
   onStartListening,
   onStopListening,
   onSendTurn,
+  onSubmit,
   onClearTranscript,
-  isSendingTurn,
+  isSendingTurn = false,
   isSupported,
 }) => {
   const [manualText, setManualText] = useState('');
   const [isTypingMode, setIsTypingMode] = useState(!isSupported);
 
   const displayText = isTypingMode ? manualText : transcript + (interimTranscript ? ` ${interimTranscript}` : '');
-  const canSend = (displayText.trim().length > 0) && !isSendingTurn;
+  const canSend = displayText.trim().length > 0 && !isSendingTurn;
 
   const handleSend = async () => {
     if (!canSend) return;
@@ -36,10 +38,14 @@ export const VoiceControls: React.FC<VoiceControlsProps> = ({
     if (isTypingMode) {
       setManualText('');
     } else {
-      onClearTranscript();
+      if (onClearTranscript) onClearTranscript();
       if (isListening) onStopListening();
     }
-    await onSendTurn(message);
+    if (onSubmit) {
+      await onSubmit(message);
+    } else if (onSendTurn) {
+      await onSendTurn(message);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -50,7 +56,7 @@ export const VoiceControls: React.FC<VoiceControlsProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 space-y-2 shrink-0">
+    <div className="bg-white border border-[#F2DDD2] rounded-2xl p-3 space-y-2.5 shrink-0 shadow-xs">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {isSupported && (
@@ -64,106 +70,91 @@ export const VoiceControls: React.FC<VoiceControlsProps> = ({
                   onStartListening();
                 }
               }}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 isListening
-                  ? 'bg-rose-500 text-white animate-pulse shadow-sm shadow-rose-500/20'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  ? 'bg-rose-500 text-white animate-pulse shadow-sm'
+                  : 'bg-[#FF7A48] hover:bg-[#F05A24] text-white shadow-xs'
               }`}
             >
               {isListening ? (
                 <>
-                  <MicOff className="w-3 h-3" />
+                  <MicOff className="w-3.5 h-3.5" />
                   <span>Stop Speaking</span>
                 </>
               ) : (
                 <>
-                  <Mic className="w-3 h-3 text-emerald-400" />
+                  <Mic className="w-3.5 h-3.5" />
                   <span>Push to Speak</span>
                 </>
               )}
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={() => {
-              if (isListening) onStopListening();
-              setIsTypingMode(!isTypingMode);
-            }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
-          >
-            <MessageSquare className="w-3 h-3" />
-            <span>{isTypingMode ? 'Use Voice' : 'Type'}</span>
-          </button>
+          {isSupported && (
+            <button
+              type="button"
+              onClick={() => {
+                if (isListening) onStopListening();
+                setIsTypingMode(!isTypingMode);
+              }}
+              className="text-[#6B544A] hover:text-[#0A0706] text-xs font-medium flex items-center gap-1 px-2 py-1 rounded-full hover:bg-[#FFF5F0]"
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>{isTypingMode ? 'Use Voice' : 'Type Response'}</span>
+            </button>
+          )}
         </div>
 
-        {displayText && (
-          <button
-            type="button"
-            onClick={() => {
-              if (isTypingMode) setManualText('');
-              else onClearTranscript();
-            }}
-            className="text-[10px] text-slate-500 hover:text-slate-300 underline"
-          >
-            Clear
-          </button>
+        {isListening && (
+          <span className="flex items-center gap-1.5 text-xs text-rose-600 font-medium animate-pulse">
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
+            <span>Recording your voice...</span>
+          </span>
         )}
       </div>
 
-      {/* Input / Live Transcript Box */}
+      {/* Input / Transcript Area */}
       <div className="relative">
         {isTypingMode ? (
           <textarea
             value={manualText}
             onChange={(e) => setManualText(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your response to Sophia... (Press Enter to send)"
-            rows={1}
-            className="w-full p-2 rounded-lg bg-slate-950 border border-slate-700/80 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 resize-none leading-relaxed"
+            placeholder="Type your response here (Press Enter to send)..."
+            rows={2}
+            className="w-full bg-[#FFFAF7] border border-[#F2DDD2] focus:border-[#FF7A48] focus:ring-1 focus:ring-[#FF7A48] rounded-xl p-2.5 text-xs text-[#0A0706] placeholder-[#8C7268] resize-none outline-hidden"
           />
         ) : (
-          <div
-            className={`w-full min-h-[42px] max-h-[64px] p-2 rounded-lg bg-slate-950 border text-xs overflow-y-auto leading-relaxed ${
-              isListening
-                ? 'border-emerald-500/50 text-slate-100 ring-1 ring-emerald-500/30'
-                : 'border-slate-800 text-slate-300'
-            }`}
-          >
+          <div className="w-full min-h-[44px] bg-[#FFFAF7] border border-[#F2DDD2] rounded-xl p-2.5 text-xs text-[#0A0706] flex items-center">
             {displayText ? (
-              <span>{displayText}</span>
+              <span className="text-[#0A0706]">{displayText}</span>
             ) : (
-              <span className="text-slate-500 italic text-[11px]">
-                {isListening
-                  ? 'Listening... Speak your approach clearly.'
-                  : 'Click "Push to Speak" or switch to "Type" to respond.'}
+              <span className="text-[#8C7268] italic">
+                {isListening ? 'Speak now... your answer is being transcribed in real-time.' : 'Click "Push to Speak" or type your response.'}
               </span>
             )}
           </div>
         )}
-      </div>
 
-      {/* Action Button */}
-      <div className="flex justify-end">
         <button
           type="button"
           onClick={handleSend}
           disabled={!canSend}
-          className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm shadow-indigo-600/20 transition disabled:opacity-40"
+          className={`absolute right-2 bottom-2 p-1.5 rounded-lg transition-all ${
+            canSend
+              ? 'bg-[#FF7A48] text-white hover:bg-[#F05A24] shadow-xs cursor-pointer'
+              : 'bg-[#F2DDD2] text-[#8C7268] cursor-not-allowed'
+          }`}
+          title="Send turn"
         >
           {isSendingTurn ? (
-            <>
-              <Loader2 className="w-3 h-3 animate-spin" />
-              <span>Sophia thinking...</span>
-            </>
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
           ) : (
-            <>
-              <Send className="w-3 h-3" />
-              <span>Send Turn</span>
-            </>
+            <Send className="w-3.5 h-3.5" />
           )}
         </button>
       </div>
     </div>
   );
 };
+export default VoiceControls;

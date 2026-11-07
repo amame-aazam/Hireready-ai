@@ -4,54 +4,56 @@ import { Lock, Sparkles, ArrowLeft } from 'lucide-react';
 interface EditorLockOverlayProps {
   questionTitle?: string;
   timeComplexityTarget?: string;
+  interviewerName?: string;
 }
 
 export const EditorLockOverlay: React.FC<EditorLockOverlayProps> = ({
   questionTitle = 'Current Problem',
   timeComplexityTarget = 'O(N)',
+  interviewerName = 'Your Interviewer',
 }) => {
   return (
-    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 bg-slate-950/85 backdrop-blur-md border border-slate-800 text-center animate-fade-in">
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 bg-[#FFFAF7]/95 backdrop-blur-xs border border-[#F2DDD2] text-center">
       <div className="max-w-md w-full space-y-4 flex flex-col items-center">
-        {/* Glowing Lock Icon */}
+        {/* Lock Icon */}
         <div className="relative">
-          <div className="absolute -inset-3 rounded-full bg-indigo-500/20 blur-md animate-pulse" />
-          <div className="w-14 h-14 rounded-2xl bg-indigo-600/20 border-2 border-indigo-500/50 flex items-center justify-center text-indigo-400 relative z-10 shadow-lg shadow-indigo-500/20">
-            <Lock className="w-7 h-7" />
+          <div className="w-14 h-14 rounded-2xl bg-[#FFEBE1] border border-[#FFD7C5] flex items-center justify-center text-[#FF7A48] relative z-10 shadow-xs">
+            <Lock className="w-6 h-6" />
           </div>
         </div>
 
         {/* Heading & Subtitle */}
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[11px] font-semibold">
-            <Sparkles className="w-3 h-3 text-indigo-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FFEBE1] border border-[#FBD7C7] text-[#A83E14] text-xs font-semibold">
+            <Sparkles className="w-3.5 h-3.5 text-[#FF7A48]" />
             <span>Phase 1: Approach Validation</span>
           </div>
-          <h3 className="text-base sm:text-lg font-bold text-slate-100 tracking-tight">
+          <h3 className="text-base sm:text-lg font-bold text-[#0A0706] tracking-tight">
             Editor Locked — Explain Your Approach First
           </h3>
-          <p className="text-xs text-slate-400 leading-relaxed max-w-sm mx-auto">
-            Discuss your strategy for <span className="text-slate-200 font-semibold">{questionTitle}</span> with Sophia on the left panel. Aim for optimal <span className="text-indigo-400 font-mono font-bold">{timeComplexityTarget}</span> complexity.
+          <p className="text-xs text-[#6B544A] leading-relaxed max-w-sm mx-auto">
+            Discuss your strategy for <span className="text-[#0A0706] font-semibold">{questionTitle}</span> with {interviewerName} in the left dialogue panel. Aim for optimal <span className="text-[#FF7A48] font-mono font-bold">{timeComplexityTarget}</span> complexity.
           </p>
         </div>
 
         {/* Action Directive */}
-        <div className="w-full p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-3 text-left">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center shrink-0 text-indigo-400">
+        <div className="w-full p-3 rounded-xl bg-white border border-[#F2DDD2] shadow-xs flex items-center gap-3 text-left">
+          <div className="w-8 h-8 rounded-lg bg-[#FFEBE1] border border-[#FFD7C5] flex items-center justify-center shrink-0 text-[#FF7A48]">
             <ArrowLeft className="w-4 h-4 animate-pulse" />
           </div>
-          <div className="text-[11px] text-slate-300 leading-snug">
-            <span className="font-semibold text-indigo-300 block">Next Step:</span>
-            Speak or type your solution strategy in the left panel. Once approved, Sophia will instantly unlock this Monaco editor.
+          <div className="text-xs text-[#0A0706] leading-snug">
+            <span className="font-semibold text-[#A83E14] block">Next Step:</span>
+            Speak or type your solution strategy in the left panel. Once approved, {interviewerName} will unlock this Monaco code workspace.
           </div>
         </div>
 
         {/* Status Pill */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-medium bg-slate-900 border border-slate-800 text-slate-400">
-          <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-          <span>Awaiting candidate conceptual approach...</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-white border border-[#F2DDD2] text-[#8C7268]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#FF7A48] animate-ping" />
+          <span>Verbal thinking in progress...</span>
         </div>
       </div>
     </div>
   );
 };
+export default EditorLockOverlay;

@@ -86,10 +86,10 @@ export const StudentWebcam: React.FC<StudentWebcamProps> = ({
 
   return (
     <div
-      className={`relative w-full h-full rounded-2xl overflow-hidden bg-slate-950 border transition-all duration-300 flex flex-col items-center justify-center ${
+      className={`relative w-full h-full rounded-2xl overflow-hidden bg-[#FFFAF7] border transition-all duration-300 flex flex-col items-center justify-center ${
         isListening
-          ? 'border-rose-500/80 ring-2 ring-rose-500/40 shadow-lg shadow-rose-500/20'
-          : 'border-slate-800'
+          ? 'border-[#FF7A48] ring-2 ring-[#FF7A48]/30 shadow-md'
+          : 'border-[#F2DDD2]'
       }`}
     >
       {/* Live Video Feed */}
@@ -102,14 +102,14 @@ export const StudentWebcam: React.FC<StudentWebcamProps> = ({
           className="w-full h-full object-cover transform -scale-x-100"
         />
       ) : (
-        /* Camera Off / Denied Professional Placeholder */
+        /* Camera Off Placeholder */
         <div className="flex flex-col items-center justify-center space-y-2 p-4 text-center">
-          <div className="w-14 h-14 rounded-full bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400">
-            <User className="w-7 h-7" />
+          <div className="w-14 h-14 rounded-full bg-white border border-[#F2DDD2] flex items-center justify-center text-[#8C7268] shadow-xs">
+            <User className="w-7 h-7 text-[#FF7A48]" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-300">{candidateName}</p>
-            <p className="text-[10px] text-slate-500">
+            <p className="text-xs font-semibold text-[#0A0706]">{candidateName}</p>
+            <p className="text-[10px] text-[#8C7268]">
               {permissionError || 'Camera Off'}
             </p>
           </div>
@@ -118,19 +118,19 @@ export const StudentWebcam: React.FC<StudentWebcamProps> = ({
 
       {/* Top Overlay: Candidate Name & Live Recording Status */}
       <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
-        <span className="px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur border border-slate-800 text-[10px] font-semibold text-slate-200">
+        <span className="px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-[#F2DDD2] text-[10px] font-semibold text-[#0A0706] shadow-xs">
           {candidateName}
         </span>
 
         {/* Audio Recording Indicator */}
         {isListening ? (
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/90 text-white text-[10px] font-bold shadow-md animate-pulse">
+          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF7A48] text-white text-[10px] font-bold shadow-xs animate-pulse">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-            <span>Recording Voice...</span>
+            <span>Speaking...</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-900/70 backdrop-blur border border-slate-800 text-[9px] text-slate-400">
-            <Mic className="w-2.5 h-2.5 text-emerald-400" />
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-[#F2DDD2] text-[9px] text-[#6B544A]">
+            <Mic className="w-2.5 h-2.5 text-emerald-600" />
             <span>Mic Ready</span>
           </div>
         )}
@@ -142,7 +142,7 @@ export const StudentWebcam: React.FC<StudentWebcamProps> = ({
           {[40, 75, 100, 60, 90, 45, 80].map((height, i) => (
             <span
               key={i}
-              className="w-1 bg-rose-400 rounded-full animate-pulse shadow-sm"
+              className="w-1 bg-[#FF7A48] rounded-full animate-pulse shadow-sm"
               style={{
                 height: `${height * 0.28}px`,
                 animationDelay: `${i * 120}ms`,
@@ -158,10 +158,10 @@ export const StudentWebcam: React.FC<StudentWebcamProps> = ({
         <button
           type="button"
           onClick={toggleVideo}
-          className={`p-1.5 rounded-lg border backdrop-blur text-xs transition ${
+          className={`p-1.5 rounded-lg border backdrop-blur-sm text-xs transition ${
             isVideoEnabled
-              ? 'bg-slate-900/80 border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-800'
-              : 'bg-rose-500/20 border-rose-500/40 text-rose-300 hover:bg-rose-500/30'
+              ? 'bg-white/90 border-[#F2DDD2] text-[#6B544A] hover:text-[#0A0706] hover:bg-[#FFF5F0]'
+              : 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100'
           }`}
           title={isVideoEnabled ? 'Turn Off Camera' : 'Turn On Camera'}
         >

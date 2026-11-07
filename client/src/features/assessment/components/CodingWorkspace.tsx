@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { QuestionData, TestCaseResult } from '../api/assessmentApi';
 import { CodeEditor } from '../../../components/ui/CodeEditor';
 import { TestCasesDrawer } from './TestCasesDrawer';
-import { RotateCcw, Code, ChevronRight } from 'lucide-react';
+import { RotateCcw, Code } from 'lucide-react';
 
 interface CodingWorkspaceProps {
   question: QuestionData;
@@ -36,143 +36,111 @@ export const CodingWorkspace: React.FC<CodingWorkspaceProps> = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-full">
       {/* Left Column: Problem Prompt & Description */}
-      <div className="lg:col-span-5 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden h-[450px] lg:h-[calc(100vh-210px)]">
+      <div className="lg:col-span-5 flex flex-col bg-white border border-[#F2DDD2] rounded-3xl overflow-hidden shadow-sm h-[450px] lg:h-[calc(100vh-210px)]">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-slate-950 border-b border-slate-800 shrink-0">
+        <div className="flex items-center justify-between p-4 bg-[#FFFAF7] border-b border-[#F2DDD2] shrink-0">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold">
+            <span className="px-3 py-0.5 rounded-full bg-[#FFEBE1] text-[#A83E14] border border-[#FFD0BC] text-xs font-semibold">
               Coding Challenge
             </span>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-[#6B544A]">
               Q{questionNumber} of {totalQuestions}
             </span>
           </div>
-          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white border border-[#F2DDD2] text-[#0A0706]">
             {question.points} Points
           </span>
         </div>
 
         {/* Tab switch for small screens */}
-        <div className="flex border-b border-slate-800 lg:hidden">
+        <div className="flex border-b border-[#F2DDD2] lg:hidden">
           <button
             onClick={() => setActiveTab('prompt')}
-            className={`flex-1 py-2 text-xs font-medium ${
-              activeTab === 'prompt' ? 'bg-slate-800 text-slate-200' : 'text-slate-400'
+            className={`flex-1 py-2 text-xs font-semibold ${
+              activeTab === 'prompt' ? 'bg-[#FFFAF7] text-[#0A0706]' : 'text-[#8C7268]'
             }`}
           >
             Problem Description
           </button>
           <button
             onClick={() => setActiveTab('tests')}
-            className={`flex-1 py-2 text-xs font-medium ${
-              activeTab === 'tests' ? 'bg-slate-800 text-slate-200' : 'text-slate-400'
+            className={`flex-1 py-2 text-xs font-semibold ${
+              activeTab === 'tests' ? 'bg-[#FFFAF7] text-[#0A0706]' : 'text-[#8C7268]'
             }`}
           >
-            Test Cases ({question.visibleTestCases?.length || 0})
+            Visible Test Cases
           </button>
         </div>
 
-        {/* Prompt Content */}
-        <div className="flex-1 p-5 overflow-y-auto space-y-4">
-          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-            <Code className="w-5 h-5 text-amber-400 shrink-0" />
-            {question.title}
-          </h2>
-
-          <div className="text-sm text-slate-300 leading-relaxed font-sans whitespace-pre-wrap">
-            {question.prompt}
+        {/* Body Content */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div className={`${activeTab === 'tests' ? 'hidden lg:block' : ''} space-y-3`}>
+            <h2 className="text-lg font-serif font-medium text-[#0A0706]">{question.title}</h2>
+            <div className="p-4 rounded-2xl bg-[#FFFAF7] border border-[#F2DDD2] text-xs text-[#0A0706] leading-relaxed whitespace-pre-wrap font-sans">
+              {question.prompt}
+            </div>
           </div>
 
-          {/* Visible Test Case Previews */}
-          {question.visibleTestCases && question.visibleTestCases.length > 0 && (
-            <div className="pt-4 border-t border-slate-800 space-y-3">
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <ChevronRight className="w-3.5 h-3.5 text-indigo-400" />
-                Example Test Cases
-              </h4>
-              <div className="space-y-2">
-                {question.visibleTestCases.map((tc, idx) => (
-                  <div
-                    key={tc.id}
-                    className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs font-mono space-y-1"
-                  >
-                    <div className="text-slate-400 text-[11px] font-sans font-medium">
-                      Example {idx + 1}: {tc.description}
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Input: </span>
-                      <span className="text-slate-200">{tc.input}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Expected: </span>
-                      <span className="text-emerald-400">{tc.expectedOutput}</span>
-                    </div>
-                  </div>
-                ))}
+          {/* Test cases drawer in left column on desktop */}
+          <div className={`${activeTab === 'prompt' ? 'hidden lg:block' : ''} pt-2`}>
+            {question.visibleTestCases && question.visibleTestCases.length > 0 ? (
+              <TestCasesDrawer
+                testCases={question.visibleTestCases}
+                results={testCaseResults}
+                isRunning={isRunningCode}
+                onRunTestCases={onRunCode}
+              />
+            ) : (
+              <div className="text-xs text-[#8C7268] italic p-4 text-center">
+                No sample test cases provided for this question.
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Right Column: Code Editor & Runner */}
-      <div className="lg:col-span-7 flex flex-col space-y-3 h-[600px] lg:h-[calc(100vh-210px)]">
+      {/* Right Column: Monaco Code Editor */}
+      <div className="lg:col-span-7 flex flex-col bg-white border border-[#F2DDD2] rounded-3xl overflow-hidden shadow-sm h-[500px] lg:h-[calc(100vh-210px)]">
         {/* Editor Controls Bar */}
-        <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded-xl shrink-0">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-[#FFFAF7] border-b border-[#F2DDD2] shrink-0">
           <div className="flex items-center gap-2">
-            <label className="text-xs text-slate-400 font-medium">Language:</label>
+            <Code className="w-4 h-4 text-[#FF7A48]" />
+            <span className="text-xs font-semibold text-[#0A0706]">Code Solution</span>
+          </div>
+
+          <div className="flex items-center gap-2">
             <select
               value={language}
               onChange={(e) => onLanguageChange(e.target.value)}
-              className="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1 focus:outline-none focus:border-indigo-500"
+              className="bg-white border border-[#F2DDD2] rounded-xl px-2.5 py-1 text-xs text-[#0A0706] font-medium focus:outline-none focus:border-[#FF7A48]"
             >
-              <option value="javascript">JavaScript (ES2022)</option>
+              <option value="javascript">JavaScript (Node)</option>
+              <option value="typescript">TypeScript</option>
               <option value="python">Python 3</option>
-              <option value="java">Java (OpenJDK 17)</option>
-              <option value="cpp">C++ (GCC 11)</option>
             </select>
-          </div>
 
-          <button
-            type="button"
-            onClick={onResetCode}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded transition"
-            title="Reset code to original starter template"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset</span>
-          </button>
+            <button
+              type="button"
+              onClick={onResetCode}
+              className="p-1.5 text-[#8C7268] hover:text-[#A83E14] hover:bg-[#FFEBE1] rounded-lg transition"
+              title="Reset code template"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Monaco Editor Container */}
-        <div className="flex-1 min-h-[260px] rounded-xl overflow-hidden border border-slate-800">
+        <div className="flex-1 w-full relative">
           <CodeEditor
-            language={language}
             value={code}
             onChange={(val) => onCodeChange(val || '')}
-            options={{
-              minimap: { enabled: false },
-              fontSize: 13,
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-              tabSize: 2,
-              wordWrap: 'on',
-            }}
+            language={language}
+            className="h-full w-full"
           />
         </div>
-
-        {/* Test Cases Drawer */}
-        {question.visibleTestCases && question.visibleTestCases.length > 0 && (
-          <div className="shrink-0 max-h-[220px] overflow-y-auto">
-            <TestCasesDrawer
-              testCases={question.visibleTestCases}
-              results={testCaseResults}
-              isRunning={isRunningCode}
-              onRunTestCases={onRunCode}
-            />
-          </div>
-        )}
       </div>
     </div>
   );
 };
+export default CodingWorkspace;

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ResumeDropzoneProps {
   onFileSelected: (file: File) => void;
@@ -59,61 +59,67 @@ export const ResumeDropzone: React.FC<ResumeDropzoneProps> = ({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => !isUploading && fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 ${
+        onClick={() => fileInputRef.current?.click()}
+        className={`p-8 sm:p-12 rounded-3xl border-2 border-dashed cursor-pointer transition text-center space-y-4 ${
           isDragOver
-            ? 'border-indigo-400 bg-indigo-500/10 scale-[1.01]'
-            : 'border-slate-700/80 bg-slate-900/50 hover:border-slate-600 hover:bg-slate-900'
-        } ${isUploading ? 'opacity-60 cursor-not-allowed' : ''}`}
+            ? 'border-[#FF7A48] bg-[#FFEBE1]/30'
+            : selectedFile
+            ? 'border-[#B7E1CD] bg-[#E6F4EA]/20'
+            : 'border-[#F2DDD2] bg-white hover:border-[#FF7A48]/50 hover:bg-[#FFFAF7]'
+        }`}
       >
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          className="hidden"
+          accept=".pdf,.docx"
           onChange={handleFileChange}
+          className="hidden"
           disabled={isUploading}
         />
 
-        <div className="p-3.5 rounded-full bg-slate-800 text-indigo-400 border border-slate-700">
-          {isUploading ? (
-            <Loader2 className="w-8 h-8 animate-spin" />
+        <div className="flex justify-center">
+          {selectedFile ? (
+            <div className="p-4 rounded-2xl bg-[#E6F4EA] text-[#1F7A3A] border border-[#B7E1CD]">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
           ) : (
-            <UploadCloud className="w-8 h-8" />
+            <div className="p-4 rounded-2xl bg-[#FFEBE1] text-[#FF7A48] border border-[#FFD0BC]">
+              <UploadCloud className="w-8 h-8" />
+            </div>
           )}
         </div>
 
-        {selectedFile ? (
-          <div className="space-y-1">
-            <div className="flex items-center justify-center gap-2 text-sm font-semibold text-white">
-              <FileText className="w-4 h-4 text-emerald-400" />
-              <span>{selectedFile.name}</span>
-              <span className="text-xs text-slate-400">
-                ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
-              </span>
-            </div>
-            <p className="text-xs text-emerald-400 flex items-center justify-center gap-1 font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5" /> File ready for ATS analysis
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-slate-200">
-              Drag &amp; drop your resume here, or <span className="text-indigo-400">browse</span>
-            </p>
-            <p className="text-xs text-slate-400">
-              Supports text-based PDF or DOCX up to 5MB (Zero permanent storage)
-            </p>
-          </div>
-        )}
+        <div className="space-y-1">
+          {selectedFile ? (
+            <>
+              <h3 className="text-sm font-semibold text-[#0A0706] flex items-center justify-center gap-1.5">
+                <FileText className="w-4 h-4 text-[#FF7A48]" />
+                <span>{selectedFile.name}</span>
+              </h3>
+              <p className="text-xs text-[#6B544A]">
+                {(selectedFile.size / 1024).toFixed(1)} KB &bull; Click or drag to replace
+              </p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-base font-serif font-medium text-[#0A0706]">
+                Click or drag resume here to upload
+              </h3>
+              <p className="text-xs text-[#6B544A]">
+                Supports PDF and DOCX up to 5MB. Evaluates ATS keywords, structure, and impact.
+              </p>
+            </>
+          )}
+        </div>
       </div>
 
       {errorMsg && (
-        <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+        <div className="p-3 rounded-2xl bg-[#FFF4EC] border border-[#F2DDD2] text-xs text-[#A83E14] flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-[#FF7A48]" />
           <span>{errorMsg}</span>
         </div>
       )}
     </div>
   );
 };
+export default ResumeDropzone;

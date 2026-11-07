@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
-import { CodeEditor } from '../components/ui/CodeEditor';
 import { LoginPage } from '../features/auth/pages/LoginPage';
 import { RegisterPage } from '../features/auth/pages/RegisterPage';
 import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
@@ -9,129 +8,26 @@ import { OALandingPage } from '../features/assessment/pages/OALandingPage';
 import { OAWorkspacePage } from '../features/assessment/pages/OAWorkspacePage';
 import { DSAInterviewPage } from '../features/interview/pages/DSAInterviewPage';
 import { HRInterviewPage } from '../features/interview/pages/HRInterviewPage';
+import { ResumeDefensePage } from '../features/interview/pages/ResumeDefensePage';
 import { StudentDashboardPage } from '../features/dashboard/pages/StudentDashboardPage';
 import { LeaderboardPage } from '../features/leaderboard/pages/LeaderboardPage';
 import { AdminPage } from '../features/admin/pages/AdminPage';
-import { BrandLogo } from '../components/common/BrandLogo';
-import {
-  FileText,
-  Terminal,
-  Mic,
-  Award,
-  ShieldAlert,
-  ArrowRight,
-  Sparkles,
-} from 'lucide-react';
-
-const LandingPage: React.FC = () => {
-  return (
-    <div className="max-w-5xl mx-auto px-6 py-12 space-y-12">
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-crimson-600/10 border border-crimson-500/20 text-crimson-400 text-xs font-bold tracking-wide uppercase">
-          <Sparkles className="w-3.5 h-3.5" /> Intelligent SaaS Recruitment Platform
-        </div>
-        <div className="flex justify-center">
-          <BrandLogo size="lg" />
-        </div>
-        <p className="text-slate-400 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
-          Master your technical and behavioral interviews with real-time turn-based AI voice dialogue, automated ATS scoring, and timed coding assessments.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[
-          {
-            title: 'AI Resume & ATS Checker',
-            desc: 'Instant keyword analysis and actionable scoring tailored for target roles.',
-            path: '/resume',
-            icon: FileText,
-            color: 'text-blue-400',
-          },
-          {
-            title: 'Online Assessment (OA)',
-            desc: 'MCQ questions combined with browser-based Monaco coding challenges.',
-            path: '/oa',
-            icon: Terminal,
-            color: 'text-emerald-400',
-          },
-          {
-            title: 'AI DSA Technical Round',
-            desc: 'Voice-based algorithm and system design interviews powered by DeepSeek.',
-            path: '/interview/dsa',
-            icon: Mic,
-            color: 'text-crimson-400',
-          },
-          {
-            title: 'AI HR Behavioral Round',
-            desc: 'Situational and leadership STAR-method evaluation with speech feedback.',
-            path: '/interview/hr',
-            icon: Mic,
-            color: 'text-amber-400',
-          },
-          {
-            title: 'Leaderboard & Analytics',
-            desc: 'Track percentiles, domain benchmarks, and detailed rubric reports.',
-            path: '/leaderboard',
-            icon: Award,
-            color: 'text-rose-400',
-          },
-          {
-            title: 'Admin Console',
-            desc: 'Review candidate attempt pipelines, questions pool, and rubric thresholds.',
-            path: '/admin',
-            icon: ShieldAlert,
-            color: 'text-amber-400',
-          },
-        ].map((feat) => {
-          const Icon = feat.icon;
-          return (
-            <Link
-              key={feat.path}
-              to={feat.path}
-              className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-crimson-500/50 hover:bg-slate-900 transition-all duration-200 flex flex-col justify-between group shadow-lg"
-            >
-              <div className="space-y-2">
-                <div className={`p-2.5 rounded-xl bg-slate-950/80 w-fit ${feat.color}`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <h3 className="font-bold text-slate-200 group-hover:text-white flex items-center justify-between">
-                  {feat.title}
-                  <ArrowRight className="w-4 h-4 text-crimson-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">{feat.desc}</p>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-
-      <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-          <Terminal className="w-4 h-4 text-emerald-400" /> Monaco Editor Integration Verification
-        </h3>
-        <div className="h-48">
-          <CodeEditor
-            language="typescript"
-            value={`// Monaco Editor verification\nfunction calculateScore(mcqScore: number, codingScore: number): number {\n  return Math.round((mcqScore * 0.4) + (codingScore * 0.6));\n}\n\nconsole.log('OA Score:', calculateScore(90, 85));`}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
+import { LandingPage } from '../pages/LandingPage';
 
 const PlaceholderPage: React.FC<{ title: string; category: string }> = ({ title, category }) => (
-  <div className="max-w-2xl mx-auto px-6 py-16 text-center space-y-4">
-    <div className="text-xs font-semibold uppercase tracking-wider text-indigo-400">{category}</div>
-    <h2 className="text-2xl font-bold text-white">{title}</h2>
-    <p className="text-sm text-slate-400">
-      This module is scheduled for implementation in Phase 3. Architecture contracts, databases, and adapters are initialized.
+  <div className="max-w-2xl mx-auto px-6 py-20 text-center space-y-4">
+    <div className="text-xs font-semibold uppercase tracking-wider text-[#A83E14] bg-[#FFEBE1] px-3 py-1 rounded-full w-fit mx-auto border border-[#FFD0BC]">
+      {category}
+    </div>
+    <h2 className="text-2xl font-serif text-[#0A0706]">{title}</h2>
+    <p className="text-sm text-[#6B544A]">
+      The requested page could not be located or is under maintenance.
     </p>
     <Link
       to="/"
-      className="inline-flex items-center gap-1.5 text-sm text-indigo-400 hover:text-indigo-300 font-medium"
+      className="inline-flex items-center gap-1.5 text-xs text-[#FF7A48] hover:underline font-semibold"
     >
-      &larr; Back to Platform Home
+      &larr; Back to HireReady Home
     </Link>
   </div>
 );
@@ -203,6 +99,14 @@ export const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <HRInterviewPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interview/resume-defense"
+        element={
+          <ProtectedRoute>
+            <ResumeDefensePage />
           </ProtectedRoute>
         }
       />

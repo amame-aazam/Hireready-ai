@@ -14,7 +14,6 @@ export const ColdStartBanner: React.FC<ColdStartBannerProps> = ({
   useEffect(() => {
     let isMounted = true;
     const timeoutTimer = setTimeout(() => {
-      // If server hasn't answered within 2 seconds, it is likely spinning up from cold sleep
       if (isMounted && isOnline === null) {
         setIsWakingUp(true);
       }
@@ -54,20 +53,20 @@ export const ColdStartBanner: React.FC<ColdStartBannerProps> = ({
   return (
     <aside
       aria-label="Server status notice"
-      className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 text-xs text-amber-200 flex items-center justify-between"
+      className="bg-[#FFF4EC] border-b border-[#F2DDD2] px-4 py-2 text-xs text-[#A83E14] flex items-center justify-between"
     >
       <div className="flex items-center gap-2">
         {isWakingUp ? (
-          <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+          <Loader2 className="w-4 h-4 animate-spin text-[#FF7A48]" />
         ) : (
-          <AlertCircle className="w-4 h-4 text-amber-400" />
+          <AlertCircle className="w-4 h-4 text-[#FF7A48]" />
         )}
         <span>
-          <strong>Backend Notice:</strong> Connecting to server. Render Free instances spin down after 15 min of inactivity and may take 30-45 seconds to wake up.
+          <strong>Backend Notice:</strong> Connecting to cloud server. Free instances spin down after inactivity and may take 30-45 seconds to wake up.
         </span>
       </div>
       {isOnline === true && (
-        <span className="flex items-center gap-1 text-emerald-400 font-medium">
+        <span className="flex items-center gap-1 text-[#1F7A3A] font-medium">
           <CheckCircle2 className="w-3.5 h-3.5" /> Ready
         </span>
       )}

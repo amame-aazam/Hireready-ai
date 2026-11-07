@@ -15,19 +15,20 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     scrollBeyondLastLine: false,
     automaticLayout: true,
     tabSize: 2,
+    fontFamily: '"JetBrains Mono", Consolas, monospace',
   },
   ...props
 }) => {
   return (
-    <div className="w-full h-full min-h-[300px] rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+    <div className="w-full h-full min-h-[300px] rounded-xl overflow-hidden border border-[#F2DDD2] bg-white shadow-xs">
       <Editor
         language={language}
         theme={theme}
         value={value}
         options={options}
         loading={
-          <div className="flex items-center justify-center h-full text-slate-400 text-sm">
-            Loading Monaco Code Editor...
+          <div className="flex items-center justify-center h-full text-[#8C7268] text-xs">
+            Loading Monaco Editor...
           </div>
         }
         {...props}
@@ -35,3 +36,4 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     </div>
   );
 };
+export default CodeEditor;

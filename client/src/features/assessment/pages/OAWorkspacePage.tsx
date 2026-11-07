@@ -249,7 +249,6 @@ export const OAWorkspacePage: React.FC = () => {
   };
 
   const handleSelectQuestion = async (index: number) => {
-    // Quick autosave when switching questions
     saveNow();
     setCurrentIndex(index);
     setShowPaletteMobile(false);
@@ -258,21 +257,21 @@ export const OAWorkspacePage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="h-[calc(100vh-80px)] flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-        <p className="text-slate-400 text-sm">Preparing secure assessment environment...</p>
+        <Loader2 className="w-10 h-10 text-[#FF7A48] animate-spin" />
+        <p className="text-[#6B544A] text-sm">Preparing secure assessment environment...</p>
       </div>
     );
   }
 
   if (error || !currentQuestion) {
     return (
-      <div className="max-w-md mx-auto my-16 p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4 text-center">
-        <AlertTriangle className="w-10 h-10 text-rose-500 mx-auto" />
-        <h2 className="text-lg font-bold text-slate-100">Unable to load assessment</h2>
-        <p className="text-xs text-slate-400">{error || 'Session could not be recovered.'}</p>
+      <div className="max-w-md mx-auto my-16 p-8 bg-white border border-[#F2DDD2] rounded-3xl space-y-4 text-center shadow-sm">
+        <AlertTriangle className="w-10 h-10 text-[#FF7A48] mx-auto" />
+        <h2 className="text-lg font-serif font-medium text-[#0A0706]">Unable to load assessment</h2>
+        <p className="text-xs text-[#6B544A]">{error || 'Session could not be recovered.'}</p>
         <button
           onClick={() => navigate('/oa')}
-          className="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 transition"
+          className="px-5 py-2.5 rounded-full bg-[#0A0706] hover:bg-[#221C19] text-white text-xs font-semibold transition"
         >
           Return to Assessments
         </button>
@@ -286,23 +285,23 @@ export const OAWorkspacePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-70px)] flex flex-col space-y-3 px-3 sm:px-6 py-3">
+    <div className="min-h-[calc(100vh-70px)] flex flex-col space-y-3 px-3 sm:px-6 py-4">
       {/* Top Bar: Title + Timer + Autosave + Submit */}
-      <div className="flex items-center justify-between p-3.5 bg-slate-900 border border-slate-800 rounded-xl shrink-0">
-        <div className="flex items-center gap-2.5">
+      <div className="flex items-center justify-between p-4 bg-white border border-[#F2DDD2] rounded-3xl shadow-sm shrink-0">
+        <div className="flex items-center gap-3">
           <BackButton label="Exit" fallbackRoute="/oa" />
           <button
             type="button"
             onClick={() => setShowPaletteMobile(!showPaletteMobile)}
-            className="p-1.5 rounded-lg bg-slate-800 text-slate-300 lg:hidden hover:bg-slate-700"
+            className="p-1.5 rounded-xl bg-[#FFFAF7] border border-[#F2DDD2] text-[#0A0706] lg:hidden hover:bg-[#FBF1EA]"
           >
             {showPaletteMobile ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <div>
-            <h1 className="text-sm sm:text-base font-bold text-slate-100 leading-tight">
+            <h1 className="text-sm sm:text-base font-serif font-medium text-[#0A0706] leading-tight">
               {assessmentTitle}
             </h1>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-[#6B544A]">
               Question {currentIndex + 1} of {questions.length}
             </p>
           </div>
@@ -327,12 +326,12 @@ export const OAWorkspacePage: React.FC = () => {
             type="button"
             onClick={() => handleSubmit(false)}
             disabled={isSubmitting}
-            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/20 transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0A0706] hover:bg-[#221C19] text-white text-xs font-semibold shadow-sm transition disabled:opacity-50"
           >
             {isSubmitting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#FF7A48]" />
             ) : (
-              <Send className="w-4 h-4" />
+              <Send className="w-3.5 h-3.5 text-[#FF7A48]" />
             )}
             <span className="hidden sm:inline">Submit Assessment</span>
             <span className="sm:hidden">Submit</span>
@@ -354,7 +353,7 @@ export const OAWorkspacePage: React.FC = () => {
 
         {/* Mobile Palette Overlay */}
         {showPaletteMobile && (
-          <div className="lg:hidden fixed inset-0 z-40 bg-slate-950/80 p-4 pt-20">
+          <div className="lg:hidden fixed inset-0 z-40 bg-[#0A0706]/40 p-4 pt-20 backdrop-blur-sm">
             <QuestionPalette
               questions={questions}
               currentIndex={currentIndex}
@@ -394,18 +393,18 @@ export const OAWorkspacePage: React.FC = () => {
           </div>
 
           {/* Bottom Navigation Buttons */}
-          <div className="flex items-center justify-between p-3 bg-slate-900 border border-slate-800 rounded-xl shrink-0">
+          <div className="flex items-center justify-between p-3.5 bg-white border border-[#F2DDD2] rounded-3xl shadow-sm shrink-0">
             <button
               type="button"
               onClick={() => handleSelectQuestion(Math.max(0, currentIndex - 1))}
               disabled={currentIndex === 0}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-300 text-xs font-medium disabled:opacity-30 disabled:pointer-events-none transition"
+              className="flex items-center gap-1 px-4 py-2 rounded-full border border-[#F2DDD2] bg-[#FFFAF7] hover:bg-[#FBF1EA] text-[#0A0706] text-xs font-semibold disabled:opacity-30 disabled:pointer-events-none transition"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Previous</span>
             </button>
 
-            <span className="text-xs text-slate-400 font-mono">
+            <span className="text-xs text-[#6B544A] font-mono">
               {currentIndex + 1} / {questions.length}
             </span>
 
@@ -415,7 +414,7 @@ export const OAWorkspacePage: React.FC = () => {
                 handleSelectQuestion(Math.min(questions.length - 1, currentIndex + 1))
               }
               disabled={currentIndex === questions.length - 1}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-300 text-xs font-medium disabled:opacity-30 disabled:pointer-events-none transition"
+              className="flex items-center gap-1 px-4 py-2 rounded-full border border-[#F2DDD2] bg-[#FFFAF7] hover:bg-[#FBF1EA] text-[#0A0706] text-xs font-semibold disabled:opacity-30 disabled:pointer-events-none transition"
             >
               <span>Next</span>
               <ChevronRight className="w-4 h-4" />
@@ -429,3 +428,4 @@ export const OAWorkspacePage: React.FC = () => {
     </div>
   );
 };
+export default OAWorkspacePage;

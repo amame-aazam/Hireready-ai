@@ -21,16 +21,16 @@ export const MissingKeywords: React.FC<MissingKeywordsProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Extracted Skills Detected */}
-      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
-        <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
+      <div className="p-6 sm:p-7 rounded-3xl bg-white border border-[#F2DDD2] space-y-4 shadow-sm">
+        <div className="flex items-center gap-2 text-sm font-serif font-medium text-[#0A0706]">
+          <Sparkles className="w-4 h-4 text-[#1F7A3A]" />
           <span>Extracted Competencies Detected ({extractedSkills.length})</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {extractedSkills.map((skill) => (
             <span
               key={skill}
-              className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-medium"
+              className="px-3 py-1 rounded-full bg-[#E6F4EA] border border-[#B7E1CD] text-[#1F7A3A] text-xs font-semibold"
             >
               {skill}
             </span>
@@ -39,42 +39,37 @@ export const MissingKeywords: React.FC<MissingKeywordsProps> = ({
       </div>
 
       {/* Missing High-Frequency Keywords */}
-      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+      <div className="p-6 sm:p-7 rounded-3xl bg-white border border-[#F2DDD2] space-y-4 shadow-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm font-semibold text-white">
-            <Tag className="w-4 h-4 text-rose-400" />
+          <div className="flex items-center gap-2 text-sm font-serif font-medium text-[#0A0706]">
+            <Tag className="w-4 h-4 text-[#FF7A48]" />
             <span>Recommended Keywords to Add ({missingKeywords.length})</span>
           </div>
-          <span className="text-[11px] text-slate-500">Click keyword to copy</span>
+          <span className="text-[11px] text-[#8C7268]">Click to copy</span>
         </div>
 
-        {missingKeywords.length === 0 ? (
-          <p className="text-xs text-emerald-400 font-medium">
-            Outstanding! All high-frequency domain keywords were found in your resume.
-          </p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {missingKeywords.map((kw) => {
-              const isCopied = copiedKey === kw;
-              return (
-                <button
-                  key={kw}
-                  onClick={() => handleCopy(kw)}
-                  className="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 hover:border-rose-400 text-rose-300 text-xs font-medium flex items-center gap-1.5 transition group"
-                  title="Click to copy to clipboard"
-                >
-                  <span>{kw}</span>
-                  {isCopied ? (
-                    <Check className="w-3 h-3 text-emerald-400" />
-                  ) : (
-                    <Copy className="w-3 h-3 opacity-60 group-hover:opacity-100 transition" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {missingKeywords.map((kw) => {
+            const isCopied = copiedKey === kw;
+            return (
+              <button
+                key={kw}
+                onClick={() => handleCopy(kw)}
+                type="button"
+                className={`px-3 py-1 rounded-full text-xs font-semibold border transition flex items-center gap-1.5 ${
+                  isCopied
+                    ? 'bg-[#E6F4EA] border-[#B7E1CD] text-[#1F7A3A]'
+                    : 'bg-[#FFEBE1] border-[#FFD0BC] text-[#A83E14] hover:bg-[#FFD0BC]'
+                }`}
+              >
+                <span>{kw}</span>
+                {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3 opacity-60" />}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 };
+export default MissingKeywords;

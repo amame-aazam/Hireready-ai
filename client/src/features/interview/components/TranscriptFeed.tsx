@@ -6,11 +6,13 @@ interface TranscriptFeedProps {
   turns: InterviewTurn[];
   onReplaySpeech?: (text: string) => void;
   isAiSpeaking?: boolean;
+  aiName?: string;
 }
 
 export const TranscriptFeed: React.FC<TranscriptFeedProps> = ({
   turns,
   onReplaySpeech,
+  aiName = 'Interviewer',
 }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -19,11 +21,11 @@ export const TranscriptFeed: React.FC<TranscriptFeedProps> = ({
   }, [turns]);
 
   return (
-    <div className="h-full flex-1 p-3 overflow-y-auto space-y-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80 min-h-0">
+    <div className="h-full flex-1 p-3 overflow-y-auto space-y-2.5 bg-[#FFFAF7] rounded-xl border border-[#F2DDD2] min-h-0">
       {turns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-full text-slate-500 text-xs py-6 space-y-1.5">
-          <Bot className="w-6 h-6 text-slate-600" />
-          <p className="text-[11px]">Sophia will introduce your algorithmic problem momentarily.</p>
+        <div className="flex flex-col items-center justify-center h-full text-[#8C7268] text-xs py-6 space-y-1.5">
+          <Bot className="w-6 h-6 text-[#FF7A48]" />
+          <p className="text-[11px]">{aiName} will introduce your challenge momentarily.</p>
         </div>
       ) : (
         turns.map((turn, index) => {
@@ -35,27 +37,27 @@ export const TranscriptFeed: React.FC<TranscriptFeedProps> = ({
               className={`flex items-start gap-2 ${isAi ? 'justify-start' : 'justify-end'}`}
             >
               {isAi && (
-                <div className="w-6 h-6 rounded-md bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                  <Bot className="w-3.5 h-3.5 text-indigo-400" />
+                <div className="w-6 h-6 rounded-full bg-[#FFEBE1] border border-[#FBD7C7] flex items-center justify-center shrink-0 mt-0.5">
+                  <Bot className="w-3.5 h-3.5 text-[#FF7A48]" />
                 </div>
               )}
 
               <div
-                className={`max-w-[88%] rounded-xl p-2.5 space-y-1 text-xs leading-relaxed transition-all ${
+                className={`max-w-[88%] rounded-2xl p-3 space-y-1 text-xs leading-relaxed transition-all ${
                   isAi
-                    ? 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-sm shadow-sm'
-                    : 'bg-indigo-600/20 border border-indigo-500/30 text-indigo-100 rounded-tr-sm shadow-sm'
+                    ? 'bg-white border border-[#F2DDD2] text-[#0A0706] rounded-tl-xs shadow-xs'
+                    : 'bg-[#FFEBE1] border border-[#FBD7C7] text-[#0A0706] rounded-tr-xs shadow-xs'
                 }`}
               >
                 <div className="flex items-center justify-between gap-3 pb-0.5">
                   <span
-                    className={`font-semibold text-[10px] ${
-                      isAi ? 'text-indigo-400' : 'text-slate-300'
+                    className={`font-semibold text-[11px] ${
+                      isAi ? 'text-[#A83E14]' : 'text-[#6B544A]'
                     }`}
                   >
-                    {isAi ? 'Sophia (AI)' : 'You'}
+                    {isAi ? `${aiName}` : 'You'}
                   </span>
-                  <div className="flex items-center gap-1.5 text-[9px] text-slate-500">
+                  <div className="flex items-center gap-1.5 text-[10px] text-[#8C7268]">
                     <span>
                       {new Date(turn.timestamp).toLocaleTimeString([], {
                         hour: '2-digit',
@@ -64,10 +66,9 @@ export const TranscriptFeed: React.FC<TranscriptFeedProps> = ({
                     </span>
                     {isAi && onReplaySpeech && (
                       <button
-                        type="button"
                         onClick={() => onReplaySpeech(turn.content)}
-                        className="p-0.5 hover:text-indigo-400 transition"
-                        title="Replay audio"
+                        className="hover:text-[#FF7A48] transition-colors p-0.5"
+                        title="Replay dialogue audio"
                       >
                         <Volume2 className="w-3 h-3" />
                       </button>
@@ -75,26 +76,25 @@ export const TranscriptFeed: React.FC<TranscriptFeedProps> = ({
                   </div>
                 </div>
 
-                <div className="font-sans whitespace-pre-wrap text-[11px] leading-relaxed">
-                  {turn.content}
-                </div>
+                <div className="whitespace-pre-wrap font-sans text-xs text-[#0A0706]">{turn.content}</div>
 
-                {turn.codeSnippet && (
-                  <div className="mt-1.5 p-1.5 rounded bg-slate-950 border border-slate-800/80 font-mono text-[10px] text-slate-300">
-                    <div className="flex items-center gap-1 text-[9px] text-slate-500 pb-0.5">
-                      <Code className="w-2.5 h-2.5 text-amber-400" />
-                      <span>Code snapshot</span>
+                {((turn as any).codeSnapshot || turn.codeSnippet) && (
+                  <div className="mt-2 p-2 rounded-lg bg-[#FFFAF7] border border-[#F2DDD2] font-mono text-[11px] text-[#6B544A]">
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-[#A83E14] mb-1">
+                      <Code className="w-3 h-3" />
+                      <span>Code Snapshot</span>
                     </div>
-                    <pre className="overflow-x-auto max-h-24 text-slate-400">
-                      {turn.codeSnippet}
+                    <pre className="overflow-x-auto text-[10px] leading-tight text-[#0A0706]">
+                      {String((turn as any).codeSnapshot?.code || (turn as any).codeSnapshot || turn.codeSnippet).slice(0, 300)}
+                      {String((turn as any).codeSnapshot?.code || (turn as any).codeSnapshot || turn.codeSnippet).length > 300 && '...'}
                     </pre>
                   </div>
                 )}
               </div>
 
               {!isAi && (
-                <div className="w-6 h-6 rounded-md bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                  <User className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="w-6 h-6 rounded-full bg-[#E8CBBE] border border-[#F2DDD2] flex items-center justify-center shrink-0 mt-0.5">
+                  <User className="w-3.5 h-3.5 text-[#6B544A]" />
                 </div>
               )}
             </div>
@@ -105,3 +105,4 @@ export const TranscriptFeed: React.FC<TranscriptFeedProps> = ({
     </div>
   );
 };
+export default TranscriptFeed;

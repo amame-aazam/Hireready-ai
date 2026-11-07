@@ -1,6 +1,6 @@
 import React from 'react';
 import { QuestionData, AttemptAnswers } from '../api/assessmentApi';
-import { CheckCircle, Circle, Code, HelpCircle } from 'lucide-react';
+import { Code, HelpCircle } from 'lucide-react';
 
 interface QuestionPaletteProps {
   questions: QuestionData[];
@@ -29,15 +29,15 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
   const answeredCount = questions.filter(isAnswered).length;
 
   return (
-    <div className="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+    <div className="w-full bg-white border border-[#F2DDD2] rounded-3xl p-5 space-y-4 shadow-sm">
+      <div className="flex items-center justify-between pb-3 border-b border-[#F2DDD2]">
         <div>
-          <h3 className="text-sm font-semibold text-slate-200">Question Palette</h3>
-          <p className="text-xs text-slate-400">
+          <h3 className="text-sm font-semibold text-[#0A0706]">Question Palette</h3>
+          <p className="text-xs text-[#6B544A]">
             {answeredCount} of {questions.length} answered
           </p>
         </div>
-        <div className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+        <div className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-[#FFEBE1] text-[#A83E14] border border-[#FFD0BC]">
           {Math.round((answeredCount / questions.length) * 100)}%
         </div>
       </div>
@@ -51,34 +51,45 @@ export const QuestionPalette: React.FC<QuestionPaletteProps> = ({
             <button
               key={q.id}
               onClick={() => onSelectQuestion(idx)}
-              className={`relative flex flex-col items-center justify-center p-2 rounded-lg border text-xs font-medium transition-all ${
+              className={`relative flex flex-col items-center justify-center p-2 rounded-2xl border text-xs font-semibold transition-all ${
                 isCurrent
-                  ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 ring-2 ring-indigo-500/30'
+                  ? 'bg-[#FFEBE1] border-[#FF7A48] text-[#A83E14] shadow-sm'
                   : answered
-                  ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/20'
-                  : 'bg-slate-800/60 border-slate-700/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                  ? 'bg-[#E6F4EA] border-[#B7E1CD] text-[#1F7A3A]'
+                  : 'bg-[#FFFAF7] border-[#F2DDD2] text-[#8C7268] hover:bg-[#FBF1EA]'
               }`}
             >
               <div className="flex items-center gap-1">
+                <span>{idx + 1}</span>
                 {q.type === 'CODING' ? (
-                  <Code className="w-3 h-3 text-amber-400" />
+                  <Code className="w-3 h-3 text-[#FF7A48]" />
                 ) : (
-                  <HelpCircle className="w-3 h-3 text-sky-400" />
-                )}
-                <span>Q{idx + 1}</span>
-              </div>
-              <span className="text-[10px] text-slate-500 mt-0.5">{q.points}pts</span>
-              <div className="absolute top-1 right-1">
-                {answered ? (
-                  <CheckCircle className="w-2.5 h-2.5 text-emerald-400" />
-                ) : (
-                  <Circle className="w-2.5 h-2.5 text-slate-600" />
+                  <HelpCircle className="w-3 h-3 text-sky-600" />
                 )}
               </div>
+              <span className="text-[9px] uppercase tracking-wider text-[#8C7268] mt-0.5">
+                {answered ? 'Done' : 'Pending'}
+              </span>
             </button>
           );
         })}
       </div>
+
+      <div className="pt-2 border-t border-[#F2DDD2] flex items-center justify-between text-[11px] text-[#8C7268]">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#E6F4EA] border border-[#B7E1CD]" />
+          <span>Answered</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#FFEBE1] border border-[#FF7A48]" />
+          <span>Active</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#FFFAF7] border border-[#F2DDD2]" />
+          <span>Pending</span>
+        </div>
+      </div>
     </div>
   );
 };
+export default QuestionPalette;

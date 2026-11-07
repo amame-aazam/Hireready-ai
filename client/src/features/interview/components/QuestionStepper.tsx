@@ -24,55 +24,54 @@ export const QuestionStepper: React.FC<QuestionStepperProps> = ({
         return (
           <div
             key={q.id || idx}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all shrink-0 ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all shrink-0 ${
               isCurrent
-                ? 'bg-indigo-600/15 border-indigo-500/50 text-indigo-200 shadow-sm shadow-indigo-500/20 ring-1 ring-indigo-500/30'
+                ? 'bg-[#FFF5F0] border-[#FF7A48] text-[#0A0706] shadow-xs ring-1 ring-[#FF7A48]'
                 : isCompleted
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                : 'bg-slate-900 border-slate-800 text-slate-500 opacity-60'
+                ? 'bg-[#E6F4EA] border-[#B7E4C7] text-[#1F7A3A]'
+                : 'bg-white border-[#F2DDD2] text-[#8C7268] opacity-60'
             }`}
           >
             {/* Status Icon */}
             <div className="flex items-center justify-center">
               {isCompleted ? (
-                <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                  <Check className="w-2.5 h-2.5" />
+                <div className="w-3.5 h-3.5 rounded-full bg-[#1F7A3A] text-white flex items-center justify-center">
+                  <Check className="w-2.5 h-2.5 stroke-[3]" />
                 </div>
               ) : isCurrent ? (
-                <div className="w-3.5 h-3.5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center animate-pulse">
-                  <Sparkles className="w-2.5 h-2.5" />
+                <div className="w-3.5 h-3.5 rounded-full bg-[#FF7A48] text-white flex items-center justify-center animate-pulse">
+                  <Sparkles className="w-2 h-2" />
                 </div>
               ) : (
-                <div className="w-3.5 h-3.5 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center">
-                  <Lock className="w-2.5 h-2.5" />
+                <div className="w-3.5 h-3.5 rounded-full bg-[#FFFAF7] text-[#8C7268] flex items-center justify-center border border-[#F2DDD2]">
+                  <Lock className="w-2 h-2" />
                 </div>
               )}
             </div>
 
             {/* Label */}
-            <span className="font-semibold text-[11px]">
+            <span className="font-semibold text-xs">
               Q{idx + 1}: {q.title}
             </span>
 
-            {/* Difficulty or Competency Badge */}
-            {q.difficulty ? (
+            {/* Difficulty Badge */}
+            {q.difficulty && (
               <span
                 className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider ${
                   q.difficulty === 'EASY'
-                    ? 'bg-emerald-500/15 text-emerald-400'
-                    : 'bg-amber-500/15 text-amber-400'
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : q.difficulty === 'MEDIUM'
+                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                    : 'bg-rose-50 text-rose-700 border border-rose-200'
                 }`}
               >
                 {q.difficulty}
               </span>
-            ) : q.competency ? (
-              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-300">
-                {q.competency}
-              </span>
-            ) : null}
+            )}
           </div>
         );
       })}
     </div>
   );
 };
+export default QuestionStepper;

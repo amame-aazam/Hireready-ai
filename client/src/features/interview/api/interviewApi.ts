@@ -6,6 +6,7 @@ export interface InterviewTurn {
   content: string;
   timestamp: string;
   codeSnippet?: string;
+  codeSnapshot?: { code: string; language?: string } | string;
 }
 
 export type InterviewStage = 'APPROACH' | 'CODING' | 'QUESTION' | 'FOLLOW_UP' | 'SUBMITTED' | 'COMPLETED';
@@ -121,6 +122,7 @@ export interface StartInterviewResponse {
 
 export interface TurnResponse {
   replyText: string;
+  aiReply?: string;
   stage?: InterviewStage;
   isEditorUnlocked?: boolean;
   isTerminalTurn: boolean;
@@ -140,6 +142,12 @@ export interface EvaluationReportData {
   overallScore: number;
   technicalScore: number;
   communicationScore: number;
+  codeQuality?: number;
+  codeCorrectness?: number;
+  timeComplexityScore?: number;
+  summaryFeedback?: string;
+  strengths?: string[];
+  areasOfImprovement?: string[];
   starBreakdown?: StarBreakdown;
   keyObservations: string[];
   recommendation: 'STRONG_HIRE' | 'HIRE' | 'NEUTRAL' | 'NO_HIRE';
@@ -160,13 +168,19 @@ export interface FinishInterviewResponse {
 
 export interface AdvanceQuestionResponse {
   isFinished: boolean;
+  sessionComplete?: boolean;
   currentQuestionIndex?: number;
   stage?: InterviewStage;
   session?: InterviewSessionData;
   currentQuestion?: ProblemData;
   starterCode?: string;
+  currentCode?: string;
   isEditorUnlocked: boolean;
   aiTransitionTurn?: InterviewTurn;
+  nextQuestionOpening?: {
+    role: 'ai';
+    content: string;
+  };
   report?: EvaluationReportData;
 }
 
@@ -176,6 +190,10 @@ export interface CodeExecutionResponse {
   scoreRatio: number;
   allPassed: boolean;
   results: TestCaseResult[];
+  testResults?: TestCaseResult[];
+  passed?: boolean;
+  totalTestCases?: number;
+  passedTestCases?: number;
 }
 
 export const interviewApi = {
@@ -193,38 +211,71 @@ export const interviewApi = {
 
   sendTurn: async (
     sessionId: string,
-    utterance: string,
+    utteranceOrPayload: string | { utterance: string; currentCode?: string; currentLanguage?: string },
     codeSnippet?: string
   ): Promise<TurnResponse> => {
+    const payload =
+      typeof utteranceOrPayload === 'string'
+        ? { utterance: utteranceOrPayload, codeSnippet }
+        : {
+            utterance: utteranceOrPayload.utterance,
+            codeSnippet: utteranceOrPayload.currentCode || codeSnippet,
+          };
+
     const response = await apiClient.post<{ success: boolean; data: TurnResponse }>(
       `/api/interview/session/${sessionId}/turn`,
-      { utterance, codeSnippet }
+      payload
     );
-    return response.data.data;
+    const data = response.data.data;
+    if (data && !data.aiReply) {
+      data.aiReply = data.replyText;
+    }
+    return data;
   },
 
   runCode: async (
     sessionId: string,
-    sourceCode: string,
+    sourceCodeOrPayload: string | { code: string; language: string },
     language: string = 'javascript'
   ): Promise<CodeExecutionResponse> => {
+    const payload =
+      typeof sourceCodeOrPayload === 'string'
+        ? { sourceCode: sourceCodeOrPayload, language }
+        : { sourceCode: sourceCodeOrPayload.code, language: sourceCodeOrPayload.language };
+
     const response = await apiClient.post<{ success: boolean; data: CodeExecutionResponse }>(
       `/api/interview/session/${sessionId}/run-code`,
-      { sourceCode, language }
+      payload
     );
-    return response.data.data;
+    const data = response.data.data;
+    if (data) {
+      data.testResults = data.results;
+      data.passed = data.allPassed;
+      data.totalTestCases = data.totalCount;
+      data.passedTestCases = data.passedCount;
+    }
+    return data;
   },
 
   advanceQuestion: async (
     sessionId: string,
-    code: string,
+    codeOrPayload: string | { code?: string; language?: string } = '',
     language: string = 'javascript'
   ): Promise<AdvanceQuestionResponse> => {
+    const payload =
+      typeof codeOrPayload === 'string'
+        ? { code: codeOrPayload, language }
+        : { code: codeOrPayload.code || '', language: codeOrPayload.language || language };
+
     const response = await apiClient.post<{ success: boolean; data: AdvanceQuestionResponse }>(
       `/api/interview/session/${sessionId}/advance-question`,
-      { code, language }
+      payload
     );
-    return response.data.data;
+    const data = response.data.data;
+    if (data && data.isFinished) {
+      data.sessionComplete = true;
+    }
+    return data;
   },
 
   finishInterview: async (
