@@ -40,17 +40,13 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto my-12 p-8 sm:p-10 rounded-3xl bg-[#1A0C09]/90 border border-[#3E1D19] shadow-[0_10px_50px_rgba(0,0,0,0.7)] backdrop-blur-md space-y-6 text-[#F5E8DD]">
-      <div className="text-center space-y-3">
-        <div className="flex justify-center">
-          <BrandLogo size="md" />
+    <div className="max-w-md mx-auto my-12 sm:my-16 px-6 sm:px-10 py-8 sm:py-10 rounded-3xl bg-[#1A0C09]/90 border border-[#3E1D19] shadow-[0_12px_60px_rgba(0,0,0,0.7)] backdrop-blur-md space-y-6 text-[#F5E8DD]">
+      {/* Brand Emblem */}
+      <div className="flex flex-col items-center justify-center pt-1 pb-1">
+        <div className="relative">
+          <div className="absolute -inset-3 bg-[var(--theme-accent,#FF9E79)]/15 rounded-full blur-xl pointer-events-none" />
+          <BrandLogo size="lg" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-serif font-normal text-[#F5E8DD] tracking-tight">
-          Create an account
-        </h1>
-        <p className="text-xs text-[#A88879]">
-          Start your personalized AI placement preparation journey
-        </p>
       </div>
 
       {errorMsg && (

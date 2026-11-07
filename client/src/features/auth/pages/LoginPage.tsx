@@ -29,17 +29,13 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto my-14 p-8 sm:p-10 rounded-3xl bg-[#1A0C09]/90 border border-[#3E1D19] shadow-[0_10px_50px_rgba(0,0,0,0.7)] backdrop-blur-md space-y-6 text-[#F5E8DD]">
-      <div className="text-center space-y-3">
-        <div className="flex justify-center">
-          <BrandLogo size="md" />
+    <div className="max-w-md mx-auto my-12 sm:my-16 px-6 sm:px-10 py-8 sm:py-10 rounded-3xl bg-[#1A0C09]/90 border border-[#3E1D19] shadow-[0_12px_60px_rgba(0,0,0,0.7)] backdrop-blur-md space-y-6 text-[#F5E8DD]">
+      {/* Brand Emblem */}
+      <div className="flex flex-col items-center justify-center pt-1 pb-1">
+        <div className="relative">
+          <div className="absolute -inset-3 bg-[var(--theme-accent,#FF9E79)]/15 rounded-full blur-xl pointer-events-none" />
+          <BrandLogo size="lg" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-serif font-normal text-[#F5E8DD] tracking-tight">
-          Welcome back
-        </h1>
-        <p className="text-xs text-[#A88879]">
-          Sign in to your HireReady AI interview cockpit
-        </p>
       </div>
 
       {errorMsg && (
@@ -51,7 +47,7 @@ export const LoginPage: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#D4B8A8]">Email address</label>
+          <label className="text-xs font-semibold text-[#D4B8A8] tracking-wide">Email address</label>
           <div className="relative">
             <Mail className="w-4 h-4 text-[#856658] absolute left-3.5 top-3.5" />
             <input
@@ -60,13 +56,13 @@ export const LoginPage: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="candidate@example.com"
-              className="w-full pl-10 pr-3.5 py-2.5 bg-[#140705] border border-[#3E1D19] rounded-xl text-sm text-[#F5E8DD] placeholder-[#856658] focus:outline-none focus:border-[#F0B87A] transition"
+              className="w-full pl-10 pr-3.5 py-2.5 bg-[#140705] border border-[#3E1D19] rounded-xl text-sm text-[#F5E8DD] placeholder-[#856658] focus:outline-none focus:border-[#F0B87A] focus:ring-1 focus:ring-[#F0B87A]/30 transition"
             />
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#D4B8A8]">Password</label>
+          <label className="text-xs font-semibold text-[#D4B8A8] tracking-wide">Password</label>
           <div className="relative">
             <Lock className="w-4 h-4 text-[#856658] absolute left-3.5 top-3.5" />
             <input
@@ -75,7 +71,7 @@ export const LoginPage: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full pl-10 pr-3.5 py-2.5 bg-[#140705] border border-[#3E1D19] rounded-xl text-sm text-[#F5E8DD] placeholder-[#856658] focus:outline-none focus:border-[#F0B87A] transition"
+              className="w-full pl-10 pr-3.5 py-2.5 bg-[#140705] border border-[#3E1D19] rounded-xl text-sm text-[#F5E8DD] placeholder-[#856658] focus:outline-none focus:border-[#F0B87A] focus:ring-1 focus:ring-[#F0B87A]/30 transition"
             />
           </div>
         </div>
@@ -83,7 +79,7 @@ export const LoginPage: React.FC = () => {
         <button
           type="submit"
           disabled={isLoginPending}
-          className="w-full py-3 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] font-bold text-sm transition shadow-[0_0_20px_rgba(240,184,122,0.3)] flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+          className="w-full py-3 rounded-full bg-gradient-to-r from-[#F0B87A] to-[#E2A664] hover:from-[#F5C68F] hover:to-[#EDB373] text-[#140808] font-bold text-sm transition shadow-[0_0_20px_rgba(240,184,122,0.3)] flex items-center justify-center gap-2 disabled:opacity-50 mt-3 active:scale-[0.99]"
         >
           {isLoginPending ? (
             <>
@@ -99,7 +95,7 @@ export const LoginPage: React.FC = () => {
         </button>
       </form>
 
-      <div className="text-center text-xs text-[#856658] pt-2">
+      <div className="text-center text-xs text-[#856658] pt-1">
         Don&apos;t have an account?{' '}
         <Link to="/auth/register" className="text-[#F0B87A] hover:underline font-semibold">
           Create one now
