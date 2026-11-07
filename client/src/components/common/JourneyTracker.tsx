@@ -114,7 +114,7 @@ export const JourneyTracker: React.FC<JourneyTrackerProps> = ({
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-[#3E1D19]">
         <div>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#F0B87A]">
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--theme-accent,#F0B87A)]">
             Candidate Roadmap
           </span>
           <h2 className="text-base font-serif font-medium text-[#F5E8DD]">
@@ -122,7 +122,7 @@ export const JourneyTracker: React.FC<JourneyTrackerProps> = ({
           </h2>
         </div>
         <div className="text-xs text-[#A88879]">
-          Step <span className="text-[#F0B87A] font-bold">{activeStep}</span> of 5 &bull;{' '}
+          Step <span className="text-[var(--theme-accent,#F0B87A)] font-bold">{activeStep}</span> of 5 &bull;{' '}
           {outcomeDone ? 'Ready for Hiring Review' : 'In Progress'}
         </div>
       </div>
@@ -138,19 +138,19 @@ export const JourneyTracker: React.FC<JourneyTrackerProps> = ({
               to={step.route}
               className={`p-3.5 rounded-2xl border transition flex flex-col justify-between space-y-2 relative group ${
                 step.isActive
-                  ? 'bg-[#2D1A10] border-[#F0B87A] text-[#F5E8DD] shadow-[0_0_20px_rgba(240,184,122,0.25)]'
+                  ? 'bg-[var(--theme-accent-bg,#2D1A10)] border-2 border-[var(--theme-accent,#F0B87A)] text-[#F5E8DD] shadow-[0_0_24px_var(--theme-accent-shadow,rgba(240,184,122,0.25))]'
                   : step.isCompleted
-                  ? 'bg-[#13281B] border-[#1F6E3B] text-[#F5E8DD] hover:border-[#2EA055]'
-                  : 'bg-[#140705] border-[#3E1D19] text-[#856658] hover:border-[#52251E] hover:text-[#A88879]'
+                  ? 'bg-[var(--theme-accent-bg,#2D1A10)]/30 border border-[var(--theme-accent-border,#54321C)] text-[#F5E8DD] hover:border-[var(--theme-accent,#F0B87A)]/80 hover:bg-[var(--theme-accent-bg,#2D1A10)]/50'
+                  : 'bg-[#140705]/60 border border-[#3E1D19]/60 text-[#856658] hover:border-[#52251E] hover:text-[#A88879]'
               }`}
             >
               <div className="flex items-center justify-between">
                 <span
-                  className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+                  className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-full border transition ${
                     step.isActive
-                      ? 'bg-[#3A2216] border-[#F0B87A] text-[#F0B87A]'
+                      ? 'bg-[var(--theme-accent-border,#54321C)] border-[var(--theme-accent,#F0B87A)] text-[var(--theme-accent,#F0B87A)]'
                       : step.isCompleted
-                      ? 'bg-[#1E3F2B] border-[#2EA055] text-[#4ADE80]'
+                      ? 'bg-[var(--theme-accent-bg,#2D1A10)]/80 border-[var(--theme-accent-border,#54321C)] text-[var(--theme-accent,#F0B87A)]'
                       : 'bg-[#1C0E0B] border-[#3E1D19] text-[#856658]'
                   }`}
                 >
@@ -159,9 +159,9 @@ export const JourneyTracker: React.FC<JourneyTrackerProps> = ({
 
                 <div className="flex items-center gap-1">
                   {step.isCompleted ? (
-                    <CheckCircle2 className="w-4 h-4 text-[#4ADE80]" />
+                    <CheckCircle2 className="w-4 h-4 text-[var(--theme-accent,#F0B87A)]" />
                   ) : step.isActive ? (
-                    <span className="w-2 h-2 rounded-full bg-[#F0B87A] animate-pulse" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--theme-accent,#F0B87A)] animate-pulse shadow-[0_0_8px_var(--theme-accent,#F0B87A)]" />
                   ) : (
                     <Lock className="w-3.5 h-3.5 text-[#5C4338]" />
                   )}
@@ -172,10 +172,8 @@ export const JourneyTracker: React.FC<JourneyTrackerProps> = ({
                 <div className="flex items-center gap-1.5 mt-1">
                   <Icon
                     className={`w-3.5 h-3.5 ${
-                      step.isActive
-                        ? 'text-[#F0B87A]'
-                        : step.isCompleted
-                        ? 'text-[#4ADE80]'
+                      step.isActive || step.isCompleted
+                        ? 'text-[var(--theme-accent,#F0B87A)]'
                         : 'text-[#856658]'
                     }`}
                   />
@@ -187,9 +185,9 @@ export const JourneyTracker: React.FC<JourneyTrackerProps> = ({
               </div>
 
               {step.score !== null && step.score !== undefined && (
-                <div className="pt-1.5 border-t border-[#3E1D19] text-[10px] flex items-center justify-between">
+                <div className="pt-1.5 border-t border-[var(--theme-accent-border,#3E1D19)]/40 text-[10px] flex items-center justify-between">
                   <span className="text-[#856658]">Score</span>
-                  <span className="font-bold text-[#F0B87A]">{step.score}/100</span>
+                  <span className="font-bold text-[var(--theme-accent,#F0B87A)]">{step.score}/100</span>
                 </div>
               )}
             </Link>
