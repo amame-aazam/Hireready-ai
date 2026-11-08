@@ -66,18 +66,18 @@ if (env.NODE_ENV !== 'test') {
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 }
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/domains', domainRoutes);
-app.use('/api/resume', resumeRoutes);
-app.use('/api/assessment', assessmentRoutes);
-app.use('/api/interview', interviewRoutes);
-app.use('/api/leaderboard', leaderboardRoutes);
-app.use('/api/v1/leaderboard', leaderboardRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/v1/dashboard', dashboardRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/v1/admin', adminRoutes);
+// API Routes (Dual mounted on /api and /api/v1 for 100% client compatibility)
+const apiPrefixes = ['/api', '/api/v1'];
+for (const prefix of apiPrefixes) {
+  app.use(`${prefix}/auth`, authRoutes);
+  app.use(`${prefix}/domains`, domainRoutes);
+  app.use(`${prefix}/resume`, resumeRoutes);
+  app.use(`${prefix}/assessment`, assessmentRoutes);
+  app.use(`${prefix}/interview`, interviewRoutes);
+  app.use(`${prefix}/leaderboard`, leaderboardRoutes);
+  app.use(`${prefix}/dashboard`, dashboardRoutes);
+  app.use(`${prefix}/admin`, adminRoutes);
+}
 
 // Root API Welcome Endpoint
 app.get('/', (_req: Request, res: Response) => {

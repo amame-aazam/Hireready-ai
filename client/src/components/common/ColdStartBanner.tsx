@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { API_BASE_URL } from '../../lib/axios';
 
 interface ColdStartBannerProps {
   apiBaseUrl?: string;
 }
 
 export const ColdStartBanner: React.FC<ColdStartBannerProps> = ({
-  apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000',
+  apiBaseUrl = API_BASE_URL,
 }) => {
   const [isWakingUp, setIsWakingUp] = useState<boolean>(false);
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+    let pollInterval: NodeJS.Timeout | null = null;
+
     const timeoutTimer = setTimeout(() => {
       if (isMounted && isOnline === null) {
         setIsWakingUp(true);
@@ -27,6 +30,7 @@ export const ColdStartBanner: React.FC<ColdStartBannerProps> = ({
         if (response.ok && isMounted) {
           setIsOnline(true);
           setIsWakingUp(false);
+          if (pollInterval) clearInterval(pollInterval);
         }
       } catch {
         if (isMounted) {
@@ -40,9 +44,17 @@ export const ColdStartBanner: React.FC<ColdStartBannerProps> = ({
 
     checkServerHealth();
 
+    // If server is cold/offline, poll every 4 seconds until awake
+    pollInterval = setInterval(() => {
+      if (!isOnline) {
+        checkServerHealth();
+      }
+    }, 4000);
+
     return () => {
       isMounted = false;
       clearTimeout(timeoutTimer);
+      if (pollInterval) clearInterval(pollInterval);
     };
   }, [apiBaseUrl, isOnline]);
 

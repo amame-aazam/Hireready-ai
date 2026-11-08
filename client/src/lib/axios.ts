@@ -1,6 +1,23 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+export const getApiBaseUrl = (): string => {
+  // If explicitly configured via Vite env, respect that
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/$/, '');
+  }
+  // Local development on localhost or 127.0.0.1
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1')
+  ) {
+    return 'http://localhost:5000';
+  }
+  // In production (Vercel, deployed domain), connect to the live Render backend
+  return 'https://hireready-ai-qmpy.onrender.com';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

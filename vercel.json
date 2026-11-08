@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/health",
+      "destination": "https://hireready-ai-qmpy.onrender.com/health"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://hireready-ai-qmpy.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
