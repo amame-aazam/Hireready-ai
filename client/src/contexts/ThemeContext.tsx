@@ -21,19 +21,19 @@ export interface ThemeOption {
 
 export const THEME_OPTIONS: ThemeOption[] = [
   {
-    id: 'oled-black',
-    name: 'OLED Pitch Black',
-    description: 'Pure #000000 with electric cyan. The default.',
-    swatchConic: 'conic-gradient(#38BDF8 0deg 90deg, #000000 90deg 180deg, #38BDF8 180deg 270deg, #000000 270deg 360deg)',
-    accentColor: '#38BDF8',
+    id: 'ember-night',
+    name: 'Ember Night',
+    description: 'Warm peach on black. The default.',
+    swatchConic: 'conic-gradient(#FF9E79 0deg 90deg, #180907 90deg 180deg, #FF9E79 180deg 270deg, #180907 270deg 360deg)',
+    accentColor: '#FF9E79',
     category: 'dark',
   },
   {
-    id: 'ember-night',
-    name: 'Ember Night',
-    description: 'Warm peach on black.',
-    swatchConic: 'conic-gradient(#FF9E79 0deg 90deg, #180907 90deg 180deg, #FF9E79 180deg 270deg, #180907 270deg 360deg)',
-    accentColor: '#FF9E79',
+    id: 'oled-black',
+    name: 'OLED Pitch Black',
+    description: 'Pure #000000 with electric cyan.',
+    swatchConic: 'conic-gradient(#38BDF8 0deg 90deg, #000000 90deg 180deg, #38BDF8 180deg 270deg, #000000 270deg 360deg)',
+    accentColor: '#38BDF8',
     category: 'dark',
   },
   {
@@ -97,7 +97,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const STORAGE_KEY = 'hireready_theme_preference';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Default to 'oled-black' as requested by the user
+  // Default to 'ember-night' as requested by the user
   const [currentTheme, setCurrentThemeState] = useState<ThemeId>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY) as ThemeId;
@@ -107,7 +107,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // fallback
     }
-    return 'oled-black';
+    return 'ember-night';
   });
 
   const setTheme = (theme: ThemeId) => {

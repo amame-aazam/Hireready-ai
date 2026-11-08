@@ -12,42 +12,10 @@ html {
 
 /* ==========================================================================
    THEME PALETTES & CSS VARIABLES
-   Default: OLED Pitch Black (Pure #000000 with electric cyan)
+   Default: Ember Night (Warm peach on black)
    ========================================================================== */
 
 :root,
-[data-theme='oled-black'] {
-  --theme-accent: #38BDF8;
-  --theme-accent-hover: #7DD3FC;
-  --theme-accent-dark: #0284C7;
-  --theme-accent-dim: #0369A1;
-  --theme-accent-bg: #0C1E29;
-  --theme-accent-border: #154660;
-  --theme-accent-shadow: rgba(56, 189, 248, 0.35);
-  --theme-accent-shadow-hover: rgba(56, 189, 248, 0.55);
-  --theme-glow-radial: rgba(56, 189, 248, 0.12);
-  --theme-glow-ambient: rgba(56, 189, 248, 0.05);
-  --theme-bg-canvas: #000000;
-  --theme-bg-card: rgba(13, 13, 13, 0.95);
-  --theme-bg-card-hover: rgba(22, 22, 22, 0.98);
-  --theme-border: #222222;
-  --theme-border-light: #333333;
-  --theme-grid-line: rgba(56, 189, 248, 0.08);
-
-  --bg-canvas: #000000;
-  --bg-card: #0D0D0D;
-  --bg-card-hover: #161616;
-  --border-hairline: #222222;
-  --border-light: #333333;
-  --text-main: #FFFFFF;
-  --text-muted: #A1A1AA;
-  --text-dim: #71717A;
-  --gold-accent: #38BDF8;
-  --gold-hover: #7DD3FC;
-  --gold-bg: #0C1E29;
-  --gold-border: #154660;
-}
-
 [data-theme='ember-night'] {
   --theme-accent: #FF9E79;
   --theme-accent-hover: #FFAE8F;
@@ -78,6 +46,38 @@ html {
   --gold-hover: #FFAE8F;
   --gold-bg: #2D140C;
   --gold-border: #5E2717;
+}
+
+[data-theme='oled-black'] {
+  --theme-accent: #38BDF8;
+  --theme-accent-hover: #7DD3FC;
+  --theme-accent-dark: #0284C7;
+  --theme-accent-dim: #0369A1;
+  --theme-accent-bg: #0C1E29;
+  --theme-accent-border: #154660;
+  --theme-accent-shadow: rgba(56, 189, 248, 0.35);
+  --theme-accent-shadow-hover: rgba(56, 189, 248, 0.55);
+  --theme-glow-radial: rgba(56, 189, 248, 0.12);
+  --theme-glow-ambient: rgba(56, 189, 248, 0.05);
+  --theme-bg-canvas: #000000;
+  --theme-bg-card: rgba(13, 13, 13, 0.95);
+  --theme-bg-card-hover: rgba(22, 22, 22, 0.98);
+  --theme-border: #222222;
+  --theme-border-light: #333333;
+  --theme-grid-line: rgba(56, 189, 248, 0.08);
+
+  --bg-canvas: #000000;
+  --bg-card: #0D0D0D;
+  --bg-card-hover: #161616;
+  --border-hairline: #222222;
+  --border-light: #333333;
+  --text-main: #FFFFFF;
+  --text-muted: #A1A1AA;
+  --text-dim: #71717A;
+  --gold-accent: #38BDF8;
+  --gold-hover: #7DD3FC;
+  --gold-bg: #0C1E29;
+  --gold-border: #154660;
 }
 
 [data-theme='violet'] {
