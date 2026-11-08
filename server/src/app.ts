@@ -92,17 +92,20 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 // Basic Health Check (fast ping for frontend cold-start detection)
-app.get('/health', (_req: Request, res: Response) => {
+const basicHealthHandler = (_req: Request, res: Response) => {
   res.status(200).json({
     status: 'ok',
     uptimeSeconds: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
     env: env.NODE_ENV,
   });
-});
+};
+app.get('/health', basicHealthHandler);
+app.get('/api/health', basicHealthHandler);
+app.get('/api/v1/health', basicHealthHandler);
 
 // Deep Database Health Check (probes Neon PostgreSQL & MongoDB Atlas in parallel)
-app.get('/api/health/db', async (_req: Request, res: Response) => {
+const dbHealthHandler = async (_req: Request, res: Response) => {
   const [pgHealth, mongoHealth] = await Promise.all([
     checkPostgresHealth(),
     checkMongoHealth(),
@@ -118,10 +121,12 @@ app.get('/api/health/db', async (_req: Request, res: Response) => {
       mongodb: mongoHealth,
     },
   });
-});
+};
+app.get('/api/health/db', dbHealthHandler);
+app.get('/api/v1/health/db', dbHealthHandler);
 
 // Diagnostic check for AI provider and sandbox quota
-app.get('/api/health/services', (_req: Request, res: Response) => {
+const servicesHealthHandler = (_req: Request, res: Response) => {
   const aiProvider = getAIProvider();
 
   res.status(200).json({
@@ -134,7 +139,9 @@ app.get('/api/health/services', (_req: Request, res: Response) => {
       remainingDailyQuota: judge0QuotaTracker.getRemainingDailyQuota(),
     },
   });
-});
+};
+app.get('/api/health/services', servicesHealthHandler);
+app.get('/api/v1/health/services', servicesHealthHandler);
 
 // 404 Route Handler
 app.use((_req: Request, res: Response) => {
