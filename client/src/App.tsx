@@ -6,7 +6,7 @@ import { AppRoutes } from './routes';
 import { ColdStartBanner } from './components/common/ColdStartBanner';
 import { useAuth } from './features/auth/hooks/useAuth';
 import { BrandLogo } from './components/common/BrandLogo';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { ThemeSwitcher } from './components/common/ThemeSwitcher';
 import {
   ShieldAlert,
@@ -15,10 +15,13 @@ import {
   Menu,
   X,
   ChevronRight,
+  Palette,
+  Check,
 } from 'lucide-react';
 
 const HeaderNav: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { currentTheme, setTheme, options } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -95,8 +98,8 @@ const HeaderNav: React.FC = () => {
 
         {/* Right Actions: Theme Switcher, Auth & Mobile Menu Toggle */}
         <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 shrink-0">
-          {/* Theme Switcher Button (Palette Icon) */}
-          <ThemeSwitcher />
+          {/* Theme Switcher Button (Palette Icon) - Hidden on mobile, shown on tablet/desktop */}
+          <ThemeSwitcher className="hidden md:block" />
 
           {/* User profile / Auth button */}
           {isAuthenticated && user ? (
@@ -182,15 +185,62 @@ const HeaderNav: React.FC = () => {
               </Link>
             )}
 
-            {/* Mobile Actions in Drawer */}
-            {isAuthenticated && (
-              <div className="pt-3 mt-2 border-t border-[#3E1D19] flex items-center justify-end text-xs text-[#A88879]">
+            {/* Theme Palette Section inside Hamburger Menu Drawer */}
+            <div className="pt-3 mt-3 border-t border-[#3E1D19]">
+              <div className="px-2 pb-2.5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-[var(--theme-accent,#FF9E79)]" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#A88879]">
+                    Theme Palette
+                  </span>
+                </div>
+                <span className="text-[11px] font-medium text-[var(--theme-accent,#FF9E79)] bg-[var(--theme-accent-bg,#2D140C)] px-2.5 py-0.5 rounded-full border border-[var(--theme-accent-border,#5E2717)]">
+                  {options.find((t) => t.id === currentTheme)?.name}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {options.map((theme) => {
+                  const isActive = currentTheme === theme.id;
+                  return (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      onClick={() => setTheme(theme.id)}
+                      className={`flex items-center justify-between p-2 rounded-xl transition text-left group ${
+                        isActive
+                          ? 'bg-[#2A120D] border border-[var(--theme-accent,#FF9E79)] shadow-sm'
+                          : 'bg-[#1E0D0A]/80 hover:bg-[#26100C] border border-[#3E1D19]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className="w-5 h-5 rounded-full border border-white/15 shrink-0 shadow-sm"
+                          style={{ background: theme.swatchConic }}
+                        />
+                        <span className="text-xs font-medium text-[#F5E8DD] group-hover:text-white truncate">
+                          {theme.name}
+                        </span>
+                      </div>
+                      {isActive && (
+                        <Check className="w-3.5 h-3.5 text-[var(--theme-accent,#FF9E79)] stroke-[2.5] shrink-0 ml-1" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Mobile Actions in Drawer (Sign out) */}
+            {isAuthenticated && user && (
+              <div className="pt-3 mt-3 border-t border-[#3E1D19] flex items-center justify-between text-xs text-[#A88879] px-1">
+                <span className="truncate max-w-[160px]">Signed in as {user.firstName}</span>
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     handleLogout();
                   }}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#24110E] hover:text-red-400 transition"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#24110E] hover:text-red-400 transition border border-[#3E1D19]"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign out</span>

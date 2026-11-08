@@ -2,7 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Palette, Check } from 'lucide-react';
 import { useTheme, ThemeId } from '../../contexts/ThemeContext';
 
-export const ThemeSwitcher: React.FC = () => {
+interface ThemeSwitcherProps {
+  className?: string;
+}
+
+export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({ className = '' }) => {
   const { currentTheme, setTheme, options } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -29,7 +33,7 @@ export const ThemeSwitcher: React.FC = () => {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className={`relative ${className}`} ref={dropdownRef}>
       {/* Palette Icon Button */}
       <button
         type="button"
