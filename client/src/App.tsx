@@ -49,14 +49,14 @@ const HeaderNav: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 px-3 sm:px-4 pt-3 pb-2 pointer-events-none">
-      <div className="max-w-6xl mx-auto h-16 px-3 sm:px-6 rounded-full bg-[#180A08]/90 border border-[#3E1D19] backdrop-blur-md shadow-2xl flex items-center justify-between pointer-events-auto relative">
-        {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition shrink-0">
+      <div className="max-w-6xl mx-auto h-16 px-3 sm:px-4 lg:px-6 rounded-full bg-[#180A08]/90 border border-[#3E1D19] backdrop-blur-md shadow-2xl flex items-center justify-between pointer-events-auto relative">
+        {/* Brand Logo - Guaranteed non-breaking on all screen sizes */}
+        <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition shrink-0 min-w-max">
           <BrandLogo size="md" />
         </Link>
 
         {/* Desktop Center Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1.5 text-sm lg:text-[15px] font-medium">
+        <nav className="hidden md:flex items-center gap-1 lg:gap-1.5 text-xs md:text-[13px] lg:text-[15px] font-medium shrink min-w-0">
           {navLinks.map((item) => {
             const isActive =
               item.path === '/'
@@ -67,7 +67,7 @@ const HeaderNav: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-4 py-1.5 rounded-full text-sm lg:text-[15px] transition ${
+                className={`px-2.5 sm:px-3 lg:px-4 py-1.5 rounded-full text-xs md:text-[13px] lg:text-[15px] whitespace-nowrap shrink-0 transition ${
                   isActive
                     ? 'bg-[#331713] text-[#F5E8DD] border border-[#52251D] shadow-inner font-semibold'
                     : 'text-[#A88879] hover:text-[#F5E8DD] hover:bg-[#24110E]'
@@ -81,7 +81,7 @@ const HeaderNav: React.FC = () => {
           {isAuthenticated && user?.role === 'ADMIN' && (
             <Link
               to="/admin"
-              className={`px-3.5 py-1.5 rounded-full text-sm transition flex items-center gap-1.5 ${
+              className={`px-2.5 sm:px-3 lg:px-3.5 py-1.5 rounded-full text-xs md:text-[13px] lg:text-sm whitespace-nowrap shrink-0 transition flex items-center gap-1.5 ${
                 location.pathname.startsWith('/admin')
                   ? 'bg-[#331713] text-[var(--theme-accent,#FF9E79)] border border-[#52251D] font-semibold'
                   : 'text-[var(--theme-accent,#FF9E79)] hover:bg-[#24110E]'
@@ -94,7 +94,7 @@ const HeaderNav: React.FC = () => {
         </nav>
 
         {/* Right Actions: Theme Switcher, Auth & Mobile Menu Toggle */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 shrink-0">
           {/* Theme Switcher Button (Palette Icon) */}
           <ThemeSwitcher />
 

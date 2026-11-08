@@ -15,18 +15,18 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 }) => {
   const iconDimensions = {
     sm: 'w-7 h-7 sm:w-8 sm:h-8',
-    md: 'w-8 h-8 sm:w-10 sm:h-10',
+    md: 'w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9',
     lg: 'w-11 h-11 sm:w-14 sm:h-14',
   }[size];
 
   const textClass = {
     sm: 'text-base sm:text-lg',
-    md: 'text-lg sm:text-2xl',
+    md: 'text-lg sm:text-xl lg:text-2xl',
     lg: 'text-2xl sm:text-3xl md:text-4xl',
   }[size];
 
   return (
-    <div className={`flex items-center gap-2.5 font-bold tracking-tight select-none whitespace-nowrap shrink-0 ${className}`}>
+    <div className={`flex items-center gap-2 sm:gap-2.5 font-bold tracking-tight select-none whitespace-nowrap shrink-0 flex-nowrap ${className}`}>
       {/* SVG Shield & Code Emblem styled with Theme Variables */}
       <div className={`relative shrink-0 flex items-center justify-center ${iconDimensions}`}>
         <svg
@@ -82,12 +82,11 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         </svg>
       </div>
 
-      {/* Wordmark: Guaranteed single inline line */}
+      {/* Wordmark: Guaranteed single inline line, non-breaking */}
       {showWordmark && (
-        <div className="leading-none whitespace-nowrap shrink-0">
-          <span className={`font-serif tracking-tight text-[#F5E8DD] font-medium ${textClass} inline-flex items-baseline gap-1.5`}>
-            <span>HireReady</span>
-            <span className="italic font-normal text-[var(--theme-accent,#FF9E79)]">AI</span>
+        <div className="leading-none whitespace-nowrap shrink-0 select-none">
+          <span className={`font-serif tracking-tight text-[#F5E8DD] font-medium ${textClass} whitespace-nowrap inline-block shrink-0`}>
+            HireReady&nbsp;<span className="italic font-normal text-[var(--theme-accent,#FF9E79)]">AI</span>
           </span>
           {showSubtitle && (
             <span className="block text-[11px] text-[#A88879] tracking-wider uppercase mt-1">
