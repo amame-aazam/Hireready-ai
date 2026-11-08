@@ -234,14 +234,11 @@ export const App: React.FC = () => {
                       &mdash; AI Placement &amp; Interview Cockpit
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[#856658] text-xs sm:text-sm">
-                    <span>Dual-DB (PostgreSQL &bull; MongoDB)</span>
-                    <span>&bull;</span>
-                    <Link to="/leaderboard" className="hover:text-[#F5E8DD] transition">Leaderboard</Link>
-                    <span>&bull;</span>
-                    <Link to="/interview/dsa" className="hover:text-[#F5E8DD] transition">AI Panel</Link>
-                    <span>&bull;</span>
-                    <Link to="/oa" className="hover:text-[#F5E8DD] transition">OA Sandbox</Link>
+                  <div className="flex items-center">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--theme-accent-bg,#2D140C)] border border-[var(--theme-accent-border,#5E2717)] text-xs text-[#F5E8DD] font-medium shadow-sm transition">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--theme-accent,#FF9E79)] animate-pulse" />
+                      <span className="tracking-wide font-medium">Amame Aazam</span>
+                    </div>
                   </div>
                 </div>
               </footer>
