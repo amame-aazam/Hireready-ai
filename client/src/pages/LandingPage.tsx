@@ -216,10 +216,10 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Right Column: Live Mockup Window */}
-          <div className="lg:col-span-6 space-y-5 flex flex-col items-start lg:items-end">
+          <div className="lg:col-span-6 space-y-4 flex flex-col items-start lg:items-end w-full">
             {/* Verified Engine Pill */}
-            <div className="w-full max-w-lg p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-[#24110E] to-[#1A0C09] border border-[#52251D] shadow-[0_0_35px_rgba(82,37,29,0.35)] flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-full bg-[#3B1914] border border-[var(--theme-accent,#FF9E79)]/50 flex items-center justify-center shrink-0">
+            <div className="w-full p-3.5 sm:p-4 rounded-3xl bg-[var(--theme-bg-card,#1A0B09)] border border-[var(--theme-border,#3E1D19)] shadow-xl flex items-center gap-3.5 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-[var(--theme-accent-bg,#2D140C)] border border-[var(--theme-accent-border,#5E2717)] flex items-center justify-center shrink-0">
                 <CheckCircle2 className="w-5 h-5 text-[var(--theme-accent,#FF9E79)]" />
               </div>
               <div>
@@ -232,10 +232,10 @@ export const LandingPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Split Live Mockup Window (Exact match to Screenshot 1 & 2) */}
-            <div className="w-full max-w-lg rounded-3xl bg-[#140705]/95 border border-[#3E1D19] p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] relative overflow-hidden space-y-3">
+            {/* Split Live Mockup Window (Fluid responsive & 100% theme-adaptive) */}
+            <div className="w-full rounded-3xl bg-[var(--theme-bg-card,#1A0B09)] border border-[var(--theme-border,#3E1D19)] p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] relative overflow-hidden space-y-3 transition-colors">
               {/* Top Window Bar */}
-              <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-[#2C130F]">
+              <div className="flex items-center justify-between text-xs font-mono pb-2.5 border-b border-[var(--theme-border,#3E1D19)]">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
                   <span className="text-red-400 font-mono font-bold tracking-wider text-xs">Live · {liveClock}</span>
@@ -247,9 +247,9 @@ export const LandingPage: React.FC = () => {
                       key={lang}
                       type="button"
                       onClick={() => setSelectedLanguage(lang)}
-                      className={`px-1.5 py-0.5 rounded text-[10px] transition ${
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono transition ${
                         selectedLanguage === lang
-                          ? 'bg-[#331713] text-[var(--theme-accent,#FF9E79)] border border-[#5E271D] font-bold'
+                          ? 'bg-[var(--theme-accent-bg,#2D140C)] text-[var(--theme-accent,#FF9E79)] border border-[var(--theme-accent-border,#5E2717)] font-bold'
                           : 'text-[#856658] hover:text-[#F5E8DD]'
                       }`}
                     >
@@ -264,7 +264,7 @@ export const LandingPage: React.FC = () => {
                 {/* Left: Interviewer & Candidate Video Cards */}
                 <div className="col-span-1 sm:col-span-5 flex sm:flex-col gap-2.5">
                   {/* Interviewer Riddhi */}
-                  <div className="relative rounded-2xl overflow-hidden bg-[#1E0E0B] border border-[#3E1D19] aspect-[4/3] flex-1 sm:flex-none flex flex-col justify-between p-2.5 min-h-[140px]">
+                  <div className="relative rounded-2xl overflow-hidden bg-[var(--theme-bg-canvas,#0C0403)] border border-[var(--theme-border,#3E1D19)] aspect-[4/3] flex-1 sm:flex-none flex flex-col justify-between p-2.5 min-h-[140px]">
                     <img
                       src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
                       alt="Riddhi AI Interviewer"
@@ -275,7 +275,7 @@ export const LandingPage: React.FC = () => {
                     </div>
                     <div className="relative z-10 bg-black/60 backdrop-blur-sm rounded-lg p-1 text-[10px]">
                       <div className="font-semibold text-white leading-tight">Riddhi</div>
-                      <div className="text-[9px] text-[#FF9E79]">AI interviewer</div>
+                      <div className="text-[9px] text-[var(--theme-accent,#FF9E79)]">AI interviewer</div>
                     </div>
                     {/* Audio Waveform */}
                     <div className="relative z-10 flex items-center justify-center gap-0.5 pt-1">
@@ -289,9 +289,9 @@ export const LandingPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Candidate Arpita S. (you) matching Screenshot 2 */}
-                  <div className="rounded-2xl bg-[#1E0E0B]/90 border border-[#3E1D19] p-2.5 flex-1 sm:flex-none flex flex-col items-center justify-center text-center space-y-1.5 min-h-[140px]">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#1E293B] to-[#334155] border border-[#64748B]/50 flex items-center justify-center shadow-inner">
+                  {/* Candidate Arpita S. (you) */}
+                  <div className="rounded-2xl bg-[var(--theme-bg-canvas,#0C0403)] border border-[var(--theme-border,#3E1D19)] p-2.5 flex-1 sm:flex-none flex flex-col items-center justify-center text-center space-y-1.5 min-h-[140px]">
+                    <div className="w-10 h-10 rounded-full bg-[var(--theme-accent-bg,#2D140C)] border border-[var(--theme-accent-border,#5E2717)] flex items-center justify-center shadow-inner">
                       <Shield className="w-5 h-5 text-[var(--theme-accent,#FF9E79)]" />
                     </div>
                     <div className="text-[11px] font-semibold text-[#F5E8DD]">
@@ -303,7 +303,7 @@ export const LandingPage: React.FC = () => {
                         <span
                           key={i}
                           style={{ height: `${h}px` }}
-                          className="w-0.5 bg-[#86EFAC] rounded-full opacity-80"
+                          className="w-0.5 bg-[var(--theme-accent,#FF9E79)] rounded-full opacity-80"
                         />
                       ))}
                     </div>
@@ -311,15 +311,15 @@ export const LandingPage: React.FC = () => {
                 </div>
 
                 {/* Right: Code Editor & Live Eye Indicator */}
-                <div className="col-span-1 sm:col-span-7 flex flex-col justify-between bg-[#080302] rounded-2xl border border-[#3E1D19] p-3 text-[11px] font-mono leading-tight overflow-hidden relative">
+                <div className="col-span-1 sm:col-span-7 flex flex-col justify-between bg-[var(--theme-bg-canvas,#0C0403)] rounded-2xl border border-[var(--theme-border,#3E1D19)] p-3 sm:p-3.5 text-[11px] font-mono leading-tight overflow-hidden relative">
                   {/* Clean Editor Lines with Numbers & Syntax Colors */}
-                  <div className="space-y-1 font-mono text-[10.5px] leading-relaxed select-none overflow-x-hidden">
+                  <div className="space-y-1 font-mono text-[10.5px] sm:text-[11px] leading-relaxed select-none overflow-x-auto scrollbar-none">
                     {codeLines[selectedLanguage].map((line) => (
                       <div key={line.num} className="flex items-baseline gap-2">
-                        <span className="w-4 text-right text-[10px] text-[#542B23] font-mono shrink-0 select-none">
+                        <span className="w-4 text-right text-[10px] text-[var(--theme-accent,#FF9E79)]/40 font-mono shrink-0 select-none">
                           {line.num}
                         </span>
-                        <span className="text-[#E0D5CC] whitespace-nowrap overflow-x-hidden">
+                        <span className="text-[#E0D5CC] whitespace-nowrap">
                           {line.text}
                         </span>
                       </div>
@@ -327,7 +327,7 @@ export const LandingPage: React.FC = () => {
                   </div>
 
                   {/* Eye Indicator Badge (Clean, non-truncated) */}
-                  <div className="mt-2.5 px-2.5 py-1.5 rounded-full bg-[#1A0B09] border border-[var(--theme-accent-border,#5E2717)] text-[10px] text-[var(--theme-accent,#FF9E79)] flex items-center justify-center gap-1.5 shadow-sm select-none">
+                  <div className="mt-2.5 px-2.5 py-1.5 rounded-full bg-[var(--theme-accent-bg,#2D140C)] border border-[var(--theme-accent-border,#5E2717)] text-[10px] text-[var(--theme-accent,#FF9E79)] flex items-center justify-center gap-1.5 shadow-sm select-none">
                     <Eye className="w-3.5 h-3.5 text-[var(--theme-accent,#FF9E79)] shrink-0" />
                     <span className="whitespace-nowrap font-sans font-medium">Interviewer sees code live</span>
                   </div>

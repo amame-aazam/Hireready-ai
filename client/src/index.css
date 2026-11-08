@@ -538,13 +538,22 @@ input:-webkit-autofill:active {
 /* OLED Black overrides */
 [data-theme='oled-black'] .bg-\[\#180A08\]\/90,
 [data-theme='oled-black'] .bg-\[\#1A0B09\]\/85,
+[data-theme='oled-black'] .bg-\[\#1A0B09\]\/90,
 [data-theme='oled-black'] .bg-\[\#1A0C09\]\/80,
 [data-theme='oled-black'] .bg-\[\#140705\],
-[data-theme='oled-black'] .bg-\[\#160806\]\/95 {
+[data-theme='oled-black'] .bg-\[\#140705\]\/95,
+[data-theme='oled-black'] .bg-\[\#1E0E0B\],
+[data-theme='oled-black'] .bg-\[\#1E0E0B\]\/90,
+[data-theme='oled-black'] .bg-\[\#080302\],
+[data-theme='oled-black'] .bg-\[\#160806\]\/95,
+[data-theme='oled-black'] .bg-\[\#1A0B09\] {
   background-color: rgba(10, 10, 10, 0.95) !important;
 }
 
-[data-theme='oled-black'] .border-\[\#3E1D19\] {
+[data-theme='oled-black'] .border-\[\#3E1D19\],
+[data-theme='oled-black'] .border-\[\#52251D\],
+[data-theme='oled-black'] .border-\[\#5E271D\],
+[data-theme='oled-black'] .border-\[\#2C130F\] {
   border-color: #222222 !important;
 }
 
@@ -559,13 +568,22 @@ input:-webkit-autofill:active {
 /* Emerald Matrix overrides */
 [data-theme='emerald-matrix'] .bg-\[\#180A08\]\/90,
 [data-theme='emerald-matrix'] .bg-\[\#1A0B09\]\/85,
+[data-theme='emerald-matrix'] .bg-\[\#1A0B09\]\/90,
 [data-theme='emerald-matrix'] .bg-\[\#1A0C09\]\/80,
 [data-theme='emerald-matrix'] .bg-\[\#140705\],
-[data-theme='emerald-matrix'] .bg-\[\#160806\]\/95 {
+[data-theme='emerald-matrix'] .bg-\[\#140705\]\/95,
+[data-theme='emerald-matrix'] .bg-\[\#1E0E0B\],
+[data-theme='emerald-matrix'] .bg-\[\#1E0E0B\]\/90,
+[data-theme='emerald-matrix'] .bg-\[\#080302\],
+[data-theme='emerald-matrix'] .bg-\[\#160806\]\/95,
+[data-theme='emerald-matrix'] .bg-\[\#1A0B09\] {
   background-color: rgba(8, 26, 16, 0.9) !important;
 }
 
-[data-theme='emerald-matrix'] .border-\[\#3E1D19\] {
+[data-theme='emerald-matrix'] .border-\[\#3E1D19\],
+[data-theme='emerald-matrix'] .border-\[\#52251D\],
+[data-theme='emerald-matrix'] .border-\[\#5E271D\],
+[data-theme='emerald-matrix'] .border-\[\#2C130F\] {
   border-color: #144026 !important;
 }
 
